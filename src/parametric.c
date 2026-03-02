@@ -239,6 +239,7 @@ void solver2(
   MALLOC(   basics,    m,   int );      
   MALLOC(   nonbasics, n,   int );      
   MALLOC(   basicflag, N,   int );
+  MALLOC(   output_vec, N,  double );
 
     /**************************************************************** 
     *  initialization.              				    *
@@ -269,7 +270,7 @@ void solver2(
     /* allocate a fresh buffer for storing the current basic solution
        the pointer is freed at the end of each iteration, so it must not
        be reused outside this scope. */
-    CALLOC(   output_vec, N, double );
+    memset(output_vec, 0, N * sizeof(double));
     if(iter > *maxnlambda){
       *maxnlambda = iter;
     }
@@ -429,10 +430,6 @@ void solver2(
       * step 8: refactor basis                                     *
       *************************************************************/
     refactor( m, ka, ia, a, basics, col_out, v );
-     /* free immediately after use to avoid holding on to memory between
-       iterations. the pointer value becomes invalid here, so it is
-       important not to touch it later. */
-     FREE( output_vec );
     
   }
    
@@ -455,6 +452,7 @@ void solver2(
   FREE(iat);
   FREE(basicflag);
   FREE(kat);
+  FREE( output_vec );
   lu_clo();
   btsolve(0, vec, ivec, &nvec);
   bsolve(0, vec, ivec, &nvec);
