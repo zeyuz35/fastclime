@@ -68,10 +68,10 @@ QLASSO.Hessian.Omega.BK17.CLIME <- function(
     e_i[ii] <- 1
 
     rhs <- c(
-      lambda_1 + e_i,
-      lambda_1 - e_i,
-      lambda_2,
-      lambda_2
+      rep(lambda_1[ii], bigN) + e_i,
+      rep(lambda_1[ii], bigN) - e_i,
+      rep(lambda_2[ii], bigT),
+      rep(lambda_2[ii], bigT)
     )
 
     tryCatch({
@@ -142,8 +142,8 @@ QLASSO.Hessian.Omega.BK17.index_wise <- function(
     e_i[ii] <- 1
 
     rhs <- c(
-      lambda + e_i,
-      lambda - e_i
+      rep(lambda[ii], bigN) + e_i,
+      rep(lambda[ii], bigN) - e_i
     )
 
     tryCatch({

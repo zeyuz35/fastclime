@@ -1,5 +1,0 @@
-library(fastclime)
-X <- matrix(rnorm(100), 10, 10)
-Sigma <- cov(X)
-print(QLASSO.Hessian.Omega.BK17.CLIME(X, lambda_1=0.5, lambda_2=1.0)$Omega)
-print(QLASSO.Hessian.Omega.BK17.index_wise(X, lambda=0.5, Sigma=Sigma)$Omega)
