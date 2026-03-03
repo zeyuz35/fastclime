@@ -1,0 +1,4 @@
+## 2024-05-24 - [Memory Leak in C solver iteration loops]
+**Vulnerability:** Memory leak due to `CALLOC`/`FREE` inside iterative loops in `dantzig.c` and `parametric.c`. The `output_vec` pointer was allocated inside the loop but was skipped when the loop exited early via `break`, leaking memory on each unhandled exit.
+**Learning:** In C extensions for R, placing memory allocation within tight loops not only degrades performance but creates significant memory leak vulnerabilities if early exit paths (like `break`) bypass the corresponding `FREE`.
+**Prevention:** To prevent memory leaks from early loop exits, a preferred architectural pattern for simplex method loops in this codebase is to move memory allocation (`CALLOC` or `MALLOC`) for iteration buffers outside the loop, use `memset` to zero the buffer at the start of each iteration, and ensure a single `FREE` exists outside the loop at the end of the function.

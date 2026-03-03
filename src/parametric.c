@@ -244,6 +244,8 @@ void solver2(
     *  initialization.              				    *
     ****************************************************************/
 
+  CALLOC(   output_vec, N, double );
+
   atnum(m,N,ka,ia,a,kat,iat,at);	
 
 
@@ -266,10 +268,8 @@ void solver2(
 
   for (iter = 0; iter < lambda; iter++) {
 
-    /* allocate a fresh buffer for storing the current basic solution
-       the pointer is freed at the end of each iteration, so it must not
-       be reused outside this scope. */
-    CALLOC(   output_vec, N, double );
+    memset(output_vec, 0, N * sizeof(double));
+
     if(iter > *maxnlambda){
       *maxnlambda = iter;
     }
@@ -429,12 +429,10 @@ void solver2(
       * step 8: refactor basis                                     *
       *************************************************************/
     refactor( m, ka, ia, a, basics, col_out, v );
-     /* free immediately after use to avoid holding on to memory between
-       iterations. the pointer value becomes invalid here, so it is
-       important not to touch it later. */
-     FREE( output_vec );
     
   }
+
+  FREE( output_vec );
    
   max_row_iter[ColNum]=iter;
   Nt_times_y( -1, at, iat, kat, basicflag, vec, ivec, nvec, 
