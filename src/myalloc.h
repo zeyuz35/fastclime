@@ -9,26 +9,32 @@
 
 #undef MALLOC
 #define	MALLOC(name,len,type) {	\
+	 if ((len) == 0) { (name) = NULL; } else { \
 	 (name) = (type *)malloc( (len) * sizeof(type) ); \
 	 if ((name) == NULL) { \
 		error("Memory allocation failed"); \
+	 } \
 	 } \
 }
 
 #undef CALLOC
 #define	CALLOC(name,len,type) { \
+	 if ((len) == 0) { (name) = NULL; } else { \
 	 (name) = (type *)calloc( (len) , sizeof(type) ); \
 	 if ((name) == NULL) { \
 		error("Memory allocation failed"); \
+	 } \
 	 } \
 }
 
 #undef REALLOC
 #define	REALLOC(name,len,type) { \
+	 if ((len) == 0) { FREE(name); } else { \
 	(name) = (type *)realloc((name),(len)*sizeof(type)); \
 	if ((name) == NULL) { \
 		error("Memory allocation failed"); \
 	} \
+	 } \
 }
 
 #undef FREE
