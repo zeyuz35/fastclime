@@ -1,0 +1,4 @@
+## 2024-05-18 - [Memory Allocation DoS Risk]
+**Vulnerability:** The wrapper macros for memory allocation (`MALLOC`, `CALLOC`, `REALLOC`) in `src/myalloc.h` failed to account for allocations of size `0`. In C, `malloc(0)` and `realloc(ptr, 0)` have implementation-defined behavior and could return `NULL`. This would trigger the R `error()` function inside the macro, unexpectedly terminating execution and causing a potential Denial of Service (DoS) bug.
+**Learning:** Memory allocation wrappers need explicit handling for `0` size requests to standardize behavior across different platforms and prevent implementation-defined return values from triggering false positive error conditions.
+**Prevention:** Always verify that wrapper macros or functions safely handle edge cases like `len == 0` by explicitly returning `NULL` (or freeing the pointer and returning `NULL` for `realloc`), bypassing the underlying C standard library's implementation-defined behavior for size `0`.
