@@ -151,6 +151,7 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
   MALLOC(   basics,    m,   int );      
   MALLOC(   nonbasics, n,   int );      
   MALLOC(   basicflag, N,   int );
+  CALLOC(   output_vec, N, double ); /* memory allocated once outside the loop */
 
 
     /**************************************************************** 
@@ -187,7 +188,7 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
       /*************************************************************
       * step 1: find mu                                            *
       *************************************************************/
-    CALLOC(   output_vec, N, double );
+    memset(output_vec, 0, N * sizeof(double)); /* reset buffer for this iteration */
     //MALLOC(   temp_vec, d,   double );
 
     mu = -HUGE_VAL;
@@ -351,7 +352,6 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
       /*************************************************************
       * step 8: refactor basis                                     *
       *************************************************************/
-    FREE( output_vec );
     //FREE(temp_vec);
     refactor( m, ka, ia, a, basics, col_out, v );
     

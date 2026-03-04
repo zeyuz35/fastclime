@@ -1,0 +1,3 @@
+## 2024-05-24 - Moving Simplex Loop Buffer Allocations
+**Learning:** In C extensions running simplex method loops (e.g., `dantzig.c`, `parametric.c`), allocating per-iteration buffers via `CALLOC` inside the main loop introduces noticeable heap allocation/deallocation overhead and, critically, can cause memory leaks if the loop exits early (e.g., via `break`) before the `FREE` macro is called.
+**Action:** When working on tight solver loops, always allocate buffer memory once before the loop begins, use `memset(buf, 0, size)` at the start of each iteration to clear it, and free the memory once at the end of the function.
