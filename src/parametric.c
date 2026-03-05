@@ -263,13 +263,14 @@ void solver2(
 
   lufac( m, ka, ia, a, basics, 0 );
  
+  // allocate a buffer for storing the current basic solution outside the loop
+  // to avoid performance overhead and memory leaks from early loop breaks.
+  CALLOC(   output_vec, N, double );
 
   for (iter = 0; iter < lambda; iter++) {
 
-    /* allocate a fresh buffer for storing the current basic solution
-       the pointer is freed at the end of each iteration, so it must not
-       be reused outside this scope. */
-    CALLOC(   output_vec, N, double );
+    memset(output_vec, 0, N * sizeof(double));
+
     if(iter > *maxnlambda){
       *maxnlambda = iter;
     }
@@ -429,10 +430,6 @@ void solver2(
       * step 8: refactor basis                                     *
       *************************************************************/
     refactor( m, ka, ia, a, basics, col_out, v );
-     /* free immediately after use to avoid holding on to memory between
-       iterations. the pointer value becomes invalid here, so it is
-       important not to touch it later. */
-     FREE( output_vec );
     
   }
    
@@ -451,6 +448,7 @@ void solver2(
   FREE(idy_N );
   FREE( nonbasics );
   FREE( basics );
+  FREE( output_vec );
   FREE(at);
   FREE(iat);
   FREE(basicflag);

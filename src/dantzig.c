@@ -181,13 +181,16 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
 
   lufac( m, ka, ia, a, basics, 0 );
 
+  // allocate outside the loop to avoid performance bottleneck and memory leaks on early exit
+  CALLOC(   output_vec, N, double );
+
   //Start the Main loop of PSM in the solver
   for (iter=0; iter<*nlambda; iter++) {
     //printf("iter=%d \n",iter);
       /*************************************************************
       * step 1: find mu                                            *
       *************************************************************/
-    CALLOC(   output_vec, N, double );
+    memset(output_vec, 0, N * sizeof(double));
     //MALLOC(   temp_vec, d,   double );
 
     mu = -HUGE_VAL;
@@ -351,7 +354,6 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
       /*************************************************************
       * step 8: refactor basis                                     *
       *************************************************************/
-    FREE( output_vec );
     //FREE(temp_vec);
     refactor( m, ka, ia, a, basics, col_out, v );
     
@@ -375,6 +377,7 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
   FREE(idy_N );
   FREE( nonbasics );
   FREE( basics );
+  // Free the buffer allocated before the loop
   FREE( output_vec );
   FREE(at);
   FREE(iat);

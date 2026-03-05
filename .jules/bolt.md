@@ -1,0 +1,3 @@
+## 2024-05-24 - Avoiding allocation overhead and early exit memory leaks in C Simplex Loops
+**Learning:** In the tight internal loops of simplex solver components (e.g. `dantzig.c`, `parametric.c`), repeatedly calling `CALLOC` and `FREE` for scratch buffers on every iteration adds substantial memory overhead. Furthermore, if the loop condition `break`s early, the memory allocated in the loop will leak since the `FREE` at the end of the loop body is bypassed.
+**Action:** Lift the `CALLOC` out of the loop, use `memset` inside the loop to zero out the buffer, and place a single `FREE` statement at the very end of the function body to prevent memory leaks in case of early termination and to remove allocation bottlenecks.
