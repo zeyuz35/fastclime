@@ -1,0 +1,4 @@
+## 2024-05-01 - Memory Leak in Solver Loops with Early Exits
+**Vulnerability:** Memory leak caused by `CALLOC` inside iteration loops (`for (iter = 0; iter < lambda; iter++)`) where the corresponding `FREE` was placed at the end of the loop body. When early break conditions were triggered (e.g., `if (mu <= EPS3)`), the loop exited prematurely, skipping the `FREE` statement and leaking memory.
+**Learning:** In C extensions for R, especially within iterative solver loops (like `dantzig` and `parametric`), allocating memory inside the loop and freeing it at the end of the loop body is dangerous if `break` or `return` statements exist. It guarantees a memory leak on those exit paths.
+**Prevention:** Always hoist buffer allocations (`CALLOC` / `MALLOC`) outside of iteration loops, zero out the buffer (`memset`) at the start of each iteration if a fresh buffer is needed, and place a single `FREE` outside the loop to handle all exit paths safely.
