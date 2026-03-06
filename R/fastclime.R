@@ -20,13 +20,13 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   }
 
   message("Allocating memory")
-  maxnlambda = 0
+  maxnlambda <- 0
   mu_input <- matrix(0, nlambda, d)
   iicov <- matrix(0, nlambda, d * d)
   lambdamin <- lambda.min
 
   message("start recovering")
-  str = .C(
+  str <- .C(
     "parametric",
     as.double(SigmaInput),
     as.integer(d),
@@ -52,7 +52,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   for (i in seq_len(maxnlambda)) {
     icov[[i]] <- matrix(iicov[i, ], d, d)
   }
-  #icov[maxnlambda+1]=list(icov[[maxnlambda]])
+  # icov[maxnlambda+1]=list(icov[[maxnlambda]])
 
   result <- list(
     "data" = x,
@@ -78,12 +78,12 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     d
   )
   gc()
-  class(result) = "fastclime"
+  class(result) <- "fastclime"
   message("Done!")
   return(result)
 }
 
-print.fastclime = function(x, ...) {
+print.fastclime <- function(x, ...) {
   if (x$cov.input) {
     message("Input: The Covariance Matrix")
   }
@@ -92,11 +92,11 @@ print.fastclime = function(x, ...) {
   }
   message("Path length:", x$nlambda)
   message("Graph dimension:", ncol(x$data))
-  #cat("Sparsity level:",min(x$sparsity),"----->",max(x$sparsity),"\n")
+  # message("Sparsity level:", min(x$sparsity), "----->", max(x$sparsity))
 }
 
 
-plot.fastclime = function(x, ...) {
+plot.fastclime <- function(x, ...) {
   gcinfo(FALSE)
   s <- x$lambda[, 1]
   poslambda <- s[s > 0]

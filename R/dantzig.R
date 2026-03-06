@@ -14,13 +14,13 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   message("compute X^TX and X^y")
 
-  X2 = t(X) %*% X
-  Xy = t(X) %*% y
+  X2 <- t(X) %*% X
+  Xy <- t(X) %*% y
 
   message("start recovering")
 
   # start.time <- Sys.time()
-  str = .C(
+  str <- .C(
     "dantzig",
     as.double(X2),
     as.double(Xy),
@@ -35,7 +35,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   # t0 <- end.time - start.time
 
   # ptm <- proc.time()
-  # cat("prepare the solution path \n")
+  # message("prepare the solution path")
   # proc.time() - ptm
   # print(ptm)
 
@@ -62,7 +62,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   )
 
   gc()
-  class(result) = "dantzig"
+  class(result) <- "dantzig"
   message("Done!")
 
   return(result)
