@@ -103,3 +103,64 @@ test_that("stockdata works", {
   expect_equal(dim(stockdata$data), c(1258, 452))
   expect_length(stockdata$info, 1356)
 })
+
+test_that("dantzig preserves class and colnames for time-series inputs", {
+  skip_if_not_installed("zoo")
+  skip_if_not_installed("xts")
+
+  library(zoo)
+  library(xts)
+
+  set.seed(42)
+  mat <- matrix(rnorm(100), 50, 2)
+  colnames(mat) <- c("Feature1", "Feature2")
+  y <- rnorm(50)
+
+  xts_obj <- xts(mat, order.by = seq(as.Date("2000-01-01"), by = "month", length.out = 50))
+  xts_y <- xts(y, order.by = seq(as.Date("2000-01-01"), by = "month", length.out = 50))
+
+  out <- dantzig(xts_obj, xts_y)
+
+  # Check if original objects are preserved
+  expect_true(inherits(out$X, "xts"))
+  expect_true(inherits(out$y, "xts"))
+
+  # Check if colnames are assigned
+  expect_equal(rownames(out$BETA0), c("Feature1", "Feature2"))
+
+  # Check zoo
+  zoo_obj <- zoo(mat, order.by = seq(as.Date("2000-01-01"), by = "month", length.out = 50))
+  zoo_y <- zoo(y, order.by = seq(as.Date("2000-01-01"), by = "month", length.out = 50))
+  out_zoo <- dantzig(zoo_obj, zoo_y)
+  expect_true(inherits(out_zoo$X, "zoo"))
+  expect_true(inherits(out_zoo$y, "zoo"))
+  expect_equal(rownames(out_zoo$BETA0), c("Feature1", "Feature2"))
+})
+
+test_that("fastclime preserves class and colnames for time-series inputs", {
+  skip_if_not_installed("zoo")
+  skip_if_not_installed("xts")
+
+  library(zoo)
+  library(xts)
+
+  set.seed(42)
+  mat <- matrix(rnorm(100), 50, 2)
+  colnames(mat) <- c("Feature1", "Feature2")
+
+  xts_obj <- xts(mat, order.by = seq(as.Date("2000-01-01"), by = "month", length.out = 50))
+
+  out <- fastclime(xts_obj)
+
+  # Check if original object is preserved
+  expect_true(inherits(out$data, "xts"))
+
+  # Check if colnames are assigned
+  expect_equal(colnames(out$sigmahat), c("Feature1", "Feature2"))
+  expect_equal(rownames(out$sigmahat), c("Feature1", "Feature2"))
+
+  expect_equal(colnames(out$lambdamtx), c("Feature1", "Feature2"))
+
+  expect_equal(colnames(out$icovlist[[1]]), c("Feature1", "Feature2"))
+  expect_equal(rownames(out$icovlist[[1]]), c("Feature1", "Feature2"))
+})
