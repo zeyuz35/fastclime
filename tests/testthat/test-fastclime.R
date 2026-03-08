@@ -103,3 +103,51 @@ test_that("stockdata works", {
   expect_equal(dim(stockdata$data), c(1258, 452))
   expect_length(stockdata$info, 1356)
 })
+
+test_that("fastclime validates edge case inputs", {
+  expect_error(fastclime(NULL), "Input must not be NULL")
+  expect_error(fastclime(matrix(numeric(0), 0, 0)), "Input must have at least 1 element")
+  expect_error(fastclime(matrix(letters[1:4], 2, 2)), "Input must be numeric after coercion")
+  expect_error(fastclime(matrix(c(1, NA, 3, 4), 2, 2)), "Input contains NAs which are not supported")
+})
+
+test_that("fastclime preserves time-series classes and attributes", {
+  skip_if_not_installed("zoo")
+  skip_if_not_installed("xts")
+  library(zoo)
+  library(xts)
+
+  set.seed(123)
+  n <- 50
+  d <- 10
+  L <- fastclime.generator(n = n, d = d, vis = FALSE)
+
+  # Ensure colnames exist
+  colnames(L$data) <- paste0("V", 1:d)
+
+  # Test with ts/mts
+  data_ts <- ts(L$data, start = c(2000, 1), frequency = 12)
+  out_ts <- fastclime(data_ts, lambda.min = 0.5)
+  expect_equal(class(out_ts$data), class(data_ts))
+  expect_equal(colnames(out_ts$sigmahat), colnames(data_ts))
+  expect_equal(colnames(out_ts$lambdamtx), colnames(data_ts))
+  expect_equal(colnames(out_ts$icovlist[[1]]), colnames(data_ts))
+
+  # Test with zoo
+  data_zoo <- zoo(L$data, order.by = as.Date("2000-01-01") + 1:n)
+  out_zoo <- fastclime(data_zoo, lambda.min = 0.5)
+  expect_equal(class(out_zoo$data), class(data_zoo))
+  expect_equal(colnames(out_zoo$sigmahat), colnames(data_zoo))
+  expect_equal(colnames(out_zoo$lambdamtx), colnames(data_zoo))
+  expect_equal(colnames(out_zoo$icovlist[[1]]), colnames(data_zoo))
+  expect_equal(index(out_zoo$data), index(data_zoo))
+
+  # Test with xts
+  data_xts <- xts(L$data, order.by = as.Date("2000-01-01") + 1:n)
+  out_xts <- fastclime(data_xts, lambda.min = 0.5)
+  expect_equal(class(out_xts$data), class(data_xts))
+  expect_equal(colnames(out_xts$sigmahat), colnames(data_xts))
+  expect_equal(colnames(out_xts$lambdamtx), colnames(data_xts))
+  expect_equal(colnames(out_xts$icovlist[[1]]), colnames(data_xts))
+  expect_equal(index(out_xts$data), index(data_xts))
+})

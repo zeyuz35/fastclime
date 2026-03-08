@@ -9,16 +9,23 @@
 #-------------------------------------------------------------------------------#
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   gcinfo(FALSE)
+
+  stopifnot("Input must not be NULL" = !is.null(x))
+  x_mat <- as.matrix(x)
+  stopifnot("Input must be numeric after coercion" = is.numeric(x_mat))
+  stopifnot("Input must have at least 1 element" = length(x_mat) > 0)
+  stopifnot("Input contains NAs which are not supported" = !anyNA(x_mat))
+
   cov.input <- 1
-  SigmaInput <- x
+  cnames <- colnames(x)
+  SigmaInput <- x_mat
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(x_mat)) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(x_mat) * (1 - 1 / n)
     cov.input <- 0
   }
-
   message("Allocating memory")
   maxnlambda = 0
   mu_input <- matrix(0, nlambda, d)
@@ -49,8 +56,18 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   mu <- mu[1:maxnlambda, , drop = FALSE]
   icov <- list()
 
+  if (!is.null(cnames)) {
+    colnames(sigmahat) <- cnames
+    rownames(sigmahat) <- cnames
+    colnames(mu) <- cnames
+  }
+
   for (i in seq_len(maxnlambda)) {
     icov[[i]] <- matrix(iicov[i, ], d, d)
+    if (!is.null(cnames)) {
+      colnames(icov[[i]]) <- cnames
+      rownames(icov[[i]]) <- cnames
+    }
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 

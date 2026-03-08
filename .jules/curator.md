@@ -1,0 +1,5 @@
+## 2024-05-24 - Method Dispatch Failure with Time-Series Classes in Base Functions
+
+**Learning:** Base R functions like `isSymmetric()` lack S3 methods for popular time-series classes like `zoo` and `xts`. Attempting to pass these objects directly results in an error: "no applicable method for 'isSymmetric'". Additionally, implicit coercions or matrix operations directly on these objects can silently drop their indices and attributes (such as `colnames`).
+
+**Action:** Before calling base functions like `isSymmetric()` or performing core matrix math, explicitly coerce the time-series object to a numeric matrix using `as.matrix()`. Perform mathematical operations on this extracted matrix, cache and explicitly re-attach `colnames` to computed output matrices, and importantly, ensure the original time-series object (with all attributes intact) is returned to the user rather than the stripped matrix.
