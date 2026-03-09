@@ -1,0 +1,4 @@
+## 2025-03-09 - Zero-Length Memory Allocation Hazard
+**Vulnerability:** In standard C, memory allocation functions like `malloc`, `calloc`, and `realloc` can return `NULL` on zero-length requests. In this codebase, the custom `MALLOC`, `CALLOC`, and `REALLOC` macros would misinterpret a `NULL` return from a valid `0`-length request as a failure and trigger a fatal Out of Memory `error()`, or return a `NULL` pointer that risks Undefined Behavior when passed to standard library functions (e.g. `memcpy(dest, src, 0)` with `NULL` dest).
+**Learning:** Custom allocation macros that wrap standard C allocations and assert non-null outcomes must handle zero-length requests explicitly, evaluating the length parameter exactly once to avoid double-evaluation bugs.
+**Prevention:** Ensured zero-length requests are upgraded to a length of 1 in allocation wrappers (e.g. `size_t _safe_len = (len); _safe_len = _safe_len > 0 ? _safe_len : 1;`).
