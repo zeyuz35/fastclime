@@ -14,8 +14,8 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   message("compute X^TX and X^y")
 
-  X2 = t(X) %*% X
-  Xy = t(X) %*% y
+  X2 = crossprod(X) # Equivalent: crossprod(X) is t(X) %*% X but faster
+  Xy = crossprod(X, y) # Equivalent: crossprod(X, y) is t(X) %*% y but faster
 
   message("start recovering")
 
