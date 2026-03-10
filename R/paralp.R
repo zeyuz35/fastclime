@@ -28,7 +28,7 @@ paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
   }
 
   if (error == 0) {
-    str = .C(
+    str <- .C(
       "paralp",
       as.double(obj),
       as.double(t(mat)),
