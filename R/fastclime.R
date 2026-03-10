@@ -10,12 +10,13 @@
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+  x_mat <- as.matrix(x)
+  SigmaInput <- x_mat
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unname(x_mat))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(x_mat) * (1 - 1 / n)
     cov.input <- 0
   }
 
@@ -54,6 +55,17 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 
+  cnames <- colnames(x)
+  if (!is.null(cnames)) {
+    colnames(sigmahat) <- cnames
+    rownames(sigmahat) <- cnames
+    for (i in seq_len(maxnlambda)) {
+      colnames(icov[[i]]) <- cnames
+      rownames(icov[[i]]) <- cnames
+    }
+    colnames(mu) <- cnames
+  }
+
   result <- list(
     "data" = x,
     "cov.input" = cov.input,
@@ -65,6 +77,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   rm(
     x,
+    x_mat,
     cov.input,
     sigmahat,
     maxnlambda,
@@ -75,7 +88,8 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     lambdamin,
     mu_input,
     SigmaInput,
-    d
+    d,
+    cnames
   )
   gc()
   class(result) = "fastclime"
