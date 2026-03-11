@@ -83,6 +83,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   return(result)
 }
 
+#' @export
 print.fastclime = function(x, ...) {
   if (x$cov.input) {
     message("Input: The Covariance Matrix")
@@ -96,6 +97,7 @@ print.fastclime = function(x, ...) {
 }
 
 
+#' @export
 plot.fastclime = function(x, ...) {
   gcinfo(FALSE)
   s <- x$lambda[, 1]
