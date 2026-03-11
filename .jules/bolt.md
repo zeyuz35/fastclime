@@ -1,0 +1,3 @@
+## 2024-05-15 - Matrix Multiplication Optimization
+**Learning:** `crossprod(X)` and `crossprod(X, y)` are significantly faster base equivalents to `t(X) %*% X` and `t(X) %*% y` in R mathematical code. Replacing the standard matrix multiplication operator with these optimized C-level functions avoids the intermediate matrix transpose allocation and improves performance without sacrificing code readability.
+**Action:** Always scan for `t(A) %*% B` or `t(X) %*% X` patterns in R mathematical code and replace them with `crossprod` with an explanatory comment indicating the equivalent base implementation.
