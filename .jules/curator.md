@@ -1,0 +1,4 @@
+## 2023-10-24 - Method Dispatch Failures and Attribute Loss with Time-Series Inputs in matrix logic
+
+**Learning:** When dealing with time-series objects like `ts`, `xts`, or `zoo` in R matrix logic, base functions such as `isSymmetric()` will fail due to no applicable method. Also, applying matrix operations like `%*%` directly onto them can lead to silent attribute loss. Furthermore, extracting values using `as.matrix()` inside a function often causes attribute loss on the final returned result if not careful.
+**Action:** Always explicitly coerce time-series inputs into temporary standard numeric matrices using `as.matrix()` for core computations and explicitly call `unname()` before functions like `isSymmetric()` to avoid `dimnames` mismatch failures. Ensure that the original time-series object is preserved entirely and mapped back to the output structure directly without being altered by internal matrix computations.

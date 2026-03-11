@@ -103,3 +103,22 @@ test_that("stockdata works", {
   expect_equal(dim(stockdata$data), c(1258, 452))
   expect_length(stockdata$info, 1356)
 })
+
+test_that("fastclime preserves time-series classes", {
+  library(zoo)
+  x_zoo <- zoo(matrix(rnorm(100), 10, 10), order.by = Sys.Date() + 1:10)
+  res <- fastclime(x_zoo)
+  expect_equal(class(res$data), class(x_zoo))
+  expect_equal(attributes(res$data), attributes(x_zoo))
+})
+
+test_that("dantzig preserves time-series classes", {
+  library(zoo)
+  x_zoo <- zoo(matrix(rnorm(100), 10, 10), order.by = Sys.Date() + 1:10)
+  y_zoo <- zoo(rnorm(10), order.by = Sys.Date() + 1:10)
+  res <- dantzig(x_zoo, y_zoo)
+  expect_equal(class(res$X), class(x_zoo))
+  expect_equal(attributes(res$X), attributes(x_zoo))
+  expect_equal(class(res$y), class(y_zoo))
+  expect_equal(attributes(res$y), attributes(y_zoo))
+})
