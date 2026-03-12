@@ -1,0 +1,5 @@
+## 2024-03-12 - Method dispatch and matrix operations fail on time-series classes like xts and zoo
+
+**Learning:** `isSymmetric()` and implicit coercion via matrix operations (`%*%`) drop or reject time-series class objects (`zoo`, `xts`). Native `%*%` operations on these objects lose column names, and `isSymmetric()` fails with "no applicable method" dispatch errors. Furthermore, strictly relying on `isSymmetric` without `unname()` can cause false negatives when testing matrices derived from time-series objects.
+
+**Action:** Explicitly coerce inputs to numeric matrices using `as.matrix()` before mathematical operations or `isSymmetric` tests (using `unname(x_mat)` for the latter). Then, restore the original column and row names to derived outputs (like covariance matrices or coefficient vectors) and, most importantly, return the unmodified original time-series object instead of the coercible matrix to preserve time indices and scaling attributes.

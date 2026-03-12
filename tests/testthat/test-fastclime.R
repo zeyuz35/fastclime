@@ -103,3 +103,48 @@ test_that("stockdata works", {
   expect_equal(dim(stockdata$data), c(1258, 452))
   expect_length(stockdata$info, 1356)
 })
+
+test_that("fastclime preserves time-series classes and attributes", {
+  set.seed(42)
+  data <- matrix(rnorm(100), 20, 5)
+  colnames(data) <- paste0("V", 1:5)
+
+  # test with ts
+  x_ts <- ts(data, start = c(2000, 1), frequency = 12)
+  res_ts <- fastclime(x_ts, nlambda = 3)
+  expect_s3_class(res_ts$data, "ts")
+  expect_equal(colnames(res_ts$icovlist[[1]]), colnames(data))
+
+  # test with zoo if available
+  if (requireNamespace("zoo", quietly = TRUE)) {
+    x_zoo <- zoo::zoo(data, order.by = as.Date("2000-01-01") + 1:20)
+    res_zoo <- fastclime(x_zoo, nlambda = 3)
+    expect_s3_class(res_zoo$data, "zoo")
+    expect_equal(colnames(res_zoo$icovlist[[1]]), colnames(data))
+  }
+})
+
+test_that("dantzig preserves time-series classes and attributes", {
+  set.seed(42)
+  data <- matrix(rnorm(100), 20, 5)
+  colnames(data) <- paste0("V", 1:5)
+  y <- rnorm(20)
+
+  # test with ts
+  x_ts <- ts(data, start = c(2000, 1), frequency = 12)
+  y_ts <- ts(y, start = c(2000, 1), frequency = 12)
+  res_ts <- dantzig(x_ts, y_ts, lambda = 0.1, nlambda = 3)
+  expect_s3_class(res_ts$X, "ts")
+  expect_s3_class(res_ts$y, "ts")
+  expect_equal(rownames(res_ts$BETA0), colnames(data))
+
+  # test with zoo if available
+  if (requireNamespace("zoo", quietly = TRUE)) {
+    x_zoo <- zoo::zoo(data, order.by = as.Date("2000-01-01") + 1:20)
+    y_zoo <- zoo::zoo(y, order.by = as.Date("2000-01-01") + 1:20)
+    res_zoo <- dantzig(x_zoo, y_zoo, lambda = 0.1, nlambda = 3)
+    expect_s3_class(res_zoo$X, "zoo")
+    expect_s3_class(res_zoo$y, "zoo")
+    expect_equal(rownames(res_zoo$BETA0), colnames(data))
+  }
+})
