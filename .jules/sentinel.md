@@ -1,0 +1,4 @@
+## 2024-05-23 - Zero-length Memory Allocation Fatal Error
+**Vulnerability:** The `MALLOC`, `CALLOC`, and `REALLOC` macros in `src/myalloc.h` allowed zero-length allocations to be passed to standard C allocation functions, which can return `NULL`. This triggers a fatal `error()` call that crashes the R interpreter. It also risked double-evaluation hazards due to evaluating the `len` macro argument multiple times.
+**Learning:** Using standard C memory allocation functions in R packages with zero length can crash the session. Custom memory macros need to handle `len == 0` explicitly and protect against double-evaluation.
+**Prevention:** Always evaluate macro arguments once (e.g., `size_t _safe_len = (len);`) and ensure at least 1 element is allocated (`_safe_len > 0 ? _safe_len : 1`) to guarantee non-null pointers and prevent standard allocation functions from returning `NULL` on zero-length requests, protecting the R session from fatal errors.
