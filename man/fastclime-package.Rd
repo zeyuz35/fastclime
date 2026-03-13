@@ -5,7 +5,7 @@
 Fast Parametric Simplex Solver for CLIME and Linear Programming
 }
 \description{
-A package for generic linear programming, parameterized linear programming and constrainted l1 minimization approach to sparse precision matrix estimation
+A package for generic linear programming, parameterized linear programming and constrained l1 minimization approach to sparse precision matrix estimation
 }
 \details{
 \tabular{ll}{
@@ -18,7 +18,7 @@ LazyLoad: \tab yes\cr
 }
 The package "fastclime" provides 5 main functions:\cr
 (1) the data generator creates random samples from multivariate normal distributions with different graph structures. Please refer to \code{\link{fastclime.generator}}.\cr
-(2) The parametric simplex solver for constrainted l1 minimization approach to sparse precision matrix estimation. Please refer to \code{\link{fastclime}}.\cr
+(2) The parametric simplex solver for constrained l1 minimization approach to sparse precision matrix estimation. Please refer to \code{\link{fastclime}}.\cr
 (3) The path selector function gives the path and precision matrix for a given parameter in CLIME. Please refer to \code{\link{fastclime.selector}}.\cr
 (4) A generic linear programming solver and a parameterized linear programming solver. Please refer to \code{\link{fastlp}} and \code{\link{paralp}}.\cr
 (5) An implementation of the Primal Dual (i.e. Self Dual) Simplex Method on the Dantzig selector. Please refer to \code{\link{dantzig}}, \code{\link{dantzig.selector}} and \code{\link{dantzig.generator}}.\cr

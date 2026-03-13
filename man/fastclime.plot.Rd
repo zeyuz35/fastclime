@@ -16,7 +16,7 @@ location)
 
 \arguments{
   \item{G}{
-The adjaceny matrix corresponding to the graph.
+The adjacency matrix corresponding to the graph.
 }
   \item{epsflag}{
 If \code{epsflag = TRUE}, save the plot as an eps file in the target directory. The default value is \code{FALSE}.
@@ -25,7 +25,7 @@ If \code{epsflag = TRUE}, save the plot as an eps file in the target directory. 
 The name of the output eps files. The default value is "default".
 }
   \item{cur.num}{
-The number of plots saved as eps files. Only applicale when \code{epsflag = TRUE}. The default value is 1.
+The number of plots saved as eps files. Only applicable when \code{epsflag = TRUE}. The default value is 1.
 }
   \item{location}{
 Target directory. The default value is the current working directory.
@@ -38,7 +38,7 @@ The user can change \code{cur.num} to plot several figures and select the best o
 
 \author{
 Haotian Pang, Han Liu and Robert Vanderbei \cr
-Maintainer: Haotan Pang<hpang@princeton.edu>
+Maintainer: Haotian Pang<hpang@princeton.edu>
 }
 
 \seealso{

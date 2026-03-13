@@ -4,7 +4,7 @@
 Print function for S3 class "sim"
 }
 \description{
-Print the information about the sample size, the dimension, the pattern and sparsity of the true graph strcture.
+Print the information about the sample size, the dimension, the pattern and sparsity of the true graph structure.
 }
 \usage{
 \method{print}{sim}(x, ...)
@@ -19,7 +19,7 @@ System reserved (No specific usage)
 }
 \author{
 Haotian Pang, Han Liu and Robert Vanderbei \cr
-Maintainer: Haotan Pang<hpang@princeton.edu>
+Maintainer: Haotian Pang<hpang@princeton.edu>
 }
 
 \seealso{

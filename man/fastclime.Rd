@@ -6,7 +6,7 @@ The main solver for fastclime package
 }
 
 \description{
-A fast parametric simplex solver for constrainted l1 minimization approach to sparse precision matrix estimation
+A fast parametric simplex solver for constrained l1 minimization approach to sparse precision matrix estimation
 }
 
 \usage{
@@ -44,10 +44,10 @@ The \code{n} by \code{d} data matrix or \code{d} by \code{d} sample covariance m
 An indicator of the sample covariance. 
 }
   \item{sigmahat}{
-The empirical covariance of the data. If cov.inpu is TRUE, sigmahat = data
+The empirical covariance of the data. If cov.input is TRUE, sigmahat = data
 }
   \item{maxnlambda}{
-The length of the path. If the program finds \code{lambda.min} in less than \code{nlambda} iterations for all columns, then the acutal maximum lenth for all columns will be returned. Otherwise it equals \code{nlambda}.
+The length of the path. If the program finds \code{lambda.min} in less than \code{nlambda} iterations for all columns, then the actual maximum length for all columns will be returned. Otherwise it equals \code{nlambda}.
 }
   \item{lambdamtx}{
 The sequence of regularization parameters for each column, it is a \code{nlambda} by \code{d} matrix. It will be filled with 0 when the program finds the required \code{lambda.min} value for that column. This parameter is required for \code{\link{fastclime.selector}}.
@@ -60,7 +60,7 @@ A \code{nlambda} list of \code{d} by \code{d} precision matrices as an alternati
 
 \author{
 Haotian Pang, Han Liu and Robert Vanderbei \cr
-Maintainer: Haotan Pang<hpang@princeton.edu>
+Maintainer: Haotian Pang<hpang@princeton.edu>
 }
 
 \seealso{
