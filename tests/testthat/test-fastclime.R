@@ -103,3 +103,31 @@ test_that("stockdata works", {
   expect_equal(dim(stockdata$data), c(1258, 452))
   expect_length(stockdata$info, 1356)
 })
+
+test_that("fastclime preserves time-series classes", {
+  skip_if_not_installed("zoo")
+  skip_if_not_installed("xts")
+
+  library(zoo)
+  library(xts)
+
+  set.seed(42)
+  n <- 20
+  d <- 5
+  x_num <- matrix(rnorm(n*d), n, d)
+  x_ts <- ts(x_num, start = c(2020, 1), frequency = 12)
+  x_zoo <- zoo(x_num, order.by = seq(as.Date("2020-01-01"), length.out = n, by = "month"))
+  x_xts <- xts(x_num, order.by = seq(as.Date("2020-01-01"), length.out = n, by = "month"))
+
+  res_num <- fastclime(x_num)
+  expect_true(inherits(res_num$data, "matrix"))
+
+  res_ts <- fastclime(x_ts)
+  expect_s3_class(res_ts$data, "ts")
+
+  res_zoo <- fastclime(x_zoo)
+  expect_s3_class(res_zoo$data, "zoo")
+
+  res_xts <- fastclime(x_xts)
+  expect_s3_class(res_xts$data, "xts")
+})

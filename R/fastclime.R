@@ -10,12 +10,16 @@
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+  # Explicitly coerce to numeric matrix to handle ts/zoo/xts objects,
+  # and unname to prevent strict dimnames mismatches during symmetry check
+  x_mat <- unname(as.matrix(x))
+  SigmaInput <- x_mat
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(x_mat)) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    # Use as.matrix(x) to preserve colnames in cov if possible
+    SigmaInput <- cov(as.matrix(x)) * (1 - 1 / n)
     cov.input <- 0
   }
 
