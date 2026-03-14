@@ -22,3 +22,5 @@ S3method("plot","fastclime")
 S3method("print","fastclime")
 
 
+export(QLASSO.Hessian.Omega.BK17.CLIME,
+       QLASSO.Hessian.Omega.BK17.index_wise)
