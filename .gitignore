@@ -3,7 +3,8 @@
 *.Rproj.user
 *.code-workspace
 
-/LLM/
+LLM/
+smoke/
 
 *.tar.gz
 

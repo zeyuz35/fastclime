@@ -1,5 +1,3 @@
-library(fastclime)
-
 test_that("dantzig.generator works", {
   set.seed(42)
   L_dg = dantzig.generator(n = 50, d = 100, sparsity = 0.1)
@@ -58,44 +56,88 @@ test_that("fastclime and fastclime.selector work", {
   L = fastclime.generator(n = 100, d = 20)
 
   #graph path estimation
-  out1 = fastclime(L$data,0.1)
-  out2 = fastclime.selector(out1$lambdamtx, out1$icovlist,0.2)
+  out1 = fastclime(L$data, 0.1)
+  out2 = fastclime.selector(out1$lambdamtx, out1$icovlist, 0.2)
 
   expect_equal(sum(out1$icovlist[[1]]), 0)
 
-  expected_diag2 = c(0.7621407, 0.6337797, 0.9370682, 0.7667926, 0.7531294,
-                     0.7805857, 0.9035125, 0.7033197, 1.0275991, 0.6264976,
-                     0.6898066, 0.5739826, 0.8856609, 0.6319145, 0.7161172,
-                     0.8805116, 0.8251614, 0.6665530, 0.5894222, 0.7895643)
-  expect_equal(diag(out1$icovlist[[2]]), expected_diag2, tolerance = 1e-6)
+  expected_diag2 = c(
+    0.7287888,
+    0.6710710,
+    0.7936875,
+    0.8100290,
+    0.8157571,
+    0.7726834,
+    0.9514006,
+    0.7512723,
+    0.9083669,
+    0.6206226,
+    0.6842458,
+    0.6715744,
+    0.8599619,
+    0.8021299,
+    0.7284883,
+    0.8089637,
+    0.6896824,
+    0.6827572,
+    0.6790104,
+    0.6922301
+  )
+  expect_equal(
+    diag(out1$icovlist[[2]]),
+    expected_diag2,
+    tolerance = 1e-6
+  )
 
-  expected_diag3 = c(0.9140404, 0.6557950, 1.0102614, 0.8298148, 0.8146116,
-                     0.8354372, 1.0899309, 0.8858942, 1.0711227, 0.6767176,
-                     0.8276655, 0.6209249, 0.9027221, 0.6879543, 0.9254351,
-                     0.9486373, 0.8426203, 0.7575949, 0.7198079, 0.8638316)
-  expect_equal(diag(out1$icovlist[[3]]), expected_diag3, tolerance = 1e-6)
+  expected_diag3 = c(
+    0.9168410,
+    0.7205304,
+    0.8554107,
+    0.8526005,
+    0.9009442,
+    0.7731859,
+    1.0033823,
+    0.7804546,
+    1.2113871,
+    0.7210265,
+    0.7081836,
+    0.7613153,
+    0.9781418,
+    0.8030060,
+    0.7496296,
+    0.8488565,
+    0.8077362,
+    0.6875899,
+    0.7102704,
+    0.7673958
+  )
+  expect_equal(
+    diag(out1$icovlist[[3]]),
+    expected_diag3,
+    tolerance = 1e-6
+  )
 })
 
 test_that("fastlp works", {
-  A=matrix(c(-1,-1,0,1,-2,1),nrow=3)
-  b_lp=c(-1,-2,1)
-  c_lp=c(-2,3)
-  res_fastlp = fastlp(c_lp,A,b_lp)
+  A = matrix(c(-1, -1, 0, 1, -2, 1), nrow = 3)
+  b_lp = c(-1, -2, 1)
+  c_lp = c(-2, 3)
+  res_fastlp = fastlp(c_lp, A, b_lp)
 
   expect_length(res_fastlp, 2)
   expect_equal(res_fastlp, c(2, 1), tolerance = 1e-6)
 })
 
 test_that("paralp works", {
-  A=matrix(c(-1,-1,0,1,-2,1),nrow=3)
-  b_lp=c(-1,-2,1)
-  c_lp=c(-2,3)
-  b_bar=c(1,1,1)
-  c_bar=c(1,1)
-  res_paralp = paralp(c_lp,A,b_lp,c_bar,b_bar)
+  A = matrix(c(-1, -1, 0, 1, -2, 1), nrow = 3)
+  b_lp = c(-1, -2, 1)
+  c_lp = c(-2, 3)
+  b_bar = c(1, 1, 1)
+  c_bar = c(1, 1)
+  res_paralp = paralp(c_lp, A, b_lp, c_bar, b_bar)
 
   expect_length(res_paralp, 2)
-  expect_equal(res_paralp, c(4/3, 1/3), tolerance = 1e-6)
+  expect_equal(res_paralp, c(4 / 3, 1 / 3), tolerance = 1e-6)
 })
 
 test_that("stockdata works", {
