@@ -1,0 +1,3 @@
+## 2024-03-14 - Redundant gc() inside loops causes severe performance degradation
+**Learning:** Calling `gc()` inside tight `for` loops (like the `for (i in 1:g)` loop in `fastclime.generator`) forces garbage collection on every iteration. In R, manual garbage collection is extremely expensive, and this codebase-specific anti-pattern dramatically degraded performance from ~1.1s to ~8.1s for generating large graph clusters.
+**Action:** Remove explicit `gc()` calls from loops in `R/fastclime.generator.R` and let R handle garbage collection automatically to achieve a massive performance speedup.
