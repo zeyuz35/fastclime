@@ -9,7 +9,10 @@
 
 #undef MALLOC
 #define	MALLOC(name,len,type) {	\
-	 (name) = (type *)malloc( (len) * sizeof(type) ); \
+	 /* Prevent NULL return on zero-length request, mitigating a fatal error DoS */ \
+	 size_t _myalloc_safe_len = (len); \
+	 _myalloc_safe_len = _myalloc_safe_len > 0 ? _myalloc_safe_len : 1; \
+	 (name) = (type *)malloc( _myalloc_safe_len * sizeof(type) ); \
 	 if ((name) == NULL) { \
 		error("Memory allocation failed"); \
 	 } \
@@ -17,7 +20,10 @@
 
 #undef CALLOC
 #define	CALLOC(name,len,type) { \
-	 (name) = (type *)calloc( (len) , sizeof(type) ); \
+	 /* Prevent NULL return on zero-length request, mitigating a fatal error DoS */ \
+	 size_t _myalloc_safe_len = (len); \
+	 _myalloc_safe_len = _myalloc_safe_len > 0 ? _myalloc_safe_len : 1; \
+	 (name) = (type *)calloc( _myalloc_safe_len , sizeof(type) ); \
 	 if ((name) == NULL) { \
 		error("Memory allocation failed"); \
 	 } \
@@ -25,10 +31,13 @@
 
 #undef REALLOC
 #define	REALLOC(name,len,type) { \
-	(name) = (type *)realloc((name),(len)*sizeof(type)); \
-	if ((name) == NULL) { \
+	 /* Prevent NULL return on zero-length request, mitigating a fatal error DoS */ \
+	 size_t _myalloc_safe_len = (len); \
+	 _myalloc_safe_len = _myalloc_safe_len > 0 ? _myalloc_safe_len : 1; \
+	 (name) = (type *)realloc((name), _myalloc_safe_len * sizeof(type)); \
+	 if ((name) == NULL) { \
 		error("Memory allocation failed"); \
-	} \
+	 } \
 }
 
 #undef FREE
