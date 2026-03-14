@@ -77,9 +77,9 @@ fastclime.generator = function(
     if (is.null(v)) {
       v = 0.3
     }
-    for (i in 1:g) {
-      diag(theta[1:(d - i), (1 + i):d]) = 1
-      diag(theta[(1 + i):d, 1:(d - 1)]) = 1
+    for (ii in 1:g) {
+      diag(theta[1:(d - ii), (1 + ii):d]) = 1
+      diag(theta[(1 + ii):d, 1:(d - 1)]) = 1
     }
   }
   if (graph == "cluster") {
@@ -89,8 +89,8 @@ fastclime.generator = function(
     if (is.null(v)) {
       v = 0.3
     }
-    for (i in 1:g) {
-      tmp = which(g.ind == i)
+    for (ii in 1:g) {
+      tmp = which(g.ind == ii)
       tmp2 = matrix(runif(length(tmp)^2, 0, 0.5), length(tmp), length(tmp))
       tmp2 = tmp2 + t(tmp2)
       theta[tmp, tmp][tmp2 < prob] = 1
@@ -105,8 +105,8 @@ fastclime.generator = function(
     if (is.null(v)) {
       v = 0.3
     }
-    for (i in 1:g) {
-      tmp = which(g.ind == i)
+    for (ii in 1:g) {
+      tmp = which(g.ind == ii)
       theta[tmp[1], tmp] = 1
       theta[tmp, tmp[1]] = 1
       rm(tmp)
