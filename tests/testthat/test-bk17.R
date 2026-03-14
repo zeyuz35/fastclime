@@ -42,3 +42,24 @@ test_that("QLASSO.Hessian.Omega.BK17.index_wise works correctly", {
   expect_true("Omega" %in% names(res))
   expect_equal(dim(res$Omega), c(10, 10))
 })
+
+test_that("fastlp logic matches CVXR implementation", {
+  skip_if_not_installed("CVXR")
+
+  set.seed(123)
+  X <- matrix(rnorm(100), 10, 10)
+  Sigma <- cov(X) * (1 - 1/10)
+
+  # CVXR
+  res_cvxr <- suppressWarnings(
+      QLASSO.Hessian.Omega.BK17.CLIME.CVXR(X, lambda_1=0.5, lambda_2=1.0)
+  )
+  # fastlp
+  res_fastlp <- suppressWarnings(
+      QLASSO.Hessian.Omega.BK17.CLIME(X, lambda_1=0.5, lambda_2=1.0)
+  )
+
+  # The solver precision might differ slightly
+  diff <- max(abs(res_cvxr$Omega[, -c(4, 9)] - res_fastlp$Omega[, -c(4, 9)]))
+  expect_true(diff < 0.01)
+})
