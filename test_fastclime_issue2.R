@@ -1,0 +1,11 @@
+library(MASS)
+library(Matrix)
+library(igraph)
+source('R/fastclime.R')
+source('R/fastclime.generator.R')
+
+set.seed(123)
+L <- fastclime.generator(n = 100, d = 20)
+cat("Class of L$data:", class(L$data), "\n")
+out1 <- fastclime(L$data, 0.1)
+print(diag(out1$icovlist[[2]]))

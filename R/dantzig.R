@@ -7,15 +7,22 @@
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
-  n0 <- nrow(X)
-  d0 <- ncol(X)
+  stopifnot(!is.null(X), length(X) > 0, is.numeric(as.matrix(X)), !anyNA(as.matrix(X)))
+  stopifnot(!is.null(y), length(y) > 0, is.numeric(as.matrix(y)), !anyNA(as.matrix(y)))
+
+  X_mat <- as.matrix(X)
+  y_mat <- as.matrix(y)
+  input_colnames <- colnames(X_mat)
+
+  n0 <- nrow(X_mat)
+  d0 <- ncol(X_mat)
   BETA0 <- matrix(0, d0, nlambda)
   lambdalist <- matrix(0, nlambda, 1)
 
   message("compute X^TX and X^y")
 
-  X2 = crossprod(X) # Equivalent to t(X) %*% X
-  Xy = crossprod(X, y) # Equivalent to t(X) %*% y
+  X2 = crossprod(X_mat) # Equivalent to t(X) %*% X
+  Xy = crossprod(X_mat, y_mat) # Equivalent to t(X) %*% y
 
   message("start recovering")
 
@@ -46,6 +53,9 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   validn <- sum(lambdalist > 0)
 
   BETA0 <- BETA0[, 1:validn]
+  if (!is.null(input_colnames)) {
+    rownames(BETA0) <- input_colnames
+  }
 
   final_lambda <- lambdalist[validn]
   message("lambdamin is ", final_lambda)
