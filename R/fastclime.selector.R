@@ -48,7 +48,6 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
   }
 
   rm(temp_lambda, seq, d, threshold)
-  gc()
 
   result <- list("icov" = icov, "adaj" = adaj, "sparsity" = sparsity)
   class(result) = "fastclime.selector"

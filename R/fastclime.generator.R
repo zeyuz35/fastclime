@@ -66,7 +66,6 @@ fastclime.generator = function(
   g.list = c(rep(n.small, g.small), rep(n.large, g.large))
   g.ind = rep(c(1:g), g.list)
   rm(g.large, g.small, n.small, n.large, g.list)
-  gc()
 
   # build the graph structure
   theta = matrix(0, d, d)
@@ -95,7 +94,6 @@ fastclime.generator = function(
       tmp2 = tmp2 + t(tmp2)
       theta[tmp, tmp][tmp2 < prob] = 1
       rm(tmp, tmp2)
-      gc()
     }
   }
   if (graph == "hub") {
@@ -110,7 +108,6 @@ fastclime.generator = function(
       theta[tmp[1], tmp] = 1
       theta[tmp, tmp[1]] = 1
       rm(tmp)
-      gc()
     }
   }
   if (graph == "random") {
@@ -126,7 +123,6 @@ fastclime.generator = function(
     theta[tmp < prob] = 1
     #theta[tmp >= tprob] = 0
     rm(tmp)
-    gc()
   }
 
   diag(theta) = 0
@@ -176,13 +172,11 @@ fastclime.generator = function(
       main = "Empirical Matrix"
     )
     rm(fullfig, g, layout.grid)
-    gc()
   }
   if (verbose) {
     message("done.")
   }
   rm(vis, verbose)
-  gc()
 
   sim = list(
     data = x,
@@ -229,7 +223,6 @@ plot.sim = function(x, ...) {
     main = "Graph Pattern"
   )
   rm(g, layout.grid)
-  gc()
   image(
     x$sigmahat,
     col = gray.colors(256),

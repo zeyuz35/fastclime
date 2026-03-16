@@ -1,0 +1,3 @@
+## 2024-05-24 - Explicit Garbage Collection Pauses
+**Learning:** Explicit `gc()` calls inside R loops cause severe performance degradation by forcing execution pauses on every iteration, leading to exponential execution time increases as iteration counts grow.
+**Action:** Rely on R's automatic memory management instead of manual `gc()` calls in R package code, especially inside generator loops or solver sequences.

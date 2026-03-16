@@ -40,6 +40,5 @@ fastclime.plot = function(
     vertex.label = NA
   )
   rm(g, location)
-  gc()
   if (epsflag == TRUE) dev.off()
 }
