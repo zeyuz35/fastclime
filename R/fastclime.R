@@ -127,7 +127,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     SigmaInput,
     d
   )
-  gc()
+
   class(result) = "fastclime"
   message("Done!")
   return(result)
