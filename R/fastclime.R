@@ -60,13 +60,23 @@
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+
+  # Ensure pure numerical evaluation to prevent class method drops
+  # like 'xts'/'zoo' and strict dimnames equality failures
+  x_mat <- as.matrix(x)
+  SigmaInput <- x_mat
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unname(x_mat))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(x_mat) * (1 - 1 / n)
     cov.input <- 0
+  }
+
+  # Preserve column and row names if present
+  if (!is.null(colnames(x_mat))) {
+    colnames(SigmaInput) <- colnames(x_mat)
+    rownames(SigmaInput) <- colnames(x_mat)
   }
 
   message("Allocating memory")
@@ -91,6 +101,10 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   message("preparing precision and path matrix list")
 
   sigmahat <- matrix(unlist(str[1]), d)
+  if (!is.null(colnames(SigmaInput))) {
+    colnames(sigmahat) <- colnames(SigmaInput)
+    rownames(sigmahat) <- rownames(SigmaInput)
+  }
   mu <- matrix(unlist(str[3]), nlambda, d)
   maxnlambda <- unlist(str[6]) + 1
   iicov <- matrix(unlist(str[7]), nlambda, d * d)
