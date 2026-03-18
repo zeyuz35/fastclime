@@ -14,14 +14,13 @@ fastclime.plot = function(
   cur.num = 1,
   location = NULL
 ) {
-  gcinfo(FALSE)
   if (missing(location)) {
     location = getwd()
   }
   diag(G) = 0
-  Matrix(G, sparse = TRUE)
-  g = graph.adjacency(as.matrix(G != 0), mode = "undirected", diag = FALSE)
-  layout.grid = layout.fruchterman.reingold(g)
+  Matrix::Matrix(G, sparse = TRUE)
+  g = igraph::graph.adjacency(as.matrix(G != 0), mode = "undirected", diag = FALSE)
+  layout.grid = igraph::layout.fruchterman.reingold(g)
 
   if (epsflag == TRUE) {
     postscript(
@@ -39,7 +38,6 @@ fastclime.plot = function(
     vertex.size = 2,
     vertex.label = NA
   )
-  rm(g, location)
 
   if (epsflag == TRUE) dev.off()
 }
