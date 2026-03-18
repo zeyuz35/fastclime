@@ -61,7 +61,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
     "lambdalist" = lambdalist
   )
 
-  gc()
+
   class(result) = "dantzig"
   message("Done!")
 

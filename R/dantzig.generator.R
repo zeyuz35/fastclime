@@ -30,7 +30,7 @@ dantzig.generator <- function(n = 50, d = 100, sparsity = 0.1, sigma0 = 1) {
   X0 <- matrix(rnorm(n * d, mean = 0, sd = 1), n, d)
   y <- X0 %*% BETA + sigma
 
-  gc()
+
 
   sim = list(X0 = X0, y = y, BETA = BETA, s = s, pos = pos)
   class(sim) = "sim"
