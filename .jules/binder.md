@@ -1,0 +1,3 @@
+## 2024-05-14 - CRAN Compliance and Hygiene Improvements
+**Learning:** External dependencies (`igraph`, `MASS`, `Matrix`) should be explicitly namespaced rather than globally imported in `NAMESPACE`. `Depends` should be used sparingly; instead, these should be moved to `Imports` in `DESCRIPTION`.
+**Action:** When updating packages, use explicit namespaces (`Matrix::Matrix()`, `MASS::mvrnorm()`, `igraph::graph.adjacency()`), remove global `import()` from `NAMESPACE`, and update `DESCRIPTION` to use `Imports` instead of `Depends`. Additionally, `rm()` calls in function bodies (e.g., in `fastclime.selector.R`, `fastclime.plot.R`, `dantzig.R`, `fastclime.generator.R`) should be removed as R handles memory dynamically.

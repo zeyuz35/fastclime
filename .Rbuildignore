@@ -6,3 +6,6 @@
 ^.*\.tar\.gz$
 ^.*\.zip$
 ^\.jules$
+^\.gitignore$
+^\.git$
+^\.\.Rcheck$

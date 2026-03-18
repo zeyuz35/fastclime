@@ -20,7 +20,6 @@ fastclime.generator = function(
   verbose = TRUE
 ) {
   # Note: Removed manual gc() calls as they severely degrade performance.
-  gcinfo(FALSE)
   if (verbose) {
     message(
       "Generating data from the multivariate normal distribution with the ",
@@ -66,7 +65,6 @@ fastclime.generator = function(
   n.large = n.small + 1
   g.list = c(rep(n.small, g.small), rep(n.large, g.large))
   g.ind = rep(c(1:g), g.list)
-  rm(g.large, g.small, n.small, n.large, g.list)
 
 
   # build the graph structure
@@ -95,7 +93,6 @@ fastclime.generator = function(
       tmp2 = matrix(runif(length(tmp)^2, 0, 0.5), length(tmp), length(tmp))
       tmp2 = tmp2 + t(tmp2)
       theta[tmp, tmp][tmp2 < prob] = 1
-      rm(tmp, tmp2)
 
     }
   }
@@ -110,7 +107,6 @@ fastclime.generator = function(
       tmp = which(g.ind == i)
       theta[tmp[1], tmp] = 1
       theta[tmp, tmp[1]] = 1
-      rm(tmp)
 
     }
   }
@@ -126,7 +122,6 @@ fastclime.generator = function(
     tmp = tmp + t(tmp)
     theta[tmp < prob] = 1
     #theta[tmp >= tprob] = 0
-    rm(tmp)
 
   }
 
@@ -139,7 +134,7 @@ fastclime.generator = function(
   omega = solve(sigma)
 
   # generate multivariate normal data
-  x = mvrnorm(n, rep(0, d), sigma)
+  x = MASS::mvrnorm(n, rep(0, d), sigma)
 
   sigmahat = cov(x) * (1 - 1 / n)
 
@@ -158,8 +153,8 @@ fastclime.generator = function(
       col = gray.colors(256),
       main = "Covariance Matrix"
     )
-    g = graph.adjacency(theta, mode = "undirected", diag = FALSE)
-    layout.grid = layout.fruchterman.reingold(g)
+    g = igraph::graph.adjacency(theta, mode = "undirected", diag = FALSE)
+    layout.grid = igraph::layout.fruchterman.reingold(g)
 
     fullfig[3] = plot(
       g,
@@ -176,13 +171,11 @@ fastclime.generator = function(
       col = gray.colors(256),
       main = "Empirical Matrix"
     )
-    rm(fullfig, g, layout.grid)
 
   }
   if (verbose) {
     message("done.")
   }
-  rm(vis, verbose)
 
 
   sim = list(
@@ -190,7 +183,7 @@ fastclime.generator = function(
     sigma = sigma,
     sigmahat = sigmahat,
     omega = omega,
-    theta = Matrix(theta, sparse = TRUE),
+    theta = Matrix::Matrix(theta, sparse = TRUE),
     sparsity = sum(theta) / (d * (d - 1)),
     graph.type = graph
   )
@@ -208,7 +201,6 @@ print.sim = function(x, ...) {
 }
 
 plot.sim = function(x, ...) {
-  gcinfo(FALSE)
   par = par(
     mfrow = c(2, 2),
     pty = "s",
@@ -217,8 +209,8 @@ plot.sim = function(x, ...) {
   )
   image(as.matrix(x$theta), col = gray.colors(256), main = "Adjacency Matrix")
   image(x$sigma, col = gray.colors(256), main = "Covariance Matrix")
-  g = graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
-  layout.grid = layout.fruchterman.reingold(g)
+  g = igraph::graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
+  layout.grid = igraph::layout.fruchterman.reingold(g)
 
   plot(
     g,
@@ -229,7 +221,6 @@ plot.sim = function(x, ...) {
     vertex.label = NA,
     main = "Graph Pattern"
   )
-  rm(g, layout.grid)
 
   image(
     x$sigmahat,
