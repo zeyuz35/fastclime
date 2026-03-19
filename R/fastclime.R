@@ -60,12 +60,12 @@
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+  SigmaInput <- as.matrix(x)
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unname(SigmaInput))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(SigmaInput) * (1 - 1 / n)
     cov.input <- 0
   }
 
@@ -97,10 +97,23 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   # keep matrix structure even when maxnlambda == 1; drop=FALSE prevents
   # back-conversion to a vector which later breaks selector() calls.
   mu <- mu[1:maxnlambda, , drop = FALSE]
+
+  cnames <- colnames(x)
+  if (!is.null(cnames)) {
+    colnames(sigmahat) <- cnames
+    rownames(sigmahat) <- cnames
+    colnames(mu) <- cnames
+  }
+
   icov <- list()
 
   for (i in seq_len(maxnlambda)) {
-    icov[[i]] <- matrix(iicov[i, ], d, d)
+    icov_mat <- matrix(iicov[i, ], d, d)
+    if (!is.null(cnames)) {
+      colnames(icov_mat) <- cnames
+      rownames(icov_mat) <- cnames
+    }
+    icov[[i]] <- icov_mat
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 
