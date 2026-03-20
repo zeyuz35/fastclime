@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------#
 
 fastlp <- function(obj, mat, rhs, lambda = 0) {
+  stopifnot(!is.null(obj), length(obj) > 0, is.numeric(as.matrix(obj)), !anyNA(as.matrix(obj)), !is.null(mat), length(mat) > 0, is.numeric(as.matrix(mat)), !anyNA(as.matrix(mat)), !is.null(rhs), length(rhs) > 0, is.numeric(as.matrix(rhs)), !anyNA(as.matrix(rhs)))
   m <- length(rhs)
   n <- length(obj)
   m0 <- dim(mat)[1]
