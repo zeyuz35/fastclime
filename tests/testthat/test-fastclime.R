@@ -145,3 +145,34 @@ test_that("stockdata works", {
   expect_equal(dim(stockdata$data), c(1258, 452))
   expect_length(stockdata$info, 1356)
 })
+
+test_that("fastclime preserves class and attributes of time-series inputs", {
+  skip_if_not_installed("xts")
+  library(xts)
+
+  # Create an xts matrix
+  set.seed(123)
+  dates <- seq(as.Date("2020-01-01"), length = 100, by = "days")
+  data_matrix <- matrix(rnorm(100 * 5), 100, 5)
+  colnames(data_matrix) <- paste0("V", 1:5)
+  x_xts <- xts(data_matrix, order.by = dates)
+  attr(x_xts, "scale") <- TRUE
+
+  # Run fastclime
+  out <- fastclime(x_xts, 0.1, nlambda=5)
+
+  # The main issue: out$sigmahat lost its xts/zoo class, index, and dimnames.
+  # And out$data should preserve everything, which it does.
+  # But sigmahat, when generated from data, should preserve dimnames and potentially be useful.
+  # However, fastclime uses `cov(x)` directly, which coerces to matrix, so `sigmahat` will be a matrix of size d x d.
+  # But `sigmahat` loses column and row names.
+
+  expect_equal(colnames(out$sigmahat), colnames(x_xts))
+  expect_equal(rownames(out$sigmahat), colnames(x_xts))
+
+  # Also check if out$icovlist matrices retain dimnames
+  for (icov in out$icovlist) {
+    expect_equal(colnames(icov), colnames(x_xts))
+    expect_equal(rownames(icov), colnames(x_xts))
+  }
+})
