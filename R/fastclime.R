@@ -60,12 +60,13 @@
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+  SigmaInput <- as.matrix(x)
   d <- dim(SigmaInput)[2]
+  original_colnames <- colnames(x)
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unname(SigmaInput))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(SigmaInput) * (1 - 1 / n)
     cov.input <- 0
   }
 
@@ -91,6 +92,11 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   message("preparing precision and path matrix list")
 
   sigmahat <- matrix(unlist(str[1]), d)
+  if (!is.null(original_colnames)) {
+    colnames(sigmahat) <- original_colnames
+    rownames(sigmahat) <- original_colnames
+  }
+
   mu <- matrix(unlist(str[3]), nlambda, d)
   maxnlambda <- unlist(str[6]) + 1
   iicov <- matrix(unlist(str[7]), nlambda, d * d)
@@ -100,7 +106,12 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   icov <- list()
 
   for (i in seq_len(maxnlambda)) {
-    icov[[i]] <- matrix(iicov[i, ], d, d)
+    mat <- matrix(iicov[i, ], d, d)
+    if (!is.null(original_colnames)) {
+      colnames(mat) <- original_colnames
+      rownames(mat) <- original_colnames
+    }
+    icov[[i]] <- mat
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 
