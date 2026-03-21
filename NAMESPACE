@@ -1,8 +1,7 @@
 useDynLib("fastclime")
-import("Matrix","igraph","MASS")
 importFrom("grDevices", "dev.off", "gray.colors", "postscript")
-importFrom("graphics", "par", "plot")
-importFrom("stats", "cor", "cov", "rbinom", "rnorm", "runif")
+importFrom("graphics", "image", "par", "plot")
+importFrom("stats", "cor", "cov", "cov2cor", "rbinom", "rnorm", "runif")
 export(fastclime,
        fastclime.generator,
        fastclime.plot,

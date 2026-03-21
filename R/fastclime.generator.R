@@ -139,7 +139,7 @@ fastclime.generator = function(
   omega = solve(sigma)
 
   # generate multivariate normal data
-  x = mvrnorm(n, rep(0, d), sigma)
+  x = MASS::mvrnorm(n, rep(0, d), sigma)
 
   sigmahat = cov(x) * (1 - 1 / n)
 
@@ -151,15 +151,15 @@ fastclime.generator = function(
       omi = c(0.3, 0.3, 0.3, 0.3),
       mai = c(0.3, 0.3, 0.3, 0.3)
     )
-    fullfig[1] = image(theta, col = gray.colors(256), main = "Adjacency Matrix")
+    fullfig[1] = graphics::image(theta, col = gray.colors(256), main = "Adjacency Matrix")
 
-    fullfig[2] = image(
+    fullfig[2] = graphics::image(
       sigma,
       col = gray.colors(256),
       main = "Covariance Matrix"
     )
-    g = graph.adjacency(theta, mode = "undirected", diag = FALSE)
-    layout.grid = layout.fruchterman.reingold(g)
+    g = igraph::graph.adjacency(theta, mode = "undirected", diag = FALSE)
+    layout.grid = igraph::layout.fruchterman.reingold(g)
 
     fullfig[3] = plot(
       g,
@@ -171,7 +171,7 @@ fastclime.generator = function(
       main = "Graph Pattern"
     )
 
-    fullfig[4] = image(
+    fullfig[4] = graphics::image(
       sigmahat,
       col = gray.colors(256),
       main = "Empirical Matrix"
@@ -190,7 +190,7 @@ fastclime.generator = function(
     sigma = sigma,
     sigmahat = sigmahat,
     omega = omega,
-    theta = Matrix(theta, sparse = TRUE),
+    theta = Matrix::Matrix(theta, sparse = TRUE),
     sparsity = sum(theta) / (d * (d - 1)),
     graph.type = graph
   )
@@ -215,10 +215,10 @@ plot.sim = function(x, ...) {
     omi = c(0.3, 0.3, 0.3, 0.3),
     mai = c(0.3, 0.3, 0.3, 0.3)
   )
-  image(as.matrix(x$theta), col = gray.colors(256), main = "Adjacency Matrix")
-  image(x$sigma, col = gray.colors(256), main = "Covariance Matrix")
-  g = graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
-  layout.grid = layout.fruchterman.reingold(g)
+  graphics::image(as.matrix(x$theta), col = gray.colors(256), main = "Adjacency Matrix")
+  graphics::image(x$sigma, col = gray.colors(256), main = "Covariance Matrix")
+  g = igraph::graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
+  layout.grid = igraph::layout.fruchterman.reingold(g)
 
   plot(
     g,
@@ -231,7 +231,7 @@ plot.sim = function(x, ...) {
   )
   rm(g, layout.grid)
 
-  image(
+  graphics::image(
     x$sigmahat,
     col = gray.colors(256),
     main = "Empirical Covariance Matrix"
