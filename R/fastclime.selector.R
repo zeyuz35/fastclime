@@ -19,21 +19,23 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
   threshold <- 1e-5
   status <- 0
 
-  for (i in 1:d) {
-    temp_lambda <- which(lambdamtx[, i] > lambda)
-    seq[i] <- length(temp_lambda)
+  for (ii in 1:d) {
+    temp_lambda <- which(lambdamtx[, ii] > lambda)
+    seq[ii] <- length(temp_lambda)
 
-    if ((seq[i] + 1) > maxnlambda) {
+    if ((seq[ii] + 1) > maxnlambda) {
       status <- 1
-      icov[, i] <- icovlist[[seq[i]]][, i]
+      icov[, ii] <- icovlist[[seq[ii]]][, ii]
     } else {
-      icov[, i] <- icovlist[[seq[i] + 1]][, i]
+      icov[, ii] <- icovlist[[seq[ii] + 1]][, ii]
     }
   }
 
-  icov <- icov *
-    (abs(icov) <= abs(t(icov))) +
-    t(icov) * (abs(icov) > abs(t(icov)))
+  # Equivalent to: icov * (abs(icov) <= abs(t(icov))) + t(icov) * (abs(icov) > abs(t(icov)))
+  # Optimized using direct boolean indexing for faster execution and less memory
+  icov_t <- t(icov)
+  mask <- abs(icov) > abs(icov_t)
+  icov[mask] <- icov_t[mask]
 
   tmpicov <- icov
   diag(tmpicov) <- 0
