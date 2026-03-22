@@ -31,9 +31,9 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
     }
   }
 
-  icov <- icov *
-    (abs(icov) <= abs(t(icov))) +
-    t(icov) * (abs(icov) > abs(t(icov)))
+  t_icov <- t(icov)
+  idx <- abs(icov) > abs(t_icov)
+  icov[idx] <- t_icov[idx]
 
   tmpicov <- icov
   diag(tmpicov) <- 0
