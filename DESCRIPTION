@@ -16,6 +16,7 @@ Description: Provides a method of recovering the precision matrix efficiently
         solver. It also contains a generic LP solver and a parameterized LP 
         solver using parametric simplex method.
 License: GPL-2
+Encoding: UTF-8
 Repository: CRAN
 Packaged: 2023-05-05 08:32:19 UTC; ripley
 NeedsCompilation: yes
