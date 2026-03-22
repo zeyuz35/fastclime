@@ -7,6 +7,8 @@
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
+  stopifnot(!is.null(X), length(X) > 0, is.numeric(as.matrix(X)), !anyNA(as.matrix(X)))
+  stopifnot(!is.null(y), length(y) > 0, is.numeric(as.vector(y)), !anyNA(as.vector(y)))
   n0 <- nrow(X)
   d0 <- ncol(X)
   BETA0 <- matrix(0, d0, nlambda)

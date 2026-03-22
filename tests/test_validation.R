@@ -1,0 +1,6 @@
+library(fastclime)
+tryCatch(fastclime(NULL), error = function(e) print("Passed: fastclime(NULL) caught"))
+tryCatch(fastclime(matrix(NA_real_, 2, 2)), error = function(e) print("Passed: fastclime(NA) caught"))
+tryCatch(dantzig(NULL, NULL), error = function(e) print("Passed: dantzig(NULL, NULL) caught"))
+tryCatch(fastlp(NULL, matrix(numeric(0), 0, 0), NULL), error = function(e) print("Passed: fastlp(NULL...) caught"))
+tryCatch(paralp(NULL, matrix(numeric(0), 0, 0), NULL, NULL, NULL), error = function(e) print("Passed: paralp(NULL...) caught"))
