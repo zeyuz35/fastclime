@@ -36,17 +36,17 @@ The program will stop when either the maximum number of iteration for each colum
 }
 \examples{
 \dontrun{
-#generate data
-L = fastclime.generator(n = 100, d = 20)
+# generate data
+L <- fastclime.generator(n = 100, d = 20)
 
-#graph path estimation
-out1 = fastclime(L$data,0.1)
-out2 = fastclime.selector(out1$lambdamtx, out1$icovlist,0.2)
+# graph path estimation
+out1 <- fastclime(L$data, 0.1)
+out2 <- fastclime.selector(out1$lambdamtx, out1$icovlist, 0.2)
 fastclime.plot(out2$adaj)
 
-#graph path estimation using the sample covariance matrix as the input.
-out1 = fastclime(cor(L$data),0.1)
-out2 = fastclime.selector(out1$lambdamtx, out1$icovlist,0.2)
+# graph path estimation using the sample covariance matrix as the input.
+out1 <- fastclime(cor(L$data), 0.1)
+out2 <- fastclime.selector(out1$lambdamtx, out1$icovlist, 0.2)
 fastclime.plot(out2$adaj)
 }
 }
