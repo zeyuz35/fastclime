@@ -145,3 +145,20 @@ test_that("stockdata works", {
   expect_equal(dim(stockdata$data), c(1258, 452))
   expect_length(stockdata$info, 1356)
 })
+
+test_that("fastclime preserves xts/zoo attributes and colnames", {
+  if (requireNamespace("xts", quietly = TRUE)) {
+    set.seed(123)
+    L = fastclime.generator(n = 50, d = 10)
+
+    xts_data <- xts::xts(L$data, order.by = as.Date("2000-01-01") + 1:50)
+    colnames(xts_data) <- paste0("V", 1:10)
+
+    out <- fastclime(xts_data, 0.1)
+
+    expect_equal(class(out$data), c("xts", "zoo"))
+    expect_true("index" %in% names(attributes(out$data)))
+    expect_equal(colnames(out$sigmahat), paste0("V", 1:10))
+    expect_equal(colnames(out$icovlist[[1]]), paste0("V", 1:10))
+  }
+})
