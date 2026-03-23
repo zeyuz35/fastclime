@@ -1,5 +1,4 @@
 useDynLib("fastclime")
-import("Matrix","igraph","MASS")
 importFrom("grDevices", "dev.off", "gray.colors", "postscript")
 importFrom("graphics", "par", "plot")
 importFrom("stats", "cor", "cov", "rbinom", "rnorm", "runif")
@@ -22,3 +21,5 @@ S3method("plot","fastclime")
 S3method("print","fastclime")
 
 
+importFrom("graphics", "image")
+importFrom("stats", "cov2cor")
