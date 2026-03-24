@@ -7,7 +7,7 @@
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 
-fastclime.plot = function(
+fastclime.plot <- function(
   G,
   epsflag = FALSE,
   graph.name = "default",
@@ -16,12 +16,12 @@ fastclime.plot = function(
 ) {
   gcinfo(FALSE)
   if (missing(location)) {
-    location = getwd()
+    location <- getwd()
   }
-  diag(G) = 0
+  diag(G) <- 0
   Matrix(G, sparse = TRUE)
-  g = graph.adjacency(as.matrix(G != 0), mode = "undirected", diag = FALSE)
-  layout.grid = layout.fruchterman.reingold(g)
+  g <- graph.adjacency(as.matrix(G != 0), mode = "undirected", diag = FALSE)
+  layout.grid <- layout.fruchterman.reingold(g)
 
   if (epsflag == TRUE) {
     postscript(
@@ -34,7 +34,7 @@ fastclime.plot = function(
   plot(
     g,
     layout = layout.grid,
-    edge.color = 'gray50',
+    edge.color = "gray50",
     vertex.color = "red",
     vertex.size = 2,
     vertex.label = NA
