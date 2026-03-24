@@ -145,3 +145,26 @@ test_that("stockdata works", {
   expect_equal(dim(stockdata$data), c(1258, 452))
   expect_length(stockdata$info, 1356)
 })
+
+test_that("fastclime works with time-series and named matrix inputs", {
+  library(zoo)
+  # Test with asymmetric dimnames (colnames only)
+  mat <- matrix(rnorm(100), 10, 10)
+  sym_mat <- mat + t(mat)
+  colnames(sym_mat) <- paste0("V", 1:10)
+
+  res1 <- fastclime(sym_mat, lambda.min = 0.5, nlambda = 5)
+  expect_equal(res1$cov.input, 1) # Should detect as covariance matrix
+
+  # Test with zoo object (symmetric)
+  z_sym <- zoo(sym_mat)
+  res2 <- fastclime(z_sym, lambda.min = 0.5, nlambda = 5)
+  expect_equal(res2$cov.input, 1) # Should detect as covariance matrix
+  expect_s3_class(res2$data, "zoo") # Should preserve original class
+
+  # Test with zoo object (asymmetric data matrix)
+  z_data <- zoo(mat)
+  res3 <- fastclime(z_data, lambda.min = 0.5, nlambda = 5)
+  expect_equal(res3$cov.input, 0) # Should detect as data matrix
+  expect_s3_class(res3$data, "zoo")
+})

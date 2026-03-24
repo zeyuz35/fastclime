@@ -60,12 +60,12 @@
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+  SigmaInput <- as.matrix(x)
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unname(SigmaInput))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(SigmaInput) * (1 - 1 / n)
     cov.input <- 0
   }
 
