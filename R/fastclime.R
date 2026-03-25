@@ -99,8 +99,8 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   mu <- mu[1:maxnlambda, , drop = FALSE]
   icov <- list()
 
-  for (i in seq_len(maxnlambda)) {
-    icov[[i]] <- matrix(iicov[i, ], d, d)
+  for (ii in seq_len(maxnlambda)) {
+    icov[[ii]] <- matrix(iicov[ii, ], d, d)
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 

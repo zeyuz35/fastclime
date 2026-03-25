@@ -17,12 +17,12 @@ dantzig.generator <- function(n = 50, d = 100, sparsity = 0.1, sigma0 = 1) {
   BETA <- rep(0, d)
   pos <- rep(0, s)
 
-  for (i in 1:s) {
+  for (ii in 1:s) {
     a <- rnorm(1, mean = 0, sd = 1)
     si <- 2 * (rbinom(1, 1, 0.5) - 0.5)
     n1 <- floor(runif(1, min = 1, max = d + 1))
     BETA[n1] = si * (1 + a)
-    pos[i] = n1
+    pos[ii] = n1
   }
 
   sigma <- rnorm(n, mean = 0, sd = sigma0)
