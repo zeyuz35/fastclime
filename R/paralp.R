@@ -8,6 +8,13 @@
 #-------------------------------------------------------------------------------#
 
 paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
+  stopifnot(!is.null(obj), !is.null(mat), !is.null(rhs), !is.null(obj_bar), !is.null(rhs_bar))
+  stopifnot(is.numeric(as.matrix(obj)), !anyNA(as.matrix(obj)))
+  stopifnot(is.numeric(as.matrix(mat)), !anyNA(as.matrix(mat)))
+  stopifnot(is.numeric(as.matrix(rhs)), !anyNA(as.matrix(rhs)))
+  stopifnot(is.numeric(as.matrix(obj_bar)), !anyNA(as.matrix(obj_bar)))
+  stopifnot(is.numeric(as.matrix(rhs_bar)), !anyNA(as.matrix(rhs_bar)))
+
   m <- length(rhs)
   n <- length(obj)
   m1 <- length(rhs_bar)

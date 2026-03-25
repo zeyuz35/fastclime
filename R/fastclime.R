@@ -58,6 +58,9 @@
 #' }
 #' @export
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
+  stopifnot(!is.null(x))
+  stopifnot(is.numeric(as.matrix(x)), !anyNA(as.matrix(x)))
+
   gcinfo(FALSE)
   cov.input <- 1
   SigmaInput <- x
