@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------#
 
 ## Main function
-fastclime.generator = function(
+fastclime.generator <- function(
   n = 200,
   d = 50,
   graph = "random",
@@ -29,20 +29,20 @@ fastclime.generator = function(
     )
   }
   if (is.null(g)) {
-    g = 1
+    g <- 1
     if (graph == "hub" || graph == "cluster") {
       if (d > 40) {
-        g = ceiling(d / 20)
+        g <- ceiling(d / 20)
       }
-      if (d <= 40) g = 2
+      if (d <= 40) g <- 2
     }
   }
 
   if (graph == "random") {
     if (is.null(prob)) {
-      prob = min(1, 3 / d)
+      prob <- min(1, 3 / d)
     }
-    prob = sqrt(prob / 2) *
+    prob <- sqrt(prob / 2) *
       (prob < 0.5) +
       (1 - sqrt(0.5 - 0.5 * prob)) * (prob >= 0.5)
   }
@@ -50,134 +50,130 @@ fastclime.generator = function(
   if (graph == "cluster") {
     if (is.null(prob)) {
       if (d / g > 30) {
-        prob = 0.3
+        prob <- 0.3
       }
-      if (d / g <= 30) prob = min(1, 6 * g / d)
+      if (d / g <= 30) prob <- min(1, 6 * g / d)
     }
-    prob = sqrt(prob / 2) *
+    prob <- sqrt(prob / 2) *
       (prob < 0.5) +
       (1 - sqrt(0.5 - 0.5 * prob)) * (prob >= 0.5)
   }
 
   # parition variables into groups
-  g.large = d %% g
-  g.small = g - g.large
-  n.small = floor(d / g)
-  n.large = n.small + 1
-  g.list = c(rep(n.small, g.small), rep(n.large, g.large))
-  g.ind = rep(c(1:g), g.list)
+  g.large <- d %% g
+  g.small <- g - g.large
+  n.small <- floor(d / g)
+  n.large <- n.small + 1
+  g.list <- c(rep(n.small, g.small), rep(n.large, g.large))
+  g.ind <- rep(c(1:g), g.list)
   rm(g.large, g.small, n.small, n.large, g.list)
 
 
   # build the graph structure
-  theta = matrix(0, d, d)
+  theta <- matrix(0, d, d)
   if (graph == "band") {
     if (is.null(u)) {
-      u = 0.1
+      u <- 0.1
     }
     if (is.null(v)) {
-      v = 0.3
+      v <- 0.3
     }
     for (i in 1:g) {
-      diag(theta[1:(d - i), (1 + i):d]) = 1
-      diag(theta[(1 + i):d, 1:(d - 1)]) = 1
+      diag(theta[1:(d - i), (1 + i):d]) <- 1
+      diag(theta[(1 + i):d, 1:(d - 1)]) <- 1
     }
   }
   if (graph == "cluster") {
     if (is.null(u)) {
-      u = 0.1
+      u <- 0.1
     }
     if (is.null(v)) {
-      v = 0.3
+      v <- 0.3
     }
     for (i in 1:g) {
-      tmp = which(g.ind == i)
-      tmp2 = matrix(runif(length(tmp)^2, 0, 0.5), length(tmp), length(tmp))
-      tmp2 = tmp2 + t(tmp2)
-      theta[tmp, tmp][tmp2 < prob] = 1
+      tmp <- which(g.ind == i)
+      tmp2 <- matrix(runif(length(tmp)^2, 0, 0.5), length(tmp), length(tmp))
+      tmp2 <- tmp2 + t(tmp2)
+      theta[tmp, tmp][tmp2 < prob] <- 1
       rm(tmp, tmp2)
-
     }
   }
   if (graph == "hub") {
     if (is.null(u)) {
-      u = 0.1
+      u <- 0.1
     }
     if (is.null(v)) {
-      v = 0.3
+      v <- 0.3
     }
     for (i in 1:g) {
-      tmp = which(g.ind == i)
-      theta[tmp[1], tmp] = 1
-      theta[tmp, tmp[1]] = 1
+      tmp <- which(g.ind == i)
+      theta[tmp[1], tmp] <- 1
+      theta[tmp, tmp[1]] <- 1
       rm(tmp)
-
     }
   }
   if (graph == "random") {
     if (is.null(u)) {
-      u = 0.1
+      u <- 0.1
     }
     if (is.null(v)) {
-      v = 0.3
+      v <- 0.3
     }
 
-    tmp = matrix(runif(d^2, 0, 0.5), d, d)
-    tmp = tmp + t(tmp)
-    theta[tmp < prob] = 1
-    #theta[tmp >= tprob] = 0
+    tmp <- matrix(runif(d^2, 0, 0.5), d, d)
+    tmp <- tmp + t(tmp)
+    theta[tmp < prob] <- 1
+    # theta[tmp >= tprob] = 0
     rm(tmp)
-
   }
 
-  diag(theta) = 0
-  omega = theta * v
+  diag(theta) <- 0
+  omega <- theta * v
 
   # make omega positive definite and standardized
-  diag(omega) = abs(min(eigen(omega)$values)) + 0.1 + u
-  sigma = cov2cor(solve(omega))
-  omega = solve(sigma)
+  diag(omega) <- abs(min(eigen(omega)$values)) + 0.1 + u
+  sigma <- cov2cor(solve(omega))
+  omega <- solve(sigma)
 
   # generate multivariate normal data
-  x = mvrnorm(n, rep(0, d), sigma)
+  x <- mvrnorm(n, rep(0, d), sigma)
 
-  sigmahat = cov(x) * (1 - 1 / n)
+  sigmahat <- cov(x) * (1 - 1 / n)
 
   # graph and covariance visulization
   if (vis == TRUE) {
-    fullfig = par(
+    fullfig <- par(
       mfrow = c(2, 2),
       pty = "s",
       omi = c(0.3, 0.3, 0.3, 0.3),
       mai = c(0.3, 0.3, 0.3, 0.3)
     )
-    fullfig[1] = image(theta, col = gray.colors(256), main = "Adjacency Matrix")
+    fullfig[1] <- image(theta, col = gray.colors(256), main = "Adjacency Matrix")
 
-    fullfig[2] = image(
+    fullfig[2] <- image(
       sigma,
       col = gray.colors(256),
       main = "Covariance Matrix"
     )
-    g = graph.adjacency(theta, mode = "undirected", diag = FALSE)
-    layout.grid = layout.fruchterman.reingold(g)
+    g <- graph.adjacency(theta, mode = "undirected", diag = FALSE)
+    layout.grid <- layout.fruchterman.reingold(g)
 
-    fullfig[3] = plot(
+    fullfig[3] <- plot(
       g,
       layout = layout.grid,
-      edge.color = 'gray50',
+      edge.color = "gray50",
       vertex.color = "red",
       vertex.size = 3,
       vertex.label = NA,
       main = "Graph Pattern"
     )
 
-    fullfig[4] = image(
+    fullfig[4] <- image(
       sigmahat,
       col = gray.colors(256),
       main = "Empirical Matrix"
     )
     rm(fullfig, g, layout.grid)
-
   }
   if (verbose) {
     message("done.")
@@ -185,7 +181,7 @@ fastclime.generator = function(
   rm(vis, verbose)
 
 
-  sim = list(
+  sim <- list(
     data = x,
     sigma = sigma,
     sigmahat = sigmahat,
@@ -194,12 +190,24 @@ fastclime.generator = function(
     sparsity = sum(theta) / (d * (d - 1)),
     graph.type = graph
   )
-  class(sim) = "sim"
+  class(sim) <- "sim"
   return(sim)
 }
 
 
-print.sim = function(x, ...) {
+#' Print function for S3 class "sim"
+#'
+#' Print the information about the sample size, the dimension,
+#' the pattern and sparsity of the true graph strcture.
+#'
+#' @param x An object with S3 class \code{"sim"}.
+#' @param ... System reserved (No specific usage).
+#' @author Haotian Pang, Han Liu and Robert Vanderbei \cr
+#' Maintainer: Haotan Pang<hpang@princeton.edu>
+#' @seealso \code{\link{fastclime.generator}} and \code{\link{fastclime.generator}}
+#' @method print sim
+#' @export
+print.sim <- function(x, ...) {
   message("Simulated data generated by fastclime.generator()")
   message("Sample size: n =", nrow(x$data))
   message("Dimension: d =", ncol(x$data))
@@ -207,9 +215,21 @@ print.sim = function(x, ...) {
   message("Sparsity level:", sum(x$theta) / ncol(x$data) / (ncol(x$data) - 1))
 }
 
-plot.sim = function(x, ...) {
+#' Plot function for S3 class "sim"
+#'
+#' Visualize the covariance matrix, the empirical covariance matrix,
+#' the adjacency matrix and the graph pattern of the true graph structure.
+#'
+#' @param x An object with S3 class \code{"sim"}.
+#' @param ... System reserved (No specific usage).
+#' @author Haotian Pang, Han Liu and Robert Vanderbei \cr
+#' Maintainer: Haotan Pang<hpang@princeton.edu>
+#' @seealso \code{\link{fastclime.generator}} and \code{\link{fastclime}}
+#' @method plot sim
+#' @export
+plot.sim <- function(x, ...) {
   gcinfo(FALSE)
-  par = par(
+  par <- par(
     mfrow = c(2, 2),
     pty = "s",
     omi = c(0.3, 0.3, 0.3, 0.3),
@@ -217,13 +237,13 @@ plot.sim = function(x, ...) {
   )
   image(as.matrix(x$theta), col = gray.colors(256), main = "Adjacency Matrix")
   image(x$sigma, col = gray.colors(256), main = "Covariance Matrix")
-  g = graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
-  layout.grid = layout.fruchterman.reingold(g)
+  g <- graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
+  layout.grid <- layout.fruchterman.reingold(g)
 
   plot(
     g,
     layout = layout.grid,
-    edge.color = 'gray50',
+    edge.color = "gray50",
     vertex.color = "red",
     vertex.size = 3,
     vertex.label = NA,
