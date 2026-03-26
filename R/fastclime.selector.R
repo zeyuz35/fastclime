@@ -53,7 +53,7 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
 
 
   result <- list("icov" = icov, "adaj" = adaj, "sparsity" = sparsity)
-  class(result) = "fastclime.selector"
+  class(result) <- "fastclime.selector"
 
   return(result)
 }
