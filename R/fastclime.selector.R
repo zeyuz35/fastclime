@@ -31,9 +31,11 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
     }
   }
 
-  icov <- icov *
-    (abs(icov) <= abs(t(icov))) +
-    t(icov) * (abs(icov) > abs(t(icov)))
+  # Bolt: Optimize element-wise matrix symmetrization using logical indexing
+  # to avoid creating multiple large temporary matrices and redundant multiplications.
+  t_icov <- t(icov)
+  idx <- abs(icov) > abs(t_icov)
+  icov[idx] <- t_icov[idx]
 
   tmpicov <- icov
   diag(tmpicov) <- 0
