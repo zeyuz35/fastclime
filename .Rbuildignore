@@ -2,8 +2,8 @@
 ^LLM$
 ^tests$
 ^tmp$
+^smoke$
 
 ^.*\.tar\.gz$
 ^.*\.zip$
-^\.jules$
 ^\.jules$

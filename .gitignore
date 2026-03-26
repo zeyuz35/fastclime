@@ -16,6 +16,7 @@ src/*.dll
 # tests
 
 /scratch/
+/smoke/
 
 # vignette source
 inst/doc/*.tex
