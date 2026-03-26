@@ -58,6 +58,26 @@
 #' }
 #' @export
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
+  if (is.data.frame(x)) {
+    x <- data.matrix(x)
+  }
+  if (!is.matrix(x) || !is.numeric(x)) {
+    stop("x must be a numeric matrix or data frame")
+  }
+  if (anyNA(x) || any(!is.finite(x))) {
+    stop("x must not contain NA, NaN, or Inf values")
+  }
+  if (nrow(x) < 2 || ncol(x) < 1) {
+    stop("x must have at least 2 rows and 1 column")
+  }
+  if (!is.numeric(lambda.min) || length(lambda.min) != 1 || lambda.min < 0) {
+    stop("lambda.min must be a single nonnegative numeric value")
+  }
+  if (!is.numeric(nlambda) || length(nlambda) != 1 || nlambda < 1) {
+    stop("nlambda must be a single positive integer")
+  }
+  nlambda <- as.integer(nlambda)
+
   gcinfo(FALSE)
   cov.input <- 1
   SigmaInput <- x

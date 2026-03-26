@@ -8,6 +8,25 @@
 #-------------------------------------------------------------------------------#
 
 fastlp <- function(obj, mat, rhs, lambda = 0) {
+  if (
+    !is.numeric(obj) || !is.vector(obj) || anyNA(obj) || any(!is.finite(obj))
+  ) {
+    stop("obj must be a finite numeric vector")
+  }
+  if (
+    !is.matrix(mat) || !is.numeric(mat) || anyNA(mat) || any(!is.finite(mat))
+  ) {
+    stop("mat must be a finite numeric matrix")
+  }
+  if (
+    !is.numeric(rhs) || !is.vector(rhs) || anyNA(rhs) || any(!is.finite(rhs))
+  ) {
+    stop("rhs must be a finite numeric vector")
+  }
+  if (!is.numeric(lambda) || length(lambda) != 1 || !is.finite(lambda)) {
+    stop("lambda must be a finite numeric scalar")
+  }
+
   m <- length(rhs)
   n <- length(obj)
   m0 <- dim(mat)[1]

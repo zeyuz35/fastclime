@@ -7,6 +7,29 @@
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
+  if (!is.matrix(X) || !is.numeric(X)) {
+    stop("X must be a numeric matrix")
+  }
+  if (!is.numeric(y) || !(is.vector(y) || (is.matrix(y) && ncol(y) == 1))) {
+    stop("y must be a numeric vector or one-column numeric matrix")
+  }
+  if (is.matrix(y) && ncol(y) == 1) {
+    y <- as.vector(y)
+  }
+  if (anyNA(X) || any(!is.finite(X)) || anyNA(y) || any(!is.finite(y))) {
+    stop("X and y must not contain NA, NaN, or Inf values")
+  }
+  if (length(y) != nrow(X)) {
+    stop("length(y) must equal nrow(X)")
+  }
+  if (!is.numeric(lambda) || length(lambda) != 1 || lambda < 0) {
+    stop("lambda must be a single nonnegative numeric value")
+  }
+  if (!is.numeric(nlambda) || length(nlambda) != 1 || nlambda < 1) {
+    stop("nlambda must be a single positive integer")
+  }
+  nlambda <- as.integer(nlambda)
+
   n0 <- nrow(X)
   d0 <- ncol(X)
   BETA0 <- matrix(0, d0, nlambda)
@@ -60,7 +83,6 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
     "validn" = validn,
     "lambdalist" = lambdalist
   )
-
 
   class(result) = "dantzig"
   message("Done!")

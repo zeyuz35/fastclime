@@ -8,6 +8,44 @@
 #-------------------------------------------------------------------------------#
 
 paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
+  if (
+    !is.numeric(obj) || !is.vector(obj) || anyNA(obj) || any(!is.finite(obj))
+  ) {
+    stop("obj must be a finite numeric vector")
+  }
+  if (
+    !is.matrix(mat) || !is.numeric(mat) || anyNA(mat) || any(!is.finite(mat))
+  ) {
+    stop("mat must be a finite numeric matrix")
+  }
+  if (
+    !is.numeric(rhs) || !is.vector(rhs) || anyNA(rhs) || any(!is.finite(rhs))
+  ) {
+    stop("rhs must be a finite numeric vector")
+  }
+  if (
+    !is.numeric(obj_bar) ||
+      !is.vector(obj_bar) ||
+      anyNA(obj_bar) ||
+      any(!is.finite(obj_bar))
+  ) {
+    stop("obj_bar must be a finite numeric vector")
+  }
+  if (
+    !is.numeric(rhs_bar) ||
+      !is.vector(rhs_bar) ||
+      anyNA(rhs_bar) ||
+      any(!is.finite(rhs_bar))
+  ) {
+    stop("rhs_bar must be a finite numeric vector")
+  }
+  if (any(obj_bar < 0) || any(rhs_bar < 0)) {
+    stop("The perturbation vector obj_bar and rhs_bar must be nonnegative")
+  }
+  if (!is.numeric(lambda) || length(lambda) != 1 || !is.finite(lambda)) {
+    stop("lambda must be a finite numeric scalar")
+  }
+
   m <- length(rhs)
   n <- length(obj)
   m1 <- length(rhs_bar)
