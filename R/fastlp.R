@@ -41,7 +41,7 @@ fastlp <- function(obj, mat, rhs, lambda = 0) {
   }
 
   if (error == 0) {
-    str = .C(
+    str <- .C(
       "fastlp",
       as.double(obj),
       as.double(t(mat)),
