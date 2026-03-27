@@ -37,13 +37,13 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   message("compute X^TX and X^y")
 
-  X2 = crossprod(X) # Equivalent to t(X) %*% X
-  Xy = crossprod(X, y) # Equivalent to t(X) %*% y
+  X2 <- crossprod(X) # Equivalent to t(X) %*% X
+  Xy <- crossprod(X, y) # Equivalent to t(X) %*% y
 
   message("start recovering")
 
   # start.time <- Sys.time()
-  str = .C(
+  str <- .C(
     "dantzig",
     as.double(X2),
     as.double(Xy),
@@ -84,7 +84,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
     "lambdalist" = lambdalist
   )
 
-  class(result) = "dantzig"
+  class(result) <- "dantzig"
   message("Done!")
 
   return(result)
