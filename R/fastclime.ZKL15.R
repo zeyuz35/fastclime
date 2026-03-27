@@ -38,7 +38,7 @@ fastclime.ZKL15 <- function(
   diag_N <- diag(bigN)
   
   # Calculate penalty parameters if not provided
-  sigma_x <- apply(X, 2, sd)
+  sigma_x <- apply(X, 2, stats::sd)
   Rho <- eigen(Sigma, only.values = TRUE)$values
   rho_min <- max(min(Rho), 0.01)
   R <- 1 / rho_min
