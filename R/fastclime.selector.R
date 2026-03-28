@@ -39,7 +39,7 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
 
   tmpicov <- icov
   diag(tmpicov) <- 0
-  adaj <- Matrix(tmpicov > threshold, sparse = TRUE) * 1
+  adaj <- Matrix::Matrix(tmpicov > threshold, sparse = TRUE) * 1
 
   sparsity <- (sum(adaj)) / (d^2 - d)
 
