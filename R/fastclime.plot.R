@@ -19,9 +19,9 @@ fastclime.plot = function(
     location = getwd()
   }
   diag(G) = 0
-  Matrix(G, sparse = TRUE)
-  g = graph.adjacency(as.matrix(G != 0), mode = "undirected", diag = FALSE)
-  layout.grid = layout.fruchterman.reingold(g)
+  Matrix::Matrix(G, sparse = TRUE)
+  g = igraph::graph.adjacency(as.matrix(G != 0), mode = "undirected", diag = FALSE)
+  layout.grid = igraph::layout.fruchterman.reingold(g)
 
   if (epsflag == TRUE) {
     postscript(
