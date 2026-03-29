@@ -28,53 +28,53 @@ fastclime.BK17 <- function(
   # preliminary
   bigT <- nrow(X)
   bigN <- ncol(X)
-  
+
   if (is.null(Sigma)) {
     Sigma <- (t(X) %*% X) / bigT
   }
-  
+
   diag_N <- diag(bigN)
-  
+
   # Calculate penalty parameters if not provided
   sigma_x <- apply(X, 2, sd)
   Rho <- eigen(Sigma, only.values = TRUE)$values
   rho_min <- max(min(Rho), 0.01)
   R <- 1 / rho_min
-  
+
   a1 <- 2 *
     pmax(16, 36 * sigma_x^4) *
     (5 + 4 * exp(2) * pmax(4, 6 * sigma_x^2))^2
-  
+
   a2 <- sqrt(3) * sigma_x / rho_min
-  
+
   if (is.null(lambda_1)) {
     lambda_1 <- a1 * R * sqrt(log(bigN) / bigT)
   }
   if (length(lambda_1) == 1) {
     lambda_1 <- rep(lambda_1, bigN)
   }
-  
+
   if (is.null(lambda_2)) {
     lambda_2 <- a2 * sqrt(log(max(bigN, bigT)))
   }
   if (length(lambda_2) == 1) {
     lambda_2 <- rep(lambda_2, bigN)
   }
-  
+
   # Prepare objects for fastlp
   # fastlp is a MAXIMIZER, so to minimize L1 norm sum(beta_pos + beta_neg),
   # we maximize its negation: max -sum(beta_pos + beta_neg).
   obj <- rep(-1, 2 * bigN)
-  
+
   # Constraint matrices
   A_top <- rbind(Sigma, -Sigma)
   A_mid <- rbind(X, -X)
-  
+
   A <- rbind(
     cbind(A_top, -A_top),
     cbind(A_mid, -A_mid)
   )
-  
+
   # Solve for each column
   if (parallel && requireNamespace("parallel", quietly = TRUE)) {
     results <- parallel::mclapply(1:bigN, function(ii) {
@@ -83,14 +83,17 @@ fastclime.BK17 <- function(
         -diag_N[ii, ] + lambda_1[ii],
         rep(lambda_2[ii], 2 * bigT)
       )
-      
-      tryCatch({
-        opt <- fastlp(obj, A, rhs)
-        beta_i <- opt[1:bigN] - opt[(bigN + 1):(2 * bigN)]
-        return(list(beta_i = beta_i, status = "success"))
-      }, error = function(e) {
-        return(list(beta_i = rep(NA, bigN), status = "error", message = e$message))
-      })
+
+      tryCatch(
+        {
+          opt <- fastlp(obj, A, rhs)
+          beta_i <- opt[1:bigN] - opt[(bigN + 1):(2 * bigN)]
+          return(list(beta_i = beta_i, status = "success"))
+        },
+        error = function(e) {
+          return(list(beta_i = rep(NA, bigN), status = "error", message = e$message))
+        }
+      )
     })
   } else {
     results <- lapply(1:bigN, function(ii) {
@@ -99,19 +102,22 @@ fastclime.BK17 <- function(
         -diag_N[ii, ] + lambda_1[ii],
         rep(lambda_2[ii], 2 * bigT)
       )
-      
-      tryCatch({
-        opt <- fastlp(obj, A, rhs)
-        beta_i <- opt[1:bigN] - opt[(bigN + 1):(2 * bigN)]
-        return(list(beta_i = beta_i, status = "success"))
-      }, error = function(e) {
-        return(list(beta_i = rep(NA, bigN), status = "error", message = e$message))
-      })
+
+      tryCatch(
+        {
+          opt <- fastlp(obj, A, rhs)
+          beta_i <- opt[1:bigN] - opt[(bigN + 1):(2 * bigN)]
+          return(list(beta_i = beta_i, status = "success"))
+        },
+        error = function(e) {
+          return(list(beta_i = rep(NA, bigN), status = "error", message = e$message))
+        }
+      )
     })
   }
-  
+
   Omega <- do.call(cbind, lapply(results, function(x) x$beta_i))
-  
+
   ret_list <- list(
     Omega = Omega,
     lambda = data.frame(
@@ -120,6 +126,6 @@ fastclime.BK17 <- function(
     ),
     results = results
   )
-  
+
   return(ret_list)
 }
