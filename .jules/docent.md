@@ -1,0 +1,3 @@
+## 2024-03-15 - S3 method documentation requirements
+**Learning:** Roxygen2 requires S3 methods (like `print.sim` and `plot.sim`) to be explicitly tagged with `#' @export` or `#' @exportS3Method` in the source code even if they are otherwise handled. Missing tags result in a warning when checking or documenting the package (`S3 method needs @export or @exportS3Method tag`).
+**Action:** Always ensure that overridden S3 methods have the `#' @export` tag in the R source code when using roxygen2 to manage documentation.
