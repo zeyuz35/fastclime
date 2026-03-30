@@ -11,6 +11,9 @@
 #define	MALLOC(name,len,type) do {	\
 	 size_t _safe_len = (size_t)(len); \
 	 _safe_len = _safe_len > 0 ? _safe_len : 1; \
+	 if (_safe_len > ((size_t)-1) / sizeof(type)) { \
+		error("Integer overflow in memory allocation"); \
+	 } \
 	 (name) = (type *)malloc( _safe_len * sizeof(type) ); \
 	 if ((name) == NULL) { \
 		error("Memory allocation failed"); \
@@ -21,6 +24,9 @@
 #define	CALLOC(name,len,type) do { \
 	 size_t _safe_len = (size_t)(len); \
 	 _safe_len = _safe_len > 0 ? _safe_len : 1; \
+	 if (_safe_len > ((size_t)-1) / sizeof(type)) { \
+		error("Integer overflow in memory allocation"); \
+	 } \
 	 (name) = (type *)calloc( _safe_len , sizeof(type) ); \
 	 if ((name) == NULL) { \
 		error("Memory allocation failed"); \
@@ -31,6 +37,9 @@
 #define	REALLOC(name,len,type) do { \
 	 size_t _safe_len = (size_t)(len); \
 	 _safe_len = _safe_len > 0 ? _safe_len : 1; \
+	 if (_safe_len > ((size_t)-1) / sizeof(type)) { \
+		error("Integer overflow in memory allocation"); \
+	 } \
 	 void *_new_ptr = realloc((name), _safe_len * sizeof(type)); \
 	 if (_new_ptr == NULL) { \
 		error("Memory allocation failed"); \
