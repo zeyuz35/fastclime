@@ -151,9 +151,9 @@ fastclime.generator = function(
       omi = c(0.3, 0.3, 0.3, 0.3),
       mai = c(0.3, 0.3, 0.3, 0.3)
     )
-    fullfig[1] = image(theta, col = gray.colors(256), main = "Adjacency Matrix")
+    fullfig[1] = graphics::image(theta, col = gray.colors(256), main = "Adjacency Matrix")
 
-    fullfig[2] = image(
+    fullfig[2] = graphics::image(
       sigma,
       col = gray.colors(256),
       main = "Covariance Matrix"
@@ -171,7 +171,7 @@ fastclime.generator = function(
       main = "Graph Pattern"
     )
 
-    fullfig[4] = image(
+    fullfig[4] = graphics::image(
       sigmahat,
       col = gray.colors(256),
       main = "Empirical Matrix"
@@ -215,8 +215,8 @@ plot.sim = function(x, ...) {
     omi = c(0.3, 0.3, 0.3, 0.3),
     mai = c(0.3, 0.3, 0.3, 0.3)
   )
-  image(as.matrix(x$theta), col = gray.colors(256), main = "Adjacency Matrix")
-  image(x$sigma, col = gray.colors(256), main = "Covariance Matrix")
+  graphics::image(as.matrix(x$theta), col = gray.colors(256), main = "Adjacency Matrix")
+  graphics::image(x$sigma, col = gray.colors(256), main = "Covariance Matrix")
   g = graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
   layout.grid = layout.fruchterman.reingold(g)
 
@@ -231,7 +231,7 @@ plot.sim = function(x, ...) {
   )
   rm(g, layout.grid)
 
-  image(
+  graphics::image(
     x$sigmahat,
     col = gray.colors(256),
     main = "Empirical Covariance Matrix"
