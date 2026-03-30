@@ -135,8 +135,13 @@ fastclime.generator = function(
 
   # make omega positive definite and standardized
   diag(omega) = abs(min(eigen(omega)$values)) + 0.1 + u
-  sigma = cov2cor(solve(omega))
-  omega = solve(sigma)
+
+  # Optimization: Avoid expensive O(N^3) solve(sigma) for precision matrix
+  # by scaling omega directly using diagonal of inverted omega
+  sigma_unscaled = solve(omega)
+  D_sqrt = sqrt(diag(sigma_unscaled))
+  sigma = cov2cor(sigma_unscaled)
+  omega = t(t(omega * D_sqrt) * D_sqrt)
 
   # generate multivariate normal data
   x = mvrnorm(n, rep(0, d), sigma)
