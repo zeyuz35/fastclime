@@ -3,7 +3,7 @@
 # dantzig(): Dantzig Selector Function                                          #
 # Authors: Haotian Pang, Di Qi, Han Liu and Robert Vanderbei                    #
 # Emails: <hpang@princeton.edu>, <hanliu@princeton.edu> and <rvdb@princetonedu> #
-# Date: April 22th 2016                                                           #
+# Date: April 22nd 2016                                                           #
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {

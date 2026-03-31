@@ -11,16 +11,11 @@ H. Pang, H. Liu & R. Vanderbei, March 2013
 #include "lu.h"
 #include "linalg.h"
 #include "macros.h"
+#include <string.h>
 
 #define EPS1 1.0e-8
 #define EPS2 1.0e-12
 #define EPS3 1.0e-5
-
-static int ColNum;
-static int N;
-static int lambda;
-static int *max_row_iter;
-
 
 int ratio_test(
 	double *dy, 
@@ -42,13 +37,15 @@ void solver2(
     double *lambdamin,
     int *maxnlambda,
     double *mu_input,
-    double *iicov        
+    double *iicov,
+    int col_num_val,
+    int N_val,
+    int lambda_val,
+    int *max_row_iter_p
     );
 
 void parametric(double *SigmaInput, int *m1, double *mu_input, double *lambdamin, int *nlambda, int *maxnlambda, double *iicov)
 {
-  //printf("hello6 \n");
-
   int m;		/* number of constraints */
   int n;		/* number of variables */
   int nz;		/* number of nonzeros in sparse constraint matrix */
@@ -60,29 +57,22 @@ void parametric(double *SigmaInput, int *m1, double *mu_input, double *lambdamin
   double **LMATRIX;
   int i, j, k;
   int m0 = *m1;
-
-
-  /* lambdamin is the smallest lambda asked by the user */
-  /* nlambda is the maximum iteration asked by the user */
-  /* maxnlambda is the maxium number of iteration found among each column */
-      
-  lambda = *nlambda;
+  int lambda_val = *nlambda;
+  int *max_row_iter_p;
+  int N_val;
 
   /* Actual matrix dimension is the 2m1*2m1, so m=2*m1, n=2*m1 */
   m = 2*m0;
   n = 2*m0;
   nz = 0;
-  N = m+n;
+  N_val = m+n;
 
-
-  MALLOC(max_row_iter,m0, int);
+  MALLOC(max_row_iter_p,m0, int);
     
-
   MALLOC(LMATRIX, m,  double*);
   for (i=0; i<m; i++) {
     MALLOC(LMATRIX[i], n,  double);
   }
-
 
   for (i=0; i<m0; i++){
     for (j=0; j<m0; j++){
@@ -96,8 +86,6 @@ void parametric(double *SigmaInput, int *m1, double *mu_input, double *lambdamin
 	   }
   }
 
-
-
   MALLOC(        a, nz+m,  double );      
   MALLOC(       ia, nz+m,   int );      
   MALLOC(       ka, n+m+1,  int );       
@@ -110,7 +98,6 @@ void parametric(double *SigmaInput, int *m1, double *mu_input, double *lambdamin
 
 /*Form sparse matrix A*/
   k=0;
-
 
   for (j = 0; j < n; j++) {
 	  ka[j] = k;
@@ -131,7 +118,7 @@ void parametric(double *SigmaInput, int *m1, double *mu_input, double *lambdamin
 
   /* Add slack variable to the sparse matrix A */
   i = 0;
-  for (j = n; j < N; j++) {
+  for (j = n; j < N_val; j++) {
     a[k] = 1.0;
     ia[k] = i;
     i++;
@@ -140,8 +127,7 @@ void parametric(double *SigmaInput, int *m1, double *mu_input, double *lambdamin
   }
   nz = k;
 
-
-  for(ColNum = 0; ColNum < m0; ColNum++){
+  for(int col_idx = 0; col_idx < m0; col_idx++){
 
     /* Form vector b for each problem */
     MALLOC(        b, m,   double );  
@@ -149,34 +135,31 @@ void parametric(double *SigmaInput, int *m1, double *mu_input, double *lambdamin
 	    b[i] = 0.0;
 	  }
 
-	  b[ColNum] = 1.0;
-	  b[ColNum+m0] = -1.0;
+	  b[col_idx] = 1.0;
+	  b[col_idx+m0] = -1.0;
     
     /* Call the parametric simplex method solver here */
-    solver2(m,n,nz,ia,ka,a,b,c,lambdamin,maxnlambda,mu_input,iicov);
+    solver2(m,n,nz,ia,ka,a,b,c,lambdamin,maxnlambda,mu_input,iicov, col_idx, N_val, lambda_val, max_row_iter_p);
 	  FREE(b);
         
   }
       
 
   for(j = 0; j < m0*m0; j++){
-    for(i = 1; i < lambda; i++){
+    for(i = 1; i < lambda_val; i++){
 
-      if(i > max_row_iter[j/m0]){
-        iicov[j*lambda+i] = iicov[j*lambda+i-1];                
+      if(i > max_row_iter_p[j/m0]){
+        iicov[j*lambda_val+i] = iicov[j*lambda_val+i-1];                
       }            
 
     }
   }
     
-    
   FREE(a);
   FREE(ia);
   FREE(ka);
   FREE(c);
-
-  FREE(max_row_iter);
-    
+  FREE(max_row_iter_p);
 }
 
 
@@ -192,7 +175,11 @@ void solver2(
     double *lambdamin,
     int *maxnlambda,
     double *mu_input,
-    double *iicov
+    double *iicov,
+    int col_num_val,
+    int N_val,
+    int lambda_val,
+    int *max_row_iter_p
     )
 {
 
@@ -222,15 +209,19 @@ void solver2(
   int     status;
   double *output_vec = NULL;
 
-  
+  /* Buffers for Nt_times_y */
+  double *a_buf;
+  int *tag_buf;
+  int *link_buf;
+  int currtag = 1;
 
   MALLOC(    x_B, m,   double );      
   MALLOC( xbar_B, m,   double );      
   MALLOC(   dx_B, m,   double );  
   MALLOC(    y_N, n,   double );      
   MALLOC(   dy_N, n,   double );  
-  MALLOC(    vec, N,   double );
-  MALLOC(   ivec, N,    int );
+  MALLOC(    vec, N_val,   double );
+  MALLOC(   ivec, N_val,    int );
   MALLOC(  idx_B, m,    int );      
   MALLOC(  idy_N, n,    int );      
   MALLOC(     at, nz,  double );
@@ -238,13 +229,19 @@ void solver2(
   MALLOC(    kat, m+1,  int );
   MALLOC(   basics,    m,   int );      
   MALLOC(   nonbasics, n,   int );      
-  MALLOC(   basicflag, N,   int );
+  MALLOC(   basicflag, N_val,   int );
+
+  /* Allocate internal buffers once per call instead of per iteration */
+  CALLOC(   output_vec, N_val, double );
+  MALLOC(   a_buf, N_val, double );
+  CALLOC(   tag_buf, N_val, int );
+  CALLOC(   link_buf, N_val+2, int );
 
     /**************************************************************** 
     *  initialization.              				    *
     ****************************************************************/
 
-  atnum(m,N,ka,ia,a,kat,iat,at);	
+  atnum(m,N_val,ka,ia,a,kat,iat,at);	
 
 
   for (j=0; j<n; j++) {
@@ -264,12 +261,8 @@ void solver2(
   lufac( m, ka, ia, a, basics, 0 );
  
 
-  for (iter = 0; iter < lambda; iter++) {
+  for (iter = 0; iter < lambda_val; iter++) {
 
-    /* allocate a fresh buffer for storing the current basic solution
-       the pointer is freed at the end of each iteration, so it must not
-       be reused outside this scope. */
-    CALLOC(   output_vec, N, double );
     if(iter > *maxnlambda){
       *maxnlambda = iter;
     }
@@ -291,8 +284,10 @@ void solver2(
 		  }
     }  
       
-    mu_input[lambda*ColNum+iter] = mu;
+    mu_input[lambda_val*col_num_val+iter] = mu;
     
+    memset(output_vec, 0, N_val * sizeof(double));
+
     /*Find the current basic solution and store it to output_vec*/      
     for (i=0; i<m; i++){
       output_vec[basics[i]] = x_B[i] + mu*xbar_B[i];
@@ -301,7 +296,7 @@ void solver2(
 
     for(i=0; i < m/2; i++){	      
       if(fabs(output_vec[i]-output_vec[i+m/2])>EPS3){
-        iicov[ColNum * lambda * (m/2) + i * lambda + iter] = output_vec[i]-output_vec[i+m/2]; 
+        iicov[col_num_val * lambda_val * (m/2) + i * lambda_val + iter] = output_vec[i]-output_vec[i+m/2]; 
       }
     }
         
@@ -328,8 +323,8 @@ void solver2(
 	  ivec[0] = col_out;
 	  nvec = 1;
 	  btsolve( m, vec, ivec, &nvec ); 
-	  Nt_times_y( N, at, iat, kat, basicflag, vec, ivec, nvec, 
-		     dy_N, idy_N, &ndy_N );
+    Nt_times_y( N_val, at, iat, kat, basicflag, vec, ivec, nvec, 
+		     dy_N, idy_N, &ndy_N, a_buf, tag_buf, link_buf + 1, &currtag );
 
         /*************************************************************
 	* step 3: ratio test to find entering column                 * 
@@ -429,16 +424,14 @@ void solver2(
       * step 8: refactor basis                                     *
       *************************************************************/
     refactor( m, ka, ia, a, basics, col_out, v );
-     /* free immediately after use to avoid holding on to memory between
-       iterations. the pointer value becomes invalid here, so it is
-       important not to touch it later. */
-     FREE( output_vec );
     
   }
    
-  max_row_iter[ColNum]=iter;
-  Nt_times_y( -1, at, iat, kat, basicflag, vec, ivec, nvec, 
-		     dy_N, idy_N, &ndy_N );
+  max_row_iter_p[col_num_val]=iter;
+
+  lu_clo();
+  btsolve(0, vec, ivec, &nvec);
+  bsolve(0, vec, ivec, &nvec);
 
   FREE(  vec );
   FREE( ivec );
@@ -455,9 +448,10 @@ void solver2(
   FREE(iat);
   FREE(basicflag);
   FREE(kat);
-  lu_clo();
-  btsolve(0, vec, ivec, &nvec);
-  bsolve(0, vec, ivec, &nvec);
+  FREE( output_vec );
+  FREE( a_buf );
+  FREE( tag_buf );
+  FREE( link_buf );
 
 }
 
@@ -485,12 +479,3 @@ int ratio_test(
 
 	return jj;
 }
-
-
-
-
-
-
-
-
-

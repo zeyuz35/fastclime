@@ -1,7 +1,7 @@
 # fastclime.lambda(): Function used to select the solution path for a given lambda         #
 # Authors: Haotian Pang, Han Liu and Robert Vanderbei                                      #
 # Emails: <hpang@princeton.edu>, <hanliu@princeton.edu> and <rvdb@princetonedu>            #
-# Date: April 22th 2016                                                           #
+# Date: April 22nd 2016                                                           #
 # Version: 1.4.1					                                                       #
 #------------------------------------------------------------------------------------------#
 
@@ -41,16 +41,13 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
   diag(tmpicov) <- 0
   adaj <- Matrix(tmpicov > threshold, sparse = TRUE) * 1
 
-  sparsity <- (sum(adaj)) / (d^2 - d)
+  sparsity <- sum(adaj@x) / (d^2 - d)
 
   if (status == 1) {
     warning(
       "Some columns do not reach the required lambda!\nYou may want to increase lambda.min or use a larger nlambda."
     )
   }
-
-  rm(temp_lambda, seq, d, threshold)
-
 
   result <- list("icov" = icov, "adaj" = adaj, "sparsity" = sparsity)
   class(result) = "fastclime.selector"

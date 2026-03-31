@@ -3,7 +3,7 @@
 # fastclime.generator(): graph visualization                                    #
 # Authors: Haotian Pang, Han Liu and Robert Vanderbei                           #
 # Emails: <hpang@princeton.edu>, <hanliu@princeton.edu> and <rvdb@princetonedu> #
-# Date: April 22th 2016                                                           #
+# Date: April 22nd 2016                                                           #
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 
@@ -19,7 +19,6 @@ fastclime.plot = function(
     location = getwd()
   }
   diag(G) = 0
-  Matrix(G, sparse = TRUE)
   g = graph.adjacency(as.matrix(G != 0), mode = "undirected", diag = FALSE)
   layout.grid = layout.fruchterman.reingold(g)
 

@@ -1,9 +1,9 @@
 #-------------------------------------------------------------------------------#
 # Package: fastclime                                                            #
-# fastclp(): A parametric simplex LP solver                                     #
+# fastlp(): A parametric simplex LP solver                                     #
 # Authors: Haotian Pang, Han Liu and Robert Vanderbei                           #
 # Emails: <hpang@princeton.edu>, <hanliu@princeton.edu> and <rvdb@princetonedu> #
-# Date: April 22th 2016                                                           #
+# Date: April 22nd 2016                                                           #
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 

@@ -16,8 +16,8 @@ static TNODE *root=NULL;
 
 static void killnode( TNODE *node )
 {
-    if (node->left  != NULL) killnode(node->left);;
-    if (node->right != NULL) killnode(node->right);;
+    if (node->left  != NULL) killnode(node->left);
+    if (node->right != NULL) killnode(node->right);
     if (node != NULL) FREE(node);
 }
 

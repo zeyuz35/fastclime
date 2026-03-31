@@ -165,6 +165,10 @@ void solver21(
     int    *ivec;
     int     nvec;
     int     N;
+    double  *a_buf;
+    int     *tag_buf;
+    int     *link_buf;
+    int     currtag = 1;
 
     N=m+n;
 
@@ -202,6 +206,9 @@ void solver21(
     MALLOC(   nonbasics, n,   int );      
     MALLOC(   basicflag, N,   int );
     CALLOC(   x, N, double );
+    MALLOC(   a_buf, N, double );
+    CALLOC(   tag_buf, N, int );
+    CALLOC(   link_buf, N+2, int );
 
     /**************************************************************** 
     *  initialization.              				    *
@@ -272,7 +279,7 @@ void solver21(
 
 	btsolve( m, vec, ivec, &nvec );  
 	Nt_times_y( N, at, iat, kat, basicflag, vec, ivec, nvec, 
-		     dy_N, idy_N, &ndy_N );
+		     dy_N, idy_N, &ndy_N, a_buf, tag_buf, link_buf + 1, &currtag );
 
 	col_in = ratio_test1( dy_N, idy_N, ndy_N, y_N, ybar_N,mu );
 
@@ -342,7 +349,7 @@ void solver21(
 
 	btsolve( m, vec, ivec, &nvec );  		
 	Nt_times_y( N, at, iat, kat, basicflag, vec, ivec, nvec, 
-		     dy_N, idy_N, &ndy_N );
+		     dy_N, idy_N, &ndy_N, a_buf, tag_buf, link_buf + 1, &currtag );
 
       }
 
@@ -434,15 +441,17 @@ void solver21(
       }
 
 
-      if(iter>=1){
-          Nt_times_y( -1, at, iat, kat, basicflag, vec, ivec, nvec, 
-		     dy_N, idy_N, &ndy_N );
-      }
 
 
     /****************************************************************
     * 	free work space                                             *
     ****************************************************************/
+
+    if(iter>=1){
+       lu_clo();
+       btsolve(0, vec, ivec, &nvec);
+       bsolve(0, vec, ivec, &nvec);
+    }
 
     FREE(  vec );
     FREE( ivec );
@@ -460,13 +469,9 @@ void solver21(
     FREE(iat);
     FREE(basicflag);
     FREE(kat);
-
-    if(iter>=1){
-       lu_clo();
-       btsolve(0, vec, ivec, &nvec);
-       bsolve(0, vec, ivec, &nvec);
-    }
-
+    FREE(a_buf);
+    FREE(tag_buf);
+    FREE(link_buf);
 
 }
 

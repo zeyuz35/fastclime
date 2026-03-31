@@ -3,7 +3,7 @@
 # fastclp(): A parametric simplex LP solver for parameterized LP problems       #
 # Authors: Haotian Pang, Han Liu and Robert Vanderbei                           #
 # Emails: <hpang@princeton.edu>, <hanliu@princeton.edu> and <rvdb@princetonedu> #
-# Date: April 22th 2016                                                           #
+# Date: April 22nd 2016                                                           #
 # Version: 1.4.1						                                        #
 #-------------------------------------------------------------------------------#
 
@@ -59,10 +59,6 @@ paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
 
   if (m != m0 || n != n0 || m != m1 || n != n1) {
     stop("Dimensions do not match!")
-  }
-
-  if (any(obj_bar < 0) || any(rhs_bar < 0)) {
-    stop("The pertubation vector obj_bar and rhs_bar must be nonnegative!")
   }
 
   if (error == 0) {

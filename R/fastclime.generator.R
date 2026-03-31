@@ -3,7 +3,7 @@
 # fastclime.generator(): Data generator                                         #
 # Authors: Haotian Pang, Han Liu and Robert Vanderbei                           #
 # Emails: <hpang@princeton.edu>, <hanliu@princeton.edu> and <rvdb@princetonedu> #
-# Date: April 22th 2016                                                         #
+# Date: April 22nd 2016                                                         #
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 
@@ -80,7 +80,7 @@ fastclime.generator = function(
     }
     for (i in 1:g) {
       diag(theta[1:(d - i), (1 + i):d]) = 1
-      diag(theta[(1 + i):d, 1:(d - 1)]) = 1
+      diag(theta[(1 + i):d, 1:(d - i)]) = 1
     }
   }
   if (graph == "cluster") {

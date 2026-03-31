@@ -5,6 +5,7 @@
 
 LLM/
 smoke/
+tmp/
 
 *.tar.gz
 
@@ -22,3 +23,5 @@ src/*.dll
 inst/doc/*.tex
 inst/doc/*.Rnw
 inst/doc/*.synctex.gz
+
+*.DS_Store

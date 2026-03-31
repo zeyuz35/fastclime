@@ -68,6 +68,10 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
   int     nvec=0;
   int     N;
   double *output_vec = NULL;
+  double *a_buf;
+  int *tag_buf;
+  int *link_buf;
+  int currtag = 1;
   int d;
   //double temp_sum;
   //double *temp_vec;
@@ -89,12 +93,6 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
    //  }
 
 
-   //  for (i=0; i<d; i++){
-   //       for (j=0; j<d; j++){
-   //        LMATRIX[i][j]      =  X2[i*d+j];
-   //        printf("LMATRIX[%d][%d]= %e \n",i, j, output_vec[i]);
-   //    }
-   //  }   
   
   //Form sparse matrix
 
@@ -151,6 +149,10 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
   MALLOC(   basics,    m,   int );      
   MALLOC(   nonbasics, n,   int );      
   MALLOC(   basicflag, N,   int );
+
+  MALLOC(   a_buf, N, double );
+  CALLOC(   tag_buf, N, int );
+  CALLOC(   link_buf, N+2, int );
 
 
     /**************************************************************** 
@@ -261,7 +263,7 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
     nvec = 1;
     btsolve( m, vec, ivec, &nvec ); 
     Nt_times_y( N, at, iat, kat, basicflag, vec, ivec, nvec, 
-         dy_N, idy_N, &ndy_N );
+         dy_N, idy_N, &ndy_N, a_buf, tag_buf, link_buf + 1, &currtag );
 
         /*************************************************************
   * step 3: ratio test to find entering column                 * 
@@ -358,9 +360,11 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
     
   }
 
-  Nt_times_y( -1, at, iat, kat, basicflag, vec, ivec, nvec, 
-          dy_N, idy_N, &ndy_N );
      
+
+  lu_clo();
+  btsolve(0, vec, ivec, &nvec);
+  bsolve(0, vec, ivec, &nvec);
 
   FREE(a);
   FREE(ia);
@@ -381,10 +385,9 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
   FREE(iat);
   FREE(basicflag);
   FREE(kat);
-
-  lu_clo();
-  btsolve(0, vec, ivec, &nvec);
-  bsolve(0, vec, ivec, &nvec);
+  FREE(a_buf);
+  FREE(tag_buf);
+  FREE(link_buf);
 
 }
 

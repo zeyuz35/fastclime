@@ -77,8 +77,6 @@ void atnum( int m, int n, int *ka, int *ia, double *a,
 
         for (k=0; k<ka[n]; k++) {
                 row = ia[k];
-                for(i=0; i<m; i++){
-              }
                 iwork[row]++;
         }
 
@@ -135,35 +133,14 @@ void Nt_times_y(
     int ny, 
     double *yN,
     int *iyN,
-    int *pnyN
+    int *pnyN,
+    double *a,
+    int *tag,
+    int *link,
+    int *pcurrtag
 )
 {
     int i,j,jj,k,kk;
-
-    static double *a=NULL;
-    static int  *tag=NULL;
-    static int *link=NULL;
-    static int  currtag=1;
-
-    if (n == -1) {
-                 if (a != NULL) FREE(a);
-                 if (tag != NULL) FREE(tag);
-                 /* link was originally allocated with an extra element and then
-                         incremented.  Only decrement and free if it actually points to
-                         allocated memory.  under some error paths link can already be
-                         NULL, in which case pointer arithmetic would produce garbage
-                         (-4) and lead to an invalid free. */
-                 if (link != NULL) {
-                          link--;
-                          FREE(link);
-                 }
-	   return;
-    }
-
-
-    if (  a  == NULL) MALLOC(  a,  n,   double);
-    if ( tag == NULL) CALLOC( tag, n,   int);
-    if (link == NULL) {CALLOC(link, n+2, int); link++;}
 
     jj = -1;
     for (k=0; k<ny; k++) {
@@ -172,9 +149,9 @@ void Nt_times_y(
 	for (kk=kat[i]; kk<kat[i+1]; kk++) {
 	    j = iat[kk];
 	    if (basicflag[j] < 0) {
-		if (tag[j] != currtag) {
+		if (tag[j] != *pcurrtag) {
 		    a[j] = 0.0;
-		    tag[j] = currtag;
+		    tag[j] = *pcurrtag;
 		    link[jj] = j;
 		    jj = j;
 
@@ -187,7 +164,7 @@ void Nt_times_y(
     }
 
     link[jj] = n;
-    currtag++;
+    (*pcurrtag)++;
 
     k = 0;
 

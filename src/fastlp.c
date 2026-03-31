@@ -21,9 +21,6 @@
 #define EPS3 1.0e-5
 #define MAX_ITER 1000000
 
-static int status0;
-static double lambda0;
-static double *x;
 
 int ratio_test0(
 	double *dy, 
@@ -43,7 +40,10 @@ void solver20(
     int *ka, 		/* array of indices into ia and a */
     double *a,		/* array of nonzeros in the constraint matrix */
     double *b, 		/* right-hand side */
-    double *c          /* objective coefficients */
+    double *c,         /* objective coefficients */
+    double lambda_val,
+    int *status_ptr,
+    double *opt_x
     );
 
 
@@ -60,11 +60,10 @@ void fastlp(double *obj, double *mat, double *rhs, int *m0 , int *n0, double *op
     double *b; 		/* right-hand side */
     double *c;          /* objective coefficients */
     int i, j, k; 
-    status0 = *status;
-    lambda0 = *lambda;
+    double lambda_val = *lambda;
 
-    if(lambda0<=EPS3){
-      lambda0=EPS3;
+    if(lambda_val <= EPS3){
+      lambda_val = EPS3;
     }
 
 
@@ -87,12 +86,6 @@ void fastlp(double *obj, double *mat, double *rhs, int *m0 , int *n0, double *op
 	b[i]=rhs[i];
     }
 
-    for (i=0;i<m;i++){
-       for(j=0;j<n;j++){
-	
-       }	
-    }
-
 
     k=0;
 	//Sparse matrix representation
@@ -111,19 +104,13 @@ void fastlp(double *obj, double *mat, double *rhs, int *m0 , int *n0, double *op
 	    }
     }
     ka[n]=k;
-    solver20(m,n,nz,ia,ka,a,b,c);
-    *status=status0;
-
-    for(i=0;i<n;i++){
-        opt[i]=x[i];
-    }
+    solver20(m, n, nz, ia, ka, a, b, c, lambda_val, status, opt);
 
     FREE(b);
     FREE(a); 
     FREE(ia);
     FREE(ka);
     FREE(c);
-    FREE(x);
 }
 
 
@@ -135,7 +122,10 @@ void solver20(
     int *ka, 		/* array of indices into ia and a */
     double *a,		/* array of nonzeros in the constraint matrix */
     double *b, 		/* right-hand side */
-    double *c          /* objective coefficients */
+    double *c,         /* objective coefficients */
+    double lambda_val,
+    int *status_ptr,
+    double *opt_x
     )
 {
 
@@ -166,6 +156,11 @@ void solver20(
     int    *ivec;
     int     nvec;
     int     N;
+    double  *x_local;
+    double  *a_buf;
+    int     *tag_buf;
+    int     *link_buf;
+    int     currtag = 1;
 
     N=m+n;
 
@@ -202,7 +197,10 @@ void solver20(
     MALLOC(   basics,    m,   int );      
     MALLOC(   nonbasics, n,   int );      
     MALLOC(   basicflag, N,   int );
-    CALLOC(   x, N, double );
+    CALLOC(   x_local, N, double );
+    MALLOC(   a_buf,   N, double );
+    CALLOC(   tag_buf, N, int );
+    CALLOC(   link_buf, N+2, int );
 
     /**************************************************************** 
     *  initialization.              				    *
@@ -253,8 +251,8 @@ void solver20(
 		}
       }
      
-       if ( mu <= lambda0 ) {	/* optimal */
-          status0=0;       
+       if ( mu <= lambda_val ) {	/* optimal */
+          *status_ptr = 0;       
 	  break;
 
       }
@@ -272,7 +270,7 @@ void solver20(
 
 	btsolve( m, vec, ivec, &nvec );  
 	Nt_times_y( N, at, iat, kat, basicflag, vec, ivec, nvec, 
-		     dy_N, idy_N, &ndy_N );
+		     dy_N, idy_N, &ndy_N, a_buf, tag_buf, link_buf + 1, &currtag );
 
 	col_in = ratio_test0( dy_N, idy_N, ndy_N, y_N, ybar_N,mu );
 
@@ -281,7 +279,7 @@ void solver20(
         *************************************************************/
 
 	if (col_in == -1) { 	/* infeasible */
-	    status0 = 1;
+	    *status_ptr = 1;
 	    break;
 	}
 
@@ -325,7 +323,7 @@ void solver20(
 	col_out = ratio_test0( dx_B, idx_B, ndx_B, x_B, xbar_B, mu );
 
 	if (col_out == -1) {	/* UNBOUNDED */
-	    status0 = 2;
+	    *status_ptr = 2;
 	    break;
 	}
 
@@ -342,7 +340,7 @@ void solver20(
 
 	btsolve( m, vec, ivec, &nvec );  		
 	Nt_times_y( N, at, iat, kat, basicflag, vec, ivec, nvec, 
-		     dy_N, idy_N, &ndy_N );
+		     dy_N, idy_N, &ndy_N, a_buf, tag_buf, link_buf + 1, &currtag );
 
       }
 
@@ -429,19 +427,24 @@ void solver20(
    
 
       for (i=0; i<m; i++) {
-	  x[basics[i]] = x_B[i];
+	  x_local[basics[i]] = x_B[i];
       }
 
+    for (i=0; i<n; i++) {
+        opt_x[i] = x_local[i];
+    }
 
-      if(iter>=1){
-          Nt_times_y( -1, at, iat, kat, basicflag, vec, ivec, nvec, 
-		     dy_N, idy_N, &ndy_N );
-      }
 
 
     /****************************************************************
     * 	free work space                                             *
     ****************************************************************/
+
+    if(iter>=1){
+       lu_clo();
+       btsolve(0, vec, ivec, &nvec);
+       bsolve(0, vec, ivec, &nvec);
+    }
 
     FREE(  vec );
     FREE( ivec );
@@ -459,13 +462,10 @@ void solver20(
     FREE(iat);
     FREE(basicflag);
     FREE(kat);
-
-    if(iter>=1){
-       lu_clo();
-       btsolve(0, vec, ivec, &nvec);
-       bsolve(0, vec, ivec, &nvec);
-    }
-
+    FREE(x_local);
+    FREE(a_buf);
+    FREE(tag_buf);
+    FREE(link_buf);
 
 }
 

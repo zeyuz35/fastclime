@@ -3,7 +3,7 @@
 # Dantzig.generator: Generates sparse linear regression model for testing dantzig #
 # Authors: Haotian Pang, Di Qi, Han Liu and Robert Vanderbei                      #
 # Emails: <hpang@princeton.edu>, <hanliu@princeton.edu> and <rvdb@princetonedu>   #
-# Date: April 22th 2016                                                           #
+# Date: April 22nd 2016                                                           #
 # Version: 1.4.1                                                                  #
 #---------------------------------------------------------------------------------#
 
@@ -32,7 +32,7 @@ dantzig.generator <- function(n = 50, d = 100, sparsity = 0.1, sigma0 = 1) {
 
 
 
-  sim = list(X0 = X0, y = y, BETA = BETA, s = s, pos = pos)
+  sim = list(X0 = X0, y = y, BETA0 = BETA, s = s, pos = pos)
   class(sim) = "sim"
   return(sim)
 }

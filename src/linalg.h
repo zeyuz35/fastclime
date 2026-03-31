@@ -18,5 +18,9 @@ void Nt_times_y(
     int ny, 
     double *yN,
     int *iyN,
-    int *pnyN
+    int *pnyN,
+    double *a_buf,
+    int *tag_buf,
+    int *link_buf,
+    int *pcurrtag
 );
