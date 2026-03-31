@@ -61,13 +61,14 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   if (is.data.frame(x)) {
     x <- data.matrix(x)
   }
-  if (!is.matrix(x) || !is.numeric(x)) {
+  x_mat <- as.matrix(unclass(x))
+  if (!is.matrix(x_mat) || !is.numeric(x_mat)) {
     stop("x must be a numeric matrix or data frame")
   }
-  if (anyNA(x) || any(!is.finite(x))) {
+  if (anyNA(x_mat) || any(!is.finite(x_mat))) {
     stop("x must not contain NA, NaN, or Inf values")
   }
-  if (nrow(x) < 2 || ncol(x) < 1) {
+  if (nrow(x_mat) < 2 || ncol(x_mat) < 1) {
     stop("x must have at least 2 rows and 1 column")
   }
   if (!is.numeric(lambda.min) || length(lambda.min) != 1 || lambda.min < 0) {
@@ -80,13 +81,17 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+  SigmaInput <- x_mat
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unname(x_mat))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(x_mat) * (1 - 1 / n)
     cov.input <- 0
+  }
+  if (!is.null(colnames(x_mat))) {
+    colnames(SigmaInput) <- colnames(x_mat)
+    rownames(SigmaInput) <- colnames(x_mat)
   }
 
   message("Allocating memory")
@@ -120,7 +125,12 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   icov <- list()
 
   for (i in seq_len(maxnlambda)) {
-    icov[[i]] <- matrix(iicov[i, ], d, d)
+    mat <- matrix(iicov[i, ], d, d)
+    if (!is.null(colnames(x_mat))) {
+      colnames(mat) <- colnames(x_mat)
+      rownames(mat) <- colnames(x_mat)
+    }
+    icov[[i]] <- mat
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 
@@ -163,12 +173,12 @@ print.fastclime = function(x, ...) {
 
 #' @export
 plot.fastclime = function(x, ...) {
-  # Use the first column of lambdamtx for the x-axis, as lambdas are 
+  # Use the first column of lambdamtx for the x-axis, as lambdas are
   # mostly synchronized in the parametric path.
   s <- x$lambdamtx[, 1]
   # Filter for entries where lambda > 0 and sparsity is defined (usually all)
   valid <- s > 0
-  
+
   if (sum(valid) == 0) {
     stop("No positive lambda values found to plot.")
   }
