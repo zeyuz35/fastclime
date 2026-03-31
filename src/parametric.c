@@ -393,9 +393,8 @@ void solver2(
     for (k=0; k<ndy_N; k++) {
 		  j = idy_N[k];
 		  y_N[j]    -= s   *dy_N[k];
-      y_N[col_in]    = s;
-        
     }
+    y_N[col_in]    = s;
 
       
 

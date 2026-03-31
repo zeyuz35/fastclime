@@ -329,8 +329,8 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
     for (k=0; k<ndy_N; k++) {
       j = idy_N[k];
       y_N[j]    -= s   *dy_N[k];
-      y_N[col_in]    = s;
     }
+    y_N[col_in]    = s;
 
     for (k=0; k<ndx_B; k++) {
       i = idx_B[k];
