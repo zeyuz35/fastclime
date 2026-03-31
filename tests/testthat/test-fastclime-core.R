@@ -7,9 +7,9 @@ test_that("fastclime print and plot methods work", {
   out <- fastclime(L$data, 0.1)
   
   # Test print output doesn't error and contains expected strings
-  expect_output(print(out), "Path length: 10")
-  expect_output(print(out), "Graph dimension: 10")
-  expect_output(print(out), "Sparsity range:")
+  expect_message(print(out), "Path length: 10")
+  expect_message(print(out), "Graph dimension: 10")
+  expect_message(print(out), "Sparsity range:")
   
   # Test plot doesn't error
   # We use a temporary file to avoid cluttering the workspace

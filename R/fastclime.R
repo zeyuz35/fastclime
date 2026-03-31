@@ -150,14 +150,14 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 #' @export
 print.fastclime = function(x, ...) {
   if (x$cov.input) {
-    cat("Input: The Covariance Matrix\n")
+    message("Input: The Covariance Matrix")
   }
   if (!x$cov.input) {
-    cat("Input: The Data Matrix\n")
+    message("Input: The Data Matrix")
   }
-  cat("Path length: ", x$maxnlambda, "\n", sep = "")
-  cat("Graph dimension: ", ncol(x$data), "\n", sep = "")
-  cat("Sparsity range: ", round(min(x$sparsity), 4), " -----> ", round(max(x$sparsity), 4), "\n", sep = "")
+  message(paste0("Path length: ", x$maxnlambda))
+  message(paste0("Graph dimension: ", ncol(x$data)))
+  message(paste0("Sparsity range: ", round(min(x$sparsity), 4), " -----> ", round(max(x$sparsity), 4)))
 }
 
 
