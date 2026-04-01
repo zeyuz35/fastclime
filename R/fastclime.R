@@ -150,25 +150,25 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 #' @export
 print.fastclime = function(x, ...) {
   if (x$cov.input) {
-    cat("Input: The Covariance Matrix\n")
+    message("Input: The Covariance Matrix")
   }
   if (!x$cov.input) {
-    cat("Input: The Data Matrix\n")
+    message("Input: The Data Matrix")
   }
-  cat("Path length: ", x$maxnlambda, "\n", sep = "")
-  cat("Graph dimension: ", ncol(x$data), "\n", sep = "")
-  cat("Sparsity range: ", round(min(x$sparsity), 4), " -----> ", round(max(x$sparsity), 4), "\n", sep = "")
+  message("Path length: ", x$maxnlambda)
+  message("Graph dimension: ", ncol(x$data))
+  message("Sparsity range: ", round(min(x$sparsity), 4), " -----> ", round(max(x$sparsity), 4))
 }
 
 
 #' @export
 plot.fastclime = function(x, ...) {
-  # Use the first column of lambdamtx for the x-axis, as lambdas are 
+  # Use the first column of lambdamtx for the x-axis, as lambdas are
   # mostly synchronized in the parametric path.
   s <- x$lambdamtx[, 1]
   # Filter for entries where lambda > 0 and sparsity is defined (usually all)
   valid <- s > 0
-  
+
   if (sum(valid) == 0) {
     stop("No positive lambda values found to plot.")
   }
