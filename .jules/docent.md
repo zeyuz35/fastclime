@@ -1,0 +1,5 @@
+## 2024-03-28 - Roxygen S3 methods plot.sim and print.sim
+
+**Learning:** When generating roxygen documentation for S3 methods, `roxygen2` requires explicitly using `#' @export` rather than relying solely on the method signature in the function if you want the methods to be exported and documented correctly as methods. Specifically, methods for classes not explicitly defined via `setClass` or standard mechanisms often need `#' @method print sim` along with `#' @export` to avoid S3 method warnings and ensure `roxygen2` properly tags the NAMESPACE if it was managed by it (or just to generate the `.Rd` files without errors). Roxygen2 warned that `plot.sim` needs an `@export` or `@exportS3Method` tag.
+
+**Action:** When migrating undocumented S3 methods to roxygen, use `#' @export` and `#' @method generic class` (e.g., `#' @method print sim`). Make sure to delete old manually written `.Rd` files (like `print.sim.Rd` and `plot.sim.Rd`) before running `devtools::document()` so they can be regenerated.
