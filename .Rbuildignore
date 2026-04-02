@@ -7,3 +7,8 @@
 ^.*\.tar\.gz$
 ^.*\.zip$
 ^\.jules$
+^\\.jules$
+^\\.\\.Rcheck$
+^test_.*\\.R$
+^patch.*\\.diff$
+^patch_file\\.sh$

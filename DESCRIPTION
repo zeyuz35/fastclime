@@ -7,7 +7,10 @@ Version: 1.4.1.2
 Date: 2016-04-22
 Author: Haotian Pang, Di Qi, Han Liu and Robert Vanderbei
 Maintainer: ORPHANED
-Depends: R (>= 2.15.0), igraph, MASS, Matrix
+Imports:
+    xts,
+Depends: R (>= 2.15.0)
+Imports: igraph, MASS, Matrix, xts, zoo
 Suggests: testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Description: Provides a method of recovering the precision matrix efficiently 
