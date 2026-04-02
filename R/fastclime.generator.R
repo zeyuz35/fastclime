@@ -139,7 +139,7 @@ fastclime.generator = function(
   omega = solve(sigma)
 
   # generate multivariate normal data
-  x = mvrnorm(n, rep(0, d), sigma)
+  x = MASS::mvrnorm(n, rep(0, d), sigma)
 
   sigmahat = cov(x) * (1 - 1 / n)
 
@@ -158,8 +158,8 @@ fastclime.generator = function(
       col = gray.colors(256),
       main = "Covariance Matrix"
     )
-    g = graph.adjacency(theta, mode = "undirected", diag = FALSE)
-    layout.grid = layout.fruchterman.reingold(g)
+    g = igraph::graph.adjacency(theta, mode = "undirected", diag = FALSE)
+    layout.grid = igraph::layout.fruchterman.reingold(g)
 
     fullfig[3] = plot(
       g,
@@ -217,8 +217,8 @@ plot.sim = function(x, ...) {
   )
   image(as.matrix(x$theta), col = gray.colors(256), main = "Adjacency Matrix")
   image(x$sigma, col = gray.colors(256), main = "Covariance Matrix")
-  g = graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
-  layout.grid = layout.fruchterman.reingold(g)
+  g = igraph::graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
+  layout.grid = igraph::layout.fruchterman.reingold(g)
 
   plot(
     g,
