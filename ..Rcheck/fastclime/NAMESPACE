@@ -1,0 +1,22 @@
+useDynLib("fastclime")
+import("Matrix","igraph","MASS")
+importFrom("grDevices", "dev.off", "gray.colors", "postscript")
+importFrom("graphics", "par", "plot", "grid")
+importFrom("stats", "cor", "cov", "rbinom", "rnorm", "runif", "sd")
+export(fastclime,
+       fastclime.generator,
+       fastclime.plot,
+       fastclime.selector,
+       print.fastclime,plot.fastclime,
+       print.sim,plot.sim,
+       fastlp,
+       paralp,
+       dantzig,
+       dantzig.generator,
+       dantzig.selector
+       )
+
+S3method("print","sim")
+S3method("plot","sim")
+S3method("plot","fastclime")
+S3method("print","fastclime")
