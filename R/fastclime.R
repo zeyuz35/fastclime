@@ -89,13 +89,13 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     cov.input <- 0
   }
 
-  message("Allocating memory")
+  cat("\rAllocating memory..."); flush.console()
   maxnlambda = 0
   mu_input <- matrix(0, nlambda, d)
   iicov <- matrix(0, nlambda, d * d)
   lambdamin <- lambda.min
 
-  message("start recovering")
+  cat("\rRecovering path..."); flush.console()
   str = .C(
     "parametric",
     as.double(SigmaInput),
@@ -108,7 +108,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     PACKAGE = "fastclime"
   )
 
-  message("preparing precision and path matrix list")
+  cat("\rPreparing results..."); flush.console()
 
   sigmahat <- SigmaInput
   mu <- matrix(unlist(str[3]), nlambda, d)
@@ -143,7 +143,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   )
 
   class(result) = "fastclime"
-  message("Done!")
+  cat("\rDone!                     \n")
   return(result)
 }
 

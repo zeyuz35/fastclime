@@ -145,23 +145,25 @@ fastclime.generator = function(
 
   # graph and covariance visulization
   if (vis == TRUE) {
-    fullfig = par(
+    old_par <- par(
       mfrow = c(2, 2),
       pty = "s",
       omi = c(0.3, 0.3, 0.3, 0.3),
       mai = c(0.3, 0.3, 0.3, 0.3)
     )
-    fullfig[1] = image(theta, col = gray.colors(256), main = "Adjacency Matrix")
+    on.exit(par(old_par), add = TRUE)
 
-    fullfig[2] = image(
+    image(theta, col = gray.colors(256), main = "Adjacency Matrix")
+
+    image(
       sigma,
       col = gray.colors(256),
       main = "Covariance Matrix"
     )
-    g = graph.adjacency(theta, mode = "undirected", diag = FALSE)
-    layout.grid = layout.fruchterman.reingold(g)
+    g <- graph.adjacency(theta, mode = "undirected", diag = FALSE)
+    layout.grid <- layout.fruchterman.reingold(g)
 
-    fullfig[3] = plot(
+    plot(
       g,
       layout = layout.grid,
       edge.color = 'gray50',
@@ -171,12 +173,11 @@ fastclime.generator = function(
       main = "Graph Pattern"
     )
 
-    fullfig[4] = image(
+    image(
       sigmahat,
       col = gray.colors(256),
       main = "Empirical Matrix"
     )
-    rm(fullfig, g, layout.grid)
 
   }
   if (verbose) {
@@ -209,16 +210,17 @@ print.sim = function(x, ...) {
 
 plot.sim = function(x, ...) {
   gcinfo(FALSE)
-  par = par(
+  old_par <- par(
     mfrow = c(2, 2),
     pty = "s",
     omi = c(0.3, 0.3, 0.3, 0.3),
     mai = c(0.3, 0.3, 0.3, 0.3)
   )
+  on.exit(par(old_par), add = TRUE)
   image(as.matrix(x$theta), col = gray.colors(256), main = "Adjacency Matrix")
   image(x$sigma, col = gray.colors(256), main = "Covariance Matrix")
-  g = graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
-  layout.grid = layout.fruchterman.reingold(g)
+  g <- graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
+  layout.grid <- layout.fruchterman.reingold(g)
 
   plot(
     g,
@@ -229,7 +231,6 @@ plot.sim = function(x, ...) {
     vertex.label = NA,
     main = "Graph Pattern"
   )
-  rm(g, layout.grid)
 
   image(
     x$sigmahat,

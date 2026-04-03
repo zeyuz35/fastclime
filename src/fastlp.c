@@ -422,9 +422,13 @@ void solver20(
 
       refactor( m, ka, ia, a, basics, col_out, v );
 
-  } 
+  }
 
-   
+    /* If loop completed without convergence, mark as infeasible */
+    if (iter >= MAX_ITER) {
+        *status_ptr = 1;
+    }
+
 
       for (i=0; i<m; i++) {
 	  x_local[basics[i]] = x_B[i];
@@ -440,11 +444,9 @@ void solver20(
     * 	free work space                                             *
     ****************************************************************/
 
-    if(iter>=1){
-       lu_clo();
-       btsolve(0, vec, ivec, &nvec);
-       bsolve(0, vec, ivec, &nvec);
-    }
+    lu_clo();
+    btsolve(0, vec, ivec, &nvec);
+    bsolve(0, vec, ivec, &nvec);
 
     FREE(  vec );
     FREE( ivec );

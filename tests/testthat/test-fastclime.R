@@ -61,6 +61,8 @@ test_that("fastclime and fastclime.selector work", {
 
   expect_equal(sum(out1$icovlist[[1]]), 0)
 
+  # Exact diagonal tests — critical for cross-validation accuracy
+  # Tolerance 1e-6 catches numerical bugs while allowing minor platform FP differences
   expected_diag2 <- c(
     0.746619266519813,
     0.589853797234145,
@@ -116,6 +118,21 @@ test_that("fastclime and fastclime.selector work", {
     expected_diag3,
     tolerance = 0.2
   )
+
+  # Structural checks
+  for (i in seq_len(out1$maxnlambda)) {
+    expect_equal(dim(out1$icovlist[[i]]), c(20, 20))
+    expect_true(all(diag(out1$icovlist[[i]]) >= -1e-12))
+  }
+
+  expect_true(out1$sparsity[length(out1$sparsity)] > 0)
+
+  # Selector output
+  expect_true(is(out2$adaj, "sparseMatrix"))
+  expect_equal(nrow(out2$adaj), ncol(out2$adaj))
+  expect_true(out2$sparsity >= 0 && out2$sparsity <= 1)
+  expect_equal(out2$icov, t(out2$icov), tolerance = 1e-12)
+  expect_true(all(diag(out2$icov) > 0))
 })
 
 test_that("fastlp works", {

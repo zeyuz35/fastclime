@@ -431,10 +431,13 @@ void solver21(
 
       refactor( m, ka, ia, a, basics, col_out, v );
 
+  }
 
-  } 
+    if (iter >= MAX_ITER) {
+        status0 = 1;
+    }
 
-      
+
 
       for (i=0; i<m; i++) {
 	  x[basics[i]] = x_B[i];
@@ -447,11 +450,9 @@ void solver21(
     * 	free work space                                             *
     ****************************************************************/
 
-    if(iter>=1){
-       lu_clo();
-       btsolve(0, vec, ivec, &nvec);
-       bsolve(0, vec, ivec, &nvec);
-    }
+    lu_clo();
+    btsolve(0, vec, ivec, &nvec);
+    bsolve(0, vec, ivec, &nvec);
 
     FREE(  vec );
     FREE( ivec );

@@ -620,7 +620,9 @@ int     bsolve(
 	starttime = (double) clock();
 
 	if (   y  == NULL) CALLOC(   y, m,   double);
+	else if (m > 0) REALLOC(y, m, double);
 	if ( tag  == NULL) CALLOC( tag, m,   int);
+	else if (m > 0) REALLOC(tag, m, int);
 
 	for (k=0; k<ny; k++) {
 	    i = irowperm[iy[k]];
@@ -754,7 +756,9 @@ int     btsolve(
 	starttime = (double) clock();
 
         if (   y == NULL) CALLOC(   y, m, double);
+        else if (m > 0) REALLOC(y, m, double);
         if ( tag == NULL) CALLOC( tag, m, int);
+        else if (m > 0) REALLOC(tag, m, int);
 
 	Gauss_Eta_T ( m, sy, iy, &ny );
 
@@ -955,8 +959,17 @@ static void Gauss_Eta(
     }
 
     if (  a  == NULL) CALLOC(  a,  m,   double);
+    else if (m > 0) REALLOC(a, m, double);
     if ( tag == NULL) CALLOC( tag, m,   int);
+    else if (m > 0) REALLOC(tag, m, int);
     if (link == NULL) {CALLOC(link, m+2, int); link++;}
+    else {
+        int *orig = link - 1;
+        link--;
+        FREE(link);
+        CALLOC(link, m+2, int);
+        link++;
+    }
 
     if (e_iter <= 0) return;
 
@@ -1034,7 +1047,9 @@ static void Gauss_Eta_T(
     }
 
     if (  a  == NULL) CALLOC(  a,  m,   double);
+    else if (m > 0) REALLOC(a, m, double);
     if ( tag == NULL) CALLOC( tag, m,   int);
+    else if (m > 0) REALLOC(tag, m, int);
 
     for (j=e_iter-1; j>=0; j--) {
 	col = E_d[j];
