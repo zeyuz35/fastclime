@@ -80,12 +80,15 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+
+  # Safely strip time-series classes and attributes for internal matrix operations
+  x_mat <- as.matrix(unclass(x))
+  SigmaInput <- x_mat
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unname(x_mat))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(x_mat) * (1 - 1 / n)
     cov.input <- 0
   }
 
@@ -163,12 +166,12 @@ print.fastclime = function(x, ...) {
 
 #' @export
 plot.fastclime = function(x, ...) {
-  # Use the first column of lambdamtx for the x-axis, as lambdas are 
+  # Use the first column of lambdamtx for the x-axis, as lambdas are
   # mostly synchronized in the parametric path.
   s <- x$lambdamtx[, 1]
   # Filter for entries where lambda > 0 and sparsity is defined (usually all)
   valid <- s > 0
-  
+
   if (sum(valid) == 0) {
     stop("No positive lambda values found to plot.")
   }
