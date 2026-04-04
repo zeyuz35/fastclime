@@ -1,0 +1,5 @@
+devtools::load_all()
+x <- matrix(c(2, 1, 1, 2), 2, 2)
+colnames(x) <- c("A", "B")
+out <- fastclime(x)
+print(colnames(out$icovlist[[1]]))
