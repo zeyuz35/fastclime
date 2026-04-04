@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
+#include <stdint.h>
 
 /* Rprintf is used for debugging in the FREE macro, so ensure R headers
 	are available when this header is included. */
@@ -12,7 +13,7 @@
 	 if ((int)(len) < 0) { error("Negative allocation size"); } \
 	 size_t _safe_len = (size_t)(len); \
 	 _safe_len = _safe_len > 0 ? _safe_len : 1; \
-	 if (_safe_len > ((size_t)-1) / sizeof(type)) { error("Allocation size overflow"); } \
+	 if (_safe_len > SIZE_MAX / sizeof(type)) { error("Allocation size overflow"); } \
 	 (name) = (type *)malloc( _safe_len * sizeof(type) ); \
 	 if ((name) == NULL) { \
 		error("Memory allocation failed"); \
@@ -24,7 +25,7 @@
 	 if ((int)(len) < 0) { error("Negative allocation size"); } \
 	 size_t _safe_len = (size_t)(len); \
 	 _safe_len = _safe_len > 0 ? _safe_len : 1; \
-	 if (_safe_len > ((size_t)-1) / sizeof(type)) { error("Allocation size overflow"); } \
+	 if (_safe_len > SIZE_MAX / sizeof(type)) { error("Allocation size overflow"); } \
 	 (name) = (type *)calloc( _safe_len , sizeof(type) ); \
 	 if ((name) == NULL) { \
 		error("Memory allocation failed"); \
@@ -36,7 +37,7 @@
 	 if ((int)(len) < 0) { error("Negative allocation size"); } \
 	 size_t _safe_len = (size_t)(len); \
 	 _safe_len = _safe_len > 0 ? _safe_len : 1; \
-	 if (_safe_len > ((size_t)-1) / sizeof(type)) { error("Allocation size overflow"); } \
+	 if (_safe_len > SIZE_MAX / sizeof(type)) { error("Allocation size overflow"); } \
 	 void *_new_ptr = realloc((name), _safe_len * sizeof(type)); \
 	 if (_new_ptr == NULL) { \
 		error("Memory allocation failed"); \
