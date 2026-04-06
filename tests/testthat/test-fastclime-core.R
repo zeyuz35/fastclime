@@ -3,8 +3,8 @@ library(testthat)
 
 test_that("fastclime print and plot methods work", {
   set.seed(42)
-  L <- fastclime.generator(n = 50, d = 10)
-  out <- fastclime(L$data, 0.1)
+  L <- suppressMessages(fastclime.generator(n = 50, d = 10))
+  out <- suppressMessages(fastclime(L$data, 0.1))
   
   # Test print output doesn't error and contains expected strings
   expect_output(print(out), "Path length: 10")
@@ -22,10 +22,10 @@ test_that("fastclime print and plot methods work", {
 
 test_that("fastclime.selector works with sparsity", {
   set.seed(42)
-  L <- fastclime.generator(n = 50, d = 10)
-  out <- fastclime(L$data, 0.1)
+  L <- suppressMessages(fastclime.generator(n = 50, d = 10))
+  out <- suppressMessages(fastclime(L$data, 0.1))
   
-  sel <- fastclime.selector(out$lambdamtx, out$icovlist, 0.1)
+  sel <- suppressMessages(fastclime.selector(out$lambdamtx, out$icovlist, 0.1))
   expect_s3_class(sel, "fastclime.selector")
   expect_true(!is.null(sel$sparsity))
   expect_true(sel$sparsity >= 0 && sel$sparsity <= 1)
@@ -36,7 +36,7 @@ test_that("parametric solver works after refactor", {
   # Simple case for parametric solver
   # Sigma is identity
   Sigma <- diag(5)
-  out <- fastclime(Sigma, lambda.min = 0.1)
+  out <- suppressMessages(fastclime(Sigma, lambda.min = 0.1))
   
   expect_s3_class(out, "fastclime")
   expect_equal(ncol(out$data), 5)

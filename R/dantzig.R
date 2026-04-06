@@ -35,12 +35,12 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   BETA0 <- matrix(0, d0, nlambda)
   lambdalist <- matrix(0, nlambda, 1)
 
-  message("compute X^TX and X^y")
+  message("Computing X^T X and X^T y...")
 
   X2 = crossprod(X) # Equivalent to t(X) %*% X
   Xy = crossprod(X, y) # Equivalent to t(X) %*% y
 
-  message("start recovering")
+  message("Recovering path...")
 
   # start.time <- Sys.time()
   str = .C(
@@ -71,7 +71,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   BETA0 <- BETA0[, 1:validn]
 
   final_lambda <- lambdalist[validn]
-  message("lambdamin is ", final_lambda)
+  message(sprintf("lambdamin is %f", final_lambda))
 
   lambdalist <- lambdalist[1:validn]
   result <- list(
