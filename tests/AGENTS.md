@@ -3,10 +3,11 @@
 ## Running Tests
 
 ```bash
-devtools::test()                       # All tests
-devtools::test(filter = "cvxr")        # CVXR ground truth tests
-devtools::test(filter = "memory")     # Memory regression tests
-R CMD check --as-cran .               # Full check
+devtools::test()                          # All tests
+devtools::test(filter = "cvxr")           # CVXR vanilla tests
+devtools::test(filter = "variants")       # BK17/ZKL15 variant tests
+devtools::test(filter = "memory")         # Memory regression tests
+R CMD check --as-cran .                  # Full check
 ```
 
 ## Test Tolerances
@@ -39,6 +40,16 @@ Ground truth tests verifying fastclime C implementation produces results consist
 **Tolerances:**
 - Frobenius relative error < 0.15
 - Correlation > 0.95
+
+### test-cvxr-variants.R
+
+Tests for BK17 and ZKL15 CLIME variants:
+- BK17 CVXR variant (`QLASSO.Hessian.Omega.BK17.CLIME`)
+- ZKL15 CVXR variant (`QLASSO.Hessian.Omega.ZKL15.CLIME`)
+- fastclime.BK17 implementation
+- fastclime.ZKL15 implementation
+
+Ground truth sources: `scratch/CLIME_CVXR_BK17.R` and `scratch/CLIME_CVXR_ZKL15.R`
 
 ## Notes
 
