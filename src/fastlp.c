@@ -1,511 +1,140 @@
-/*****************************************************************************
-
-                Implementation of the 
-		Primal Dual (i.e. Self Dual) Simplex Method Linear Programming Solver for R
-		R. Vanderbei & H. Pang, June 2013
-
-******************************************************************************/         
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <R.h>
 
-#include "myalloc.h"
-#include "lu.h"
-#include "linalg.h"
-#include "macros.h"
-
-
-#define EPS1 1.0e-8
-#define EPS2 1.0e-12
-#define EPS3 1.0e-5
-#define MAX_ITER 1000000
-
-
-int ratio_test0(
-	double *dy, 
-	int   *idy,
-	int    ndy,
-	double *y, 
-        double *ybar,
-	double mu
-);
-
-
-void solver20(
-    int m,		/* number of constraints */
-    int n,		/* number of variables */
-    int nz,		/* number of nonzeros in sparse constraint matrix */
-    int *ia, 		/* array row indices */
-    int *ka, 		/* array of indices into ia and a */
-    double *a,		/* array of nonzeros in the constraint matrix */
-    double *b, 		/* right-hand side */
-    double *c,         /* objective coefficients */
-    double lambda_val,
-    int *status_ptr,
-    double *opt_x
-    );
-
-
+#include "solver_core.h"
 
 void fastlp(double *obj, double *mat, double *rhs, int *m0 , int *n0, double *opt, int *status, double *lambda)
 {
-
-    int m=*m0;		/* number of constraints */
-    int n=*n0;		/* number of variables */
-    int nz=0;		/* number of nonzeros in sparse constraint matrix */
-    int *ia; 		/* array row indices */
-    int *ka; 		/* array of indices into ia and a */
-    double *a;		/* array of nonzeros in the constraint matrix */
-    double *b; 		/* right-hand side */
-    double *c;          /* objective coefficients */
+    int m = *m0;
+    int n = *n0;
+    int nz = 0;
     int i, j, k; 
     double lambda_val = *lambda;
 
-    if(lambda_val <= EPS3){
-      lambda_val = EPS3;
+    if (lambda_val <= FC_EPS3) {
+        lambda_val = FC_EPS3;
     }
 
-
-    MALLOC(        a, m*n+m,  double );      
-    MALLOC(       ia, m*n+m,   int );      
-    MALLOC(       ka, n+m+1,  int );        
-    MALLOC(        c, n,   double );
-    MALLOC(        b, m,   double );    
-
-    /*****************************************************************
-     * Structure of the problem:
-
-     ***************************************************************/
-
-    for (i=0;i<n;i++){
-	c[i]=obj[i];
-    }
-
-    for (i=0;i<m;i++){
-	b[i]=rhs[i];
-    }
-
-
-    k=0;
-	//Sparse matrix representation
+    // Determine non-zeros in dense input matrix (same as old)
     for (j=0; j<n; j++) {
-	    ka[j] = k; 
-	    for (i=0; i<m; i++) {
-		  if (mat[i*n+j]!=0)
-		  {
-	            a[k] = mat[i*n+j];
-		    ia[k] = i;
-                    k++;
-                    nz++;  
-                  
-		  }    
-	    
-	    }
+        for (i=0; i<m; i++) {
+            if (mat[i*n+j] != 0.0) {
+                nz++;
+            }
+        }
     }
-    ka[n]=k;
-    solver20(m, n, nz, ia, ka, a, b, c, lambda_val, status, opt);
 
-    FREE(b);
-    FREE(a); 
-    FREE(ia);
-    FREE(ka);
-    FREE(c);
-}
+    fc_solver_state_t *state = fc_solver_state_create(m, n, nz);
+    
+    // Arrays strictly built by driver:
+    int *ia = (int*)FC_CALLOC(state->N * state->N + state->m, sizeof(int));
+    int *ka = (int*)FC_CALLOC(state->n + state->m + 1, sizeof(int));
+    double *a = (double*)FC_CALLOC(state->N * state->N + state->m, sizeof(double));
 
+    k = 0;
+    for (j=0; j<n; j++) {
+        ka[j] = k; 
+        for (i=0; i<m; i++) {
+            if (mat[i*n+j] != 0.0) {
+                a[k] = mat[i*n+j];
+                ia[k] = i;
+                k++;
+            }    
+        }
+    }
+    ka[n] = k;
 
-void solver20(
-    int m,		/* number of constraints */
-    int n,		/* number of variables */
-    int nz,		/* number of nonzeros in sparse constraint matrix */
-    int *ia, 		/* array row indices */
-    int *ka, 		/* array of indices into ia and a */
-    double *a,		/* array of nonzeros in the constraint matrix */
-    double *b, 		/* right-hand side */
-    double *c,         /* objective coefficients */
-    double lambda_val,
-    int *status_ptr,
-    double *opt_x
-    )
-{
-
-	/*structure of the solver*/
-
-    int *basics;
-    int *nonbasics;
-    int *basicflag;
-    double  *x_B;	/* primal basics */
-    double  *y_N;	/* dual nonbasics */
-    double  *xbar_B;	/* primal basic perturbation */
-    double  *ybar_N;    /* dual nonbasic perturbation*/
-    double  *dy_N;	/*  dual  basics step direction - values (sparse) */
-    int    *idy_N;	/*  dual  basics step direction - row indices */
-    int     ndy_N=0;	/* number of nonz in dy_N */
-    double  *dx_B;	/* primal basics step direction - values (sparse) */
-    int    *idx_B;	/* primal basics step direction - row indices */
-    int     ndx_B;	/* number of nonz in dx_B */
-    double  *at;	/* sparse data structure for a^t */
-    int    *iat;
-    int    *kat;
-    int     col_in;	/* entering column; index in 'nonbasics' */
-    int     col_out;	/* leaving column; index in 'basics' */
-    int     iter = 0;	/* number of iterations */
-    int     i,j,k,v=0;
-    double  s, t, sbar, tbar, mu=HUGE_VAL;
-    double  *vec;
-    int    *ivec;
-    int     nvec;
-    int     N;
-    double  *x_local;
-    double  *a_buf;
-    int     *tag_buf;
-    int     *link_buf;
-    int     currtag = 1;
-
-    N=m+n;
-
-	 /*******************************************************************
-    * read in the data and initialize the common memory sites.
-    *******************************************************************/
-
-	//add the slack variables
-
+    // Add slack variables to matrix
     i = 0;
     k = ka[n];
-    for (j=n; j<N; j++) {	
-	a[k] = 1.0;
-	ia[k] = i;
-	i++;
-	k++;
-	ka[j+1] = k;
+    for (j=n; j<state->N; j++) {  
+        a[k] = 1.0;
+        ia[k] = i;
+        i++;
+        k++;
+        ka[j+1] = k;
     }
     nz = k;
 
-    MALLOC(    x_B, m,   double );      
-    MALLOC( xbar_B, m,   double );      
-    MALLOC(   dx_B, m,   double );  
-    MALLOC(    y_N, n,   double );
-    MALLOC( ybar_N, n,   double );           
-    MALLOC(   dy_N, n,   double );  
-    MALLOC(    vec, N,   double );
-    MALLOC(   ivec, N,    int );
-    MALLOC(  idx_B, m,    int );      
-    MALLOC(  idy_N, n,    int );      
-    MALLOC(     at, nz,  double );
-    MALLOC(    iat, nz,   int );
-    MALLOC(    kat, m+1,  int );
-    MALLOC(   basics,    m,   int );      
-    MALLOC(   nonbasics, n,   int );      
-    MALLOC(   basicflag, N,   int );
-    CALLOC(   x_local, N, double );
-    MALLOC(   a_buf,   N, double );
-    CALLOC(   tag_buf, N, int );
-    CALLOC(   link_buf, N+2, int );
+    state->a = a;
+    state->ia = ia;
+    state->ka = ka;
 
-    /**************************************************************** 
-    *  initialization.              				    *
-    ****************************************************************/
+    fc_atnum(m, state->N, state->ka, state->ia, state->a, state->kat, state->iat, state->at);
 
-    atnum(m,N,ka,ia,a,kat,iat,at);
-
+    // Initialization
     for (j=0; j<n; j++) {
-	nonbasics[j] = j;
-	basicflag[j] = -j-1;
-	      y_N[j] = -c[j];
-           ybar_N[j] = 1;
+        state->nonbasics[j] = j;
+        state->basicflag[j] = -j-1;
+        state->dual_N[j] = -obj[j];
+        state->dual_N_bar[j] = 1.0;
     }
 
     for (i=0; i<m; i++) {
-	    basics[i] = n+i;
-       basicflag[n+i] = i;
-	       x_B[i] = b[i];
-	    xbar_B[i] = 1;
+        state->basics[i] = n+i;
+        state->basicflag[n+i] = i;
+        state->primal_B[i] = rhs[i];
+        state->primal_B_bar[i] = 1.0;
     }
 
-    lufac( m, ka, ia, a, basics, 0 );
+    fc_lufac(state->lu_ctx, m, state->ka, state->ia, state->a, state->basics, 0);
 
- for (iter=0; iter<MAX_ITER; iter++) {
+    int iter;
+    for (iter=0; iter < 1000000; iter++) {
+        double mu;
+        int col_in, col_out;
 
-      /*************************************************************
-      * step 1: find mu                                            *
-      *************************************************************/
-      mu = -HUGE_VAL;
-      col_in  = -1;
-      for (j=0; j<n; j++) {
-		if (ybar_N[j] > EPS2) { 
-			if ( mu < -y_N[j]/ybar_N[j] ) {
-			     mu = -y_N[j]/ybar_N[j];
-			     col_in  = j;
-			}
-		}
-      }
-      col_out = -1;
+        fc_simplex_find_mu(state, &mu, &col_in, &col_out);
 
-     for (i=0; i<m; i++) {
-		if (xbar_B[i] > EPS2) { 
-			if ( mu < -x_B[i]/xbar_B[i] ) {
-			     mu = -x_B[i]/xbar_B[i];
-			     col_out = i;
-			     col_in  = -1;
-			}
-		}
-      }
-     
-       if ( mu <= lambda_val ) {	/* optimal */
-          *status_ptr = 0;       
-	  break;
-
-      }
-
-        /*************************************************************
-	*                          -1  t                             *
-	* step 2: compute dy  = -(b  n) e                            * 
-	*                   n            i			     *
-	*         where i = col_out                                  *
-        *************************************************************/
-     if ( col_out >= 0 ) {
-	vec[0] = -1.0;
-	ivec[0] = col_out;
-	nvec = 1;
-
-	btsolve( m, vec, ivec, &nvec );  
-	Nt_times_y( N, at, iat, kat, basicflag, vec, ivec, nvec, 
-		     dy_N, idy_N, &ndy_N, a_buf, tag_buf, link_buf + 1, &currtag );
-
-	col_in = ratio_test0( dy_N, idy_N, ndy_N, y_N, ybar_N,mu );
-
-        /*************************************************************
-	* STEP 3: Ratio test to find entering column                 * 
-        *************************************************************/
-
-	if (col_in == -1) { 	/* infeasible */
-	    *status_ptr = 1;
-	    break;
-	}
-
-        /*************************************************************
-	*                        -1                                  *
-	* step 4: compute dx  = b  n e                               * 
-	*                   b         j                              *
-	*                                                            *
-        *************************************************************/
-
-	j = nonbasics[col_in];
-	for (i=0, k=ka[j]; k<ka[j+1]; i++, k++) {
-	     dx_B[i] =  a[k];
-	    idx_B[i] = ia[k];
-	}
-	ndx_B = i;
-	bsolve( m, dx_B, idx_B, &ndx_B );
-
+        if (mu <= lambda_val) {
+            *status = 0;       
+            break;
         }
 
-        else {
+        if (col_out >= 0) {
+            fc_simplex_compute_dy(state, col_out);
+            col_in = fc_simplex_ratio_test(state->dual_dy, state->dual_idy, state->dual_ndy, 
+                                           state->dual_N, state->dual_N_bar, mu);
+            if (col_in == -1) { 
+                *status = 1;
+                break;
+            }
+            fc_simplex_compute_dx(state, col_in);
+        } else {
+            fc_simplex_compute_dx(state, col_in);
+            col_out = fc_simplex_ratio_test(state->primal_dx, state->primal_idx, state->primal_ndx, 
+                                            state->primal_B, state->primal_B_bar, mu);
+            if (col_out == -1) {
+                *status = 2;
+                break;
+            }
+            fc_simplex_compute_dy(state, col_out);
+        }
 
-        /*************************************************************
-	*                        -1                                  *
-	* STEP 2: Compute dx  = B  N e                               * 
-	*                   B         j                              *
-        *************************************************************/
-
-	j = nonbasics[col_in];
-	for (i=0, k=ka[j]; k<ka[j+1]; i++, k++) {
-	     dx_B[i] =  a[k];
-	    idx_B[i] = ia[k];
-	}
-	ndx_B = i;
-	bsolve( m, dx_B, idx_B, &ndx_B );
-
-        /*************************************************************
-	* STEP 3: Ratio test to find leaving column                  * 
-        *************************************************************/
-
-	col_out = ratio_test0( dx_B, idx_B, ndx_B, x_B, xbar_B, mu );
-
-	if (col_out == -1) {	/* UNBOUNDED */
-	    *status_ptr = 2;
-	    break;
-	}
-
-        /*************************************************************
-	*                          -1  T                             *
-	* STEP 4: Compute dy  = -(B  N) e                            * 
-	*                   N            i			     *
-	*                                                            *
-        *************************************************************/
-
-	 vec[0] = -1.0;
-	ivec[0] = col_out;
-	nvec = 1;
-
-	btsolve( m, vec, ivec, &nvec );  		
-	Nt_times_y( N, at, iat, kat, basicflag, vec, ivec, nvec, 
-		     dy_N, idy_N, &ndy_N, a_buf, tag_buf, link_buf + 1, &currtag );
-
-      }
-
-      /*************************************************************
-      *                                                            *
-      * step 5: put       t = x /dx                                *
-      *                        i   i                               *
-      *                   _   _                                    *
-      *                   t = x /dx                                *
-      *                        i   i                               *
-      *                   s = y /dy                                *
-      *                        j   j                               *
-      *                   _   _                                    *
-      *                   s = y /dy                                *
-      *                        j   j                               *
-      *************************************************************/
-
-      for (k=0; k<ndx_B; k++) if (idx_B[k] == col_out) break;
-
-      t    =    x_B[col_out]/dx_B[k];
-      tbar = xbar_B[col_out]/dx_B[k];
-
-      for (k=0; k<ndy_N; k++) if (idy_N[k] == col_in) break;
-
-      s    =    y_N[col_in]/dy_N[k];
-      sbar = ybar_N[col_in]/dy_N[k];
-
-
-      /*************************************************************
-      *                                _    _    _                 *
-      * step 7: set y  = y  - s dy     y  = y  - s dy              *
-      *              n    n       n     n    n       n             *
-      *                                _    _                      *
-      *             y  = s             y  = s                      *
-      *              i                  i                          *
-      *             _    _    _                                    *
-      *             x  = x  - t dx     x  = x  - t dx              *
-      *              b    b       b     b    b       b             *
-      *             _    _                                         *
-      *             x  = t             x  = t                      *
-      *              j                  j                          *
-      *************************************************************/
-
-
-      for (k=0; k<ndy_N; k++) {
-		j = idy_N[k];
-		y_N[j]    -= s   *dy_N[k];
-                ybar_N[j] -= sbar*dy_N[k];
-      }
-      
-      y_N[col_in]    = s;
-      ybar_N[col_in] = sbar;
-
-      for (k=0; k<ndx_B; k++) {
-		i = idx_B[k];
-		x_B[i]    -= t   *dx_B[k];
-		xbar_B[i] -= tbar*dx_B[k];
-
-      }
-
-      x_B[col_out]     = t;
-      xbar_B[col_out]  = tbar;
-
-      /*************************************************************
-      * step 8: update basis                                       * 
-      *************************************************************/
-
-      i =    basics[col_out];
-      j = nonbasics[col_in];
-      basics[col_out]   = j;
-      nonbasics[col_in] = i;
-      basicflag[i] = -col_in-1;
-      basicflag[j] = col_out;
-
-
-      /*************************************************************
-      * step 9: refactor basis and print statistics                *
-      *************************************************************/
-
-      refactor( m, ka, ia, a, basics, col_out, v );
-
-  }
-
-    /* If loop completed without convergence, mark as infeasible */
-    if (iter >= MAX_ITER) {
-        *status_ptr = 1;
+        fc_simplex_update_vars(state, col_in, col_out);
+        fc_simplex_update_basis(state, col_in, col_out);
+        fc_refactor(state->lu_ctx, m, state->ka, state->ia, state->a, state->basics, col_out, 0);
+    }
+    
+    if (iter >= 1000000) {
+        *status = 1;
     }
 
-
-      for (i=0; i<m; i++) {
-	  x_local[basics[i]] = x_B[i];
-      }
+    double *x_local = (double*)FC_CALLOC(state->N, sizeof(double));
+    for (i=0; i<m; i++) {
+        x_local[state->basics[i]] = state->primal_B[i];
+    }
 
     for (i=0; i<n; i++) {
-        opt_x[i] = x_local[i];
+        opt[i] = x_local[i];
     }
+    FC_FREE(x_local);
 
-
-
-    /****************************************************************
-    * 	free work space                                             *
-    ****************************************************************/
-
-    lu_clo();
-    btsolve(0, vec, ivec, &nvec);
-    bsolve(0, vec, ivec, &nvec);
-
-    FREE(  vec );
-    FREE( ivec );
-    FREE(  x_B );
-    FREE(  y_N );
-    FREE( dx_B );
-    FREE(idx_B );
-    FREE( dy_N );
-    FREE(idy_N );
-    FREE(xbar_B);
-    FREE(ybar_N);
-    FREE( nonbasics );
-    FREE( basics );
-    FREE(at);
-    FREE(iat);
-    FREE(basicflag);
-    FREE(kat);
-    FREE(x_local);
-    FREE(a_buf);
-    FREE(tag_buf);
-    FREE(link_buf);
-
+    fc_solver_state_destroy(state);
+    
+    FC_FREE(a);
+    FC_FREE(ia);
+    FC_FREE(ka);
 }
-
-
-
-int ratio_test0(
-	double *dy, 
-	int   *idy,
-	int    ndy,
-	double *y, 
-	double *ybar, 
-	double mu
-)
-{
-	int j, jj = -1, k;
-	double min = HUGE_VAL;
-
-	for (k=0; k<ndy; k++) {
-	    if ( dy[k] > EPS1 ) {
-	        j = idy[k];
-		if ( (y[j] + mu*ybar[j])/dy[k] < min ) {
-			min = (y[j] + mu*ybar[j])/dy[k];
-			 jj = j;
-		}
-	    }
-	}
-
-	return jj;
-}
-
-
-
-
-
-
-
-
-
-
-
-

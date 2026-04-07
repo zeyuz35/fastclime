@@ -1,1087 +1,746 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-
-
-#include "macros.h"
-#include "myalloc.h"
+#include "lu.h"
 #include "tree.h"
 #include "heap.h"
 #include "linalg.h"
-#include "lu.h"
 
-#define E_N 200
-#define E_NZ 20000
-#define LARGE 100000
-
-#define EPS    1.0e-14
-#define EPS1   1.0e-14
-#define EPSSOL 1.0e-5   /* Zero tolerance for consistent eqns w/dep rows */
-#define EPSNUM 1.0e-9
-#define NOREORD 0
-#define MD  1
-
-static void Gauss_Eta( 
-    int m, 
-    double *dx_B, 
-    int *idx_B, 
-    int *pndx_B 
-);
-
-static void Gauss_Eta_T( 
-    int m, 
-    double *vec, 
-    int *ivec, 
-    int *pnvec 
-);
-
-static int     *E_d=NULL;  /* Eta file; new column location */
-static double  *E=NULL;    /* Eta file - values (sparse matrix) */
-static int    *iE=NULL;    /* Eta file - row indices */
-static int    *kE=NULL;    /* Eta file - column start positions */
-static int     e_iter = 0; /* number of iterations since last refactorization */
-static int     enz=0;
-
-
-static  int     rank;
-static  int     *kL =NULL, *iL =NULL, 
-		*kLt=NULL, *iLt=NULL,
-		*kU =NULL, *iU =NULL,
-		*kUt=NULL, *iUt=NULL;
-static  int     *colperm=NULL, *icolperm=NULL, *rowperm=NULL, *irowperm=NULL;
-static  double  *L=NULL, *Lt=NULL, *U=NULL, *Ut=NULL, *diagU=NULL;
-
-static  double  cumtime = 0.0;
-static  double  ocumtime= 0.0;
-
-struct valind {    /* nonzero entry */
-        double d;  /* value */
-        int    i;  /* row index */
-};
-typedef struct valind VALIND;
-
-/*-----------------------------------------------------------------+
-| LU factorization.                                                |
-| Input:                                                           |
-|    m          number of rows (= number of columns)               |
-|    kA, iA, A  three array sparse representation of m by n        |
-|               matrix A                                           |
-|    basis      array of m out of n of the column indices of A     |
-|               specify a submatrix B of A                         |
-| Output:                                                          |
-|    static global variables (only visible to other routines in    |
-|    this file:                                                    |
-|                                                                  |
-|    rank       rank of B                                          |
-|    kL, iL, L, three array sparse representation of L             |
-|    kUt,iUt,Ut three array sparse representation of U transpose   |
-|               without its diagonal                               |
-|    diagU      diagonal entries of U                              |
-|    colperm, icolperm, rowperm, irowperm                          |
-|               column and row permutations and their inverses    */
-
-void refactor(
-    int m,
-    int *kA,
-    int *iA,
-    double *A,
-    int *basics,
-    int col_out,
-    int v
-)
-{
-	double starttime, endtime;
-	double rffactor = 1.0;
-	int    from_scratch;
-	int    k;
-
-        /*------------------------------------------------------+
-        | Check if it is time to refactor from scratch         */
-	if (e_iter > 0) {
-	    from_scratch = TRUE;
-	    for (k=kE[e_iter]; k<kE[e_iter+1]; k++) {
-	        if (iE[k] == col_out) {
-		    from_scratch = FALSE;
-		    break;
-	        }
-	    }
-	} else {
-	    from_scratch = FALSE;
-	}
-
-	if ( (e_iter > 2 && cumtime/(e_iter+1) >= ocumtime/e_iter)
-           || e_iter >= E_N || from_scratch == TRUE) {
-		ocumtime = 0.0;
-		cumtime  = 0.0;
-		lufac( m, kA, iA, A, basics, v );
-		cumtime  *= rffactor;
-		enz = 0;
-		e_iter = 0;
-		from_scratch = TRUE;
-		return;
-	}
-       
-	ocumtime  = cumtime;
-	starttime = (double) clock();
-	E_d[e_iter] = col_out;	
-        e_iter++;
-	endtime = (double) clock();
-	cumtime += endtime - starttime;
-
-	from_scratch = FALSE;
-
+fc_lu_context_t* fc_lu_create(void) {
+    fc_lu_context_t *ctx = (fc_lu_context_t*)FC_CALLOC(1, sizeof(fc_lu_context_t));
+    ctx->currtag_bsolve = 1;
+    ctx->currtag_btsolve = 1;
+    ctx->currtag_geta = 1;
+    ctx->currtag_getat = 1;
+    fc_tree_init(&ctx->tree);
+    return ctx;
 }
 
-void lufac( int m, int *kA, int *iA, double *A, int *basis, int v )
-{
-        int     kk, kkk, tag, rowdeg, coldeg, row=0, col, row2, col2;
-        int     i, j, k, cnt, lnz, unz, lnzbnd, unzbnd, okey, deg,
-                heapnum, cur, method=MD;
-        int     *degB=NULL, *degBt=NULL, *hkey=NULL, 
-		*heap=NULL, *iheap=NULL, *iwork=NULL, *iwork2=NULL;
+void fc_lu_destroy(fc_lu_context_t *ctx) {
+    if (!ctx) return;
+    
+    FC_FREE(ctx->colperm); FC_FREE(ctx->icolperm);
+    FC_FREE(ctx->rowperm); FC_FREE(ctx->irowperm);
+    FC_FREE(ctx->L); FC_FREE(ctx->iL); FC_FREE(ctx->kL);
+    FC_FREE(ctx->U); FC_FREE(ctx->iU); FC_FREE(ctx->kU);
+    FC_FREE(ctx->Lt); FC_FREE(ctx->iLt); FC_FREE(ctx->kLt);
+    FC_FREE(ctx->Ut); FC_FREE(ctx->iUt); FC_FREE(ctx->kUt);
+    FC_FREE(ctx->diagU);
+    
+    FC_FREE(ctx->E_d); FC_FREE(ctx->E); FC_FREE(ctx->iE); FC_FREE(ctx->kE);
+    
+    FC_FREE(ctx->y_bsolve); FC_FREE(ctx->tag_bsolve);
+    FC_FREE(ctx->y_btsolve); FC_FREE(ctx->tag_btsolve);
+    
+    FC_FREE(ctx->a_geta); FC_FREE(ctx->tag_geta); 
+    if (ctx->link_geta) { int *orig = ctx->link_geta - 1; FC_FREE(orig); ctx->link_geta = NULL; }
+    
+    FC_FREE(ctx->a_getat); FC_FREE(ctx->tag_getat);
+    
+    fc_killtree(&ctx->tree);
+    FC_FREE(ctx);
+}
 
-        VALIND  tempB, **B=NULL, **Bt=NULL;
-        double  narth;
-        double starttime, endtime;
-	starttime = (double) clock();
+void fc_refactor(fc_lu_context_t *ctx, int m, int *kA, int *iA, double *A, int *basics, int col_out, int v) {
+    double starttime = (double)clock();
+    double rffactor = 1.0;
+    int from_scratch = 0;
+    int k;
 
-        /*---------------------------------------------------------+
-        | allocate space for perm and iperm.                      */
+    if (ctx->e_iter > 0) {
+        from_scratch = 1;
+        for (k = ctx->kE[ctx->e_iter]; k < ctx->kE[ctx->e_iter+1]; k++) {
+            if (ctx->iE[k] == col_out) {
+                from_scratch = 0;
+                break;
+            }
+        }
+    } else {
+        from_scratch = 0;
+    }
 
-        if (colperm == NULL)  { MALLOC( colperm,  m, int ); }
-	else                 { REALLOC( colperm,  m, int ); }
-	if (icolperm == NULL) { MALLOC( icolperm, m, int ); }
-	else		     { REALLOC( icolperm, m, int ); }
-	if (rowperm == NULL)  { MALLOC( rowperm,  m, int ); }
-	else		     { REALLOC( rowperm,  m, int ); }
-	if (irowperm == NULL) { MALLOC( irowperm, m, int ); }
-	else		     { REALLOC( irowperm, m, int ); }
+    if ((ctx->e_iter > 2 && ctx->cumtime/(ctx->e_iter+1) >= ctx->ocumtime/ctx->e_iter) || 
+        ctx->e_iter >= FC_E_N || from_scratch == 1) {
+        ctx->ocumtime = 0.0;
+        ctx->cumtime  = 0.0;
+        fc_lufac(ctx, m, kA, iA, A, basics, v);
+        ctx->cumtime *= rffactor;
+        ctx->enz = 0;
+        ctx->e_iter = 0;
+        return;
+    }
+   
+    ctx->ocumtime = ctx->cumtime;
+    ctx->E_d[ctx->e_iter] = col_out;    
+    ctx->e_iter++;
+    ctx->cumtime += (double)clock() - starttime;
+}
 
-        /*---------------------------------------------------------+
-        | allocate space for work arrays.                         */
+typedef struct {
+    int *degB; int *degBt; int *hkey;
+    int *heap; int *iheap; int *iwork; int *iwork2;
+    FC_VALIND **B; FC_VALIND **Bt;
+    int lnzbnd; int unzbnd;
+    int heapnum; int tag;
+    int lnz; int unz;
+} fc_lufac_work_t;
 
-        MALLOC( degB,    m, int   );
-        MALLOC( degBt,   m, int   );
-        MALLOC( hkey,    m, int   );
-        MALLOC( heap,    m, int   );
-        MALLOC( iheap,   m, int   );
-        MALLOC( iwork,   m, int   );
-        MALLOC( iwork2,  m, int   );
+static void fc_lufac_init_wk(fc_lu_context_t *ctx, int m, int *kA, int *iA, double *A, int *basis, fc_lufac_work_t *wk) {
+    int i, j, k, row, kk, kkk;
 
-        heap--;         /* so that indexing starts from 1 */
+    if (ctx->colperm == NULL)  { ctx->colperm  = (int*)FC_CALLOC(m, sizeof(int)); }
+    else { ctx->colperm = (int*)FC_REALLOC(ctx->colperm, m, sizeof(int)); }
+    
+    if (ctx->icolperm == NULL) { ctx->icolperm = (int*)FC_CALLOC(m, sizeof(int)); }
+    else { ctx->icolperm = (int*)FC_REALLOC(ctx->icolperm, m, sizeof(int)); }
+    
+    if (ctx->rowperm == NULL)  { ctx->rowperm  = (int*)FC_CALLOC(m, sizeof(int)); }
+    else { ctx->rowperm = (int*)FC_REALLOC(ctx->rowperm, m, sizeof(int)); }
+    
+    if (ctx->irowperm == NULL) { ctx->irowperm = (int*)FC_CALLOC(m, sizeof(int)); }
+    else { ctx->irowperm = (int*)FC_REALLOC(ctx->irowperm, m, sizeof(int)); }
 
-        /*---------------------------------------------------------+
-        | calculate degrees in B and Bt                           */
+    wk->degB    = (int*)FC_CALLOC(m, sizeof(int));
+    wk->degBt   = (int*)FC_CALLOC(m, sizeof(int));
+    wk->hkey    = (int*)FC_CALLOC(m, sizeof(int));
+    wk->heap    = (int*)FC_CALLOC(m+1, sizeof(int)); 
+    wk->iheap   = (int*)FC_CALLOC(m, sizeof(int));
+    wk->iwork   = (int*)FC_CALLOC(m, sizeof(int));
+    wk->iwork2  = (int*)FC_CALLOC(m, sizeof(int));
 
-        for (i=0; i<m; i++) { degBt[i] = 0; }
-        for (i=0; i<m; i++) {
-                degB[i] = kA[ basis[i]+1 ] - kA[ basis[i] ];
-                for (k=kA[ basis[i] ]; k<kA[ basis[i]+1 ]; k++) {
-                        degBt[ iA[k] ]++;
+    for (i=0; i<m; i++) { wk->degBt[i] = 0; }
+    for (i=0; i<m; i++) {
+        wk->degB[i] = kA[basis[i]+1] - kA[basis[i]];
+        for (k=kA[basis[i]]; k<kA[basis[i]+1]; k++) {
+            wk->degBt[iA[k]]++;
+        }
+    }
+
+    wk->lnzbnd = 0;
+    for (i=0; i<m; i++) wk->lnzbnd += wk->degB[i];
+    wk->lnzbnd = wk->lnzbnd/2;
+    wk->unzbnd = wk->lnzbnd;
+
+    if (ctx->kL == NULL)   { ctx->kL    = (int*)FC_CALLOC(m+1,  sizeof(int)); } else { ctx->kL = (int*)FC_REALLOC(ctx->kL, m+1, sizeof(int)); }
+    if (ctx->iL == NULL)   { ctx->iL    = (int*)FC_CALLOC(wk->lnzbnd, sizeof(int)); } else { ctx->iL = (int*)FC_REALLOC(ctx->iL, wk->lnzbnd, sizeof(int)); }
+    if (ctx->L ==  NULL)   { ctx->L     = (double*)FC_CALLOC(wk->lnzbnd, sizeof(double)); } else { ctx->L = (double*)FC_REALLOC(ctx->L, wk->lnzbnd, sizeof(double)); }
+    if (ctx->kUt == NULL)  { ctx->kUt   = (int*)FC_CALLOC(m+1,  sizeof(int)); } else { ctx->kUt = (int*)FC_REALLOC(ctx->kUt, m+1, sizeof(int)); }
+    if (ctx->iUt == NULL)  { ctx->iUt   = (int*)FC_CALLOC(wk->unzbnd, sizeof(int)); } else { ctx->iUt = (int*)FC_REALLOC(ctx->iUt, wk->unzbnd, sizeof(int)); }
+    if (ctx->Ut == NULL)   { ctx->Ut    = (double*)FC_CALLOC(wk->unzbnd, sizeof(double)); } else { ctx->Ut = (double*)FC_REALLOC(ctx->Ut, wk->unzbnd, sizeof(double)); }
+    if (ctx->diagU == NULL){ ctx->diagU = (double*)FC_CALLOC(m, sizeof(double)); } else { ctx->diagU = (double*)FC_REALLOC(ctx->diagU, m, sizeof(double)); }
+
+    wk->B = (FC_VALIND**)FC_CALLOC(m, sizeof(FC_VALIND*));
+    wk->Bt = (FC_VALIND**)FC_CALLOC(m, sizeof(FC_VALIND*));
+    for (i=0; i<m; i++) {
+        wk->B[i]  = (FC_VALIND*)FC_CALLOC(wk->degB[i],  sizeof(FC_VALIND));
+        wk->Bt[i] = (FC_VALIND*)FC_CALLOC(wk->degBt[i], sizeof(FC_VALIND));
+    }
+
+    for (i=0; i<m; i++) { wk->iwork[i] = 0; }
+    for (j=0; j<m; j++) {
+        kkk = 0;
+        for (k=kA[basis[j]]; k<kA[basis[j]+1]; k++) {
+            row = iA[k];
+            kk  = wk->iwork[row];
+            wk->B[j][kkk].i = row;
+            wk->B[j][kkk].d = A[k];
+            wk->Bt[row][kk].i = j;
+            wk->Bt[row][kk].d = A[k];
+            wk->iwork[row]++;
+            kkk++;
+        }
+    }
+
+    for (i=0; i<m; i++) { 
+        ctx->icolperm[i] = -1;
+        ctx->irowperm[i] = -1;
+        wk->iwork[i] = 0; 
+        wk->iwork2[i] = -1; 
+    }
+
+    ctx->rank = m; 
+    wk->tag = 0; 
+    wk->lnz = 0; 
+    wk->unz = 0; 
+    ctx->kL[0] = 0; 
+    ctx->kUt[0] = 0;
+
+    for (j=0; j<m; j++) {
+        if (FC_MD == 1) wk->hkey[j] = wk->degB[j];
+        else wk->hkey[j] = j;
+        if (wk->hkey[j]==0) wk->hkey[j]=m+1;
+    }
+
+    wk->heapnum = m;
+    for (j=m-1; j>=0; j--) {
+        int cur = j+1;
+        wk->iheap[j] = cur;
+        wk->heap[cur] = j;
+        fc_hfall(wk->heapnum, wk->hkey, wk->iheap, wk->heap, cur);
+    }
+}
+
+static void fc_lufac_factorize_loop(fc_lu_context_t *ctx, int m, fc_lufac_work_t *wk) {
+    int i, k, kk, cnt, deg, okey;
+    int col, coldeg, row, rowdeg, col2, row2;
+    FC_VALIND tempB;
+
+    int stop_factorization = 0;
+
+    for (i=0; i<m; i++) {
+        int pivoted = 0;
+        while (!pivoted) {
+            col    = wk->heap[1];
+            coldeg = wk->degB[col];
+
+            if (coldeg == 0) {
+                ctx->rank = i;
+                stop_factorization = 1;
+                break;
+            }
+
+            rowdeg = m+1;
+            row = -1;
+            for (k=0; k<coldeg; k++) {
+                if ( wk->degBt[ wk->B[col][k].i ] < rowdeg && FC_ABS( wk->B[col][k].d ) > FC_EPSNUM ) {
+                    row    = wk->B[col][k].i;
+                    rowdeg = wk->degBt[row];
                 }
+            }
+
+            if (rowdeg == m+1) {
+                wk->hkey[col] = m+2;
+                fc_hfall( wk->heapnum, wk->hkey, wk->iheap, wk->heap, wk->iheap[col] ); 
+                if (wk->hkey[wk->heap[1]] == m+2) {
+                    ctx->rank = i;
+                    stop_factorization = 1;
+                    break;
+                } else {
+                    continue; 
+                }
+            }
+            pivoted = 1;
         }
 
-        /*---------------------------------------------------------+
-        | calculate initial estimate of number of nonzeros in      |
-        | L and Ut                                                */
+        if (stop_factorization) break;
 
-        lnzbnd = 0;
-        for (i=0; i<m; i++) lnzbnd += degB[i];
-        lnzbnd = lnzbnd/2;
-        unzbnd   = lnzbnd;
+        ctx->colperm[i] = col;
+        ctx->icolperm[col] = i;
+        ctx->rowperm[i] = row;
+        ctx->irowperm[row] = i;
 
-        /*---------------------------------------------------------+
-        | allocate enough space to store L and Ut                  |
-        | (without any fillin)                                    */
-
-	if (kL == NULL)   {  MALLOC(    kL,    m+1,  int    ); }
-		     else { REALLOC(    kL,    m+1,  int    ); }
-	if (iL == NULL)   {  MALLOC(    iL, lnzbnd,  int    ); }
-		     else { REALLOC(    iL, lnzbnd,  int    ); }
-	if (L == NULL)    {  MALLOC(     L, lnzbnd,  double ); }
-	             else { REALLOC(     L, lnzbnd,  double ); }
-	if (kUt == NULL)  {  MALLOC(   kUt,    m+1,  int    ); }
-		     else { REALLOC(   kUt,    m+1,  int    ); }
-	if (iUt == NULL)  {  MALLOC(   iUt, unzbnd,  int    ); }
-		     else { REALLOC(   iUt, unzbnd,  int    ); }
-	if (Ut == NULL)   {  MALLOC(    Ut, unzbnd,  double ); }
-		     else { REALLOC(    Ut, unzbnd,  double ); }
-	if (diagU == NULL){  MALLOC( diagU,      m,  double ); }
-		     else { REALLOC( diagU,      m,  double ); }
-
-        MALLOC( B,  m, VALIND * );
-        MALLOC( Bt, m, VALIND * );
-        for (i=0; i<m; i++) {
-		B[i] = NULL;
-		Bt[i] = NULL;
-                MALLOC( B[i],  degB[i],  VALIND );
-                MALLOC( Bt[i], degBt[i], VALIND );
+        cnt = wk->lnz + coldeg-1 + coldeg*rowdeg/2;
+        if (cnt > wk->lnzbnd) {
+            wk->lnzbnd = cnt;
+            ctx->L = (double*)FC_REALLOC(ctx->L, wk->lnzbnd, sizeof(double));
+            ctx->iL = (int*)FC_REALLOC(ctx->iL, wk->lnzbnd, sizeof(int));
         }
 
-        /*---------------------------------------------------------+
-        | initialize B and Bt                                     */
+        cnt = wk->unz + rowdeg-1 + coldeg*rowdeg/2;
+        if (cnt > wk->unzbnd) {
+            wk->unzbnd = cnt;
+            ctx->Ut = (double*)FC_REALLOC(ctx->Ut, wk->unzbnd, sizeof(double));
+            ctx->iUt = (int*)FC_REALLOC(ctx->iUt, wk->unzbnd, sizeof(int));
+        }
 
-        for (i=0; i<m; i++) { iwork[i] = 0; }
-        for (j=0; j<m; j++) {
-            kkk = 0;
-            for (k=kA[ basis[j] ]; k<kA[ basis[j]+1 ]; k++) {
-                row = iA[k];
-                kk  = iwork[row];
-                B[j][kkk].i = row;
-                B[j][kkk].d = A[k];
-                Bt[row][kk].i = j;
-                Bt[row][kk].d = A[k];
-                iwork[row]++;
-                kkk++;
+        ctx->kL[i+1] = ctx->kL[i] + coldeg-1;
+        for (k=0; k<coldeg; k++) {
+            if ( wk->B[col][k].i != row ) {
+                ctx->iL[wk->lnz] = wk->B[col][k].i;
+                ctx->L[wk->lnz] = wk->B[col][k].d;
+                wk->lnz++;
             }
         }
 
-        /*---------------------------------------------------------+
-        | miscellaneous initializations.                          */
-
-        for (i=0; i<m; i++) { 
-            icolperm[i] = -1;
-            irowperm[i] = -1;
-            iwork[i] = 0; 
-            iwork2[i] = -1; 
-        }
-
-        rank = m; tag = 0; lnz = 0; unz = 0; kL[0] = 0; kUt[0] = 0;
-
-        /*---------------------------------------------------------+
-        | hkey encodes the tie-breaking rule - currently the rule  |
-        | is somewhat random.  to make it first occuring minimum,  |
-        | change the formula to:                                   |
-        |       hkey[node] = degree[node]*m + node;                |
-        | warning: with this definition of hkey, there is the      |
-        | possibility of integer overflow on moderately large      |
-        | problems.                                                |
-        |                                                         */
-
-        for (j=0; j<m; j++) {
-            if (method == MD) hkey[j] = degB[j];
-            else              hkey[j] = j;
-
-            if (hkey[j]==0) hkey[j]=m+1;
-        }
-
-        /*---------------------------------------------------------+
-        | set up heap structure for quickly accessing minimum.    */
-
-        heapnum = m;
-        for (j=m-1; j>=0; j--) {
-                cur = j+1;
-                iheap[j] = cur;
-                heap[cur] = j;
-                hfall( heapnum, hkey, iheap, heap, cur );
-        }
-
-        /*---------------------------------------------------------+
-        | the min degree ordering loop                            */
-
-        for (i=0; i<m; i++) {
-
-                /*------------------------------------------------+
-                |  select column with min column degree          */
-
-again:
-                col    = heap[1];
-                coldeg = degB[col];
-
-                if (coldeg == 0) {
-                  
-                    rank = i;
-                    goto end;
-                }
-
-                /*------------------------------------------------+
-                |  select pivot element from this column by       |
-                |  choosing nonzero whose row is of minimal       |
-                |  degree                                        */
-
-                rowdeg = m+1;
-                for (k=0; k<coldeg; k++) {
-                    if ( degBt[ B[col][k].i ] < rowdeg 
-                         && ABS( B[col][k].d ) > EPSNUM ) {
-                        row    = B[col][k].i;
-                        rowdeg = degBt[row];
-                    }
-                }
-                if (rowdeg == m+1) {
-                    hkey[col]=m+2;
-                    hfall( heapnum, hkey, iheap, heap, iheap[col] ); 
-                    if (hkey[heap[1]] == m+2) {
-                     
-                        rank = i;
-                        goto end;
-                    } else {
-                        goto again;
-                    }
-                }
-
-                /*------------------------------------------------+
-                |  update permutation information                */
-
-                colperm[i] = col;
-                icolperm[col] = i;
-
-                rowperm[i] = row;
-                irowperm[row] = i;
-
-                /*------------------------------------------------+
-                |  reallocate space for L, iL, Ut, and iUt as     |
-                |        necessary.                               |
-                |                                                 |
-                |  lnz stores the number of nonzeros in L so far  |
-                |  lnzbnd is an estimate of how many will be in L |
-                |  unz stores the number of nonzeros in U so far  |
-                |  unzbnd is an estimate of how many will be in U*/
-
-                cnt = lnz + coldeg-1 + coldeg*rowdeg/2;
-                if (cnt > lnzbnd) {
-                    lnzbnd = cnt;
-                    REALLOC(  L, lnzbnd, double );
-                    REALLOC( iL, lnzbnd, int );
-                }
-
-                cnt = unz + rowdeg-1 + coldeg*rowdeg/2;
-                if (cnt > unzbnd) {
-                    unzbnd = cnt;
-                    REALLOC(  Ut, unzbnd, double );
-                    REALLOC( iUt, unzbnd, int );
-                }
-
-                /*------------------------------------------------+
-                |  copy pivot column into L and pivot row into    |
-                |  Ut.                                           */
-
-                kL[i+1] = kL[i] + coldeg-1;
-
-                for (k=0; k<coldeg; k++) {
-                    if ( B[col][k].i != row ) {
-                        iL[lnz] = B[col][k].i;
-                         L[lnz] = B[col][k].d;
-                           lnz++;
-                    }
-                }
-
-                kUt[i+1] = kUt[i] + rowdeg-1;
-
-                for (k=0; k<rowdeg; k++) {
-                    if ( Bt[row][k].i != col ) {
-                        iUt[unz] = Bt[row][k].i;
-                         Ut[unz] = Bt[row][k].d;
-                            unz++;
-                    } else {
-                        diagU[i] = Bt[row][k].d;
-                    }
-                }
-
-                /*------------------------------------------------+
-                |  remove eliminated elements from B and Bt      */
-
-                for (k=0; k<coldeg; k++) {
-                    row2 = B[col][k].i;
-                    degBt[row2]--;
-                    for (kk=0; Bt[row2][kk].i != col; kk++) ;
-
-                    tempB = Bt[row2][ degBt[row2] ];
-                    Bt[row2][ degBt[row2] ] = Bt[row2][kk];
-                    Bt[row2][kk] = tempB;
-                }
-
-                for (k=0; k<rowdeg; k++) {
-                    col2 = Bt[row][k].i;
-                    degB[col2]--;
-                    for (kk=0; B[col2][kk].i != row; kk++) ;
-
-                    tempB = B[col2][ degB[col2] ];
-                    B[col2][ degB[col2] ] = B[col2][kk];
-                    B[col2][kk] = tempB;
-                }
-                degB[col] = 0;
-                degBt[row] = 0;
-
-                /*------------------------------------------------+
-                |  update heap                                   */
-
-                okey = hkey[col];
-                heap[1] = heap[heapnum];
-                iheap[heap[1]] = 1;
-                heapnum--;
-                if (okey < hkey[heap[1]]) 
-                        hfall(heapnum, hkey, iheap, heap, 1);
-
-                /*------------------------------------------------+
-                |  generate fillin and update elements           */
-
-                for (k=kL[i]; k<kL[i+1]; k++) {
-                    row2 = iL[k];
-                    tag++;
-                    for (kk=0; kk<degBt[row2]; kk++) {
-                        iwork[ Bt[row2][kk].i] = tag; /* tag these columns */
-                        iwork2[Bt[row2][kk].i] = kk;  /* say where they are */
-                    }
-                    for (kk=kUt[i]; kk<kUt[i+1]; kk++) {
-                        col2 = iUt[kk];
-                        if ( iwork[col2] == tag ) {
-                            Bt[row2][iwork2[col2]].d -= L[k]*Ut[kk]/diagU[i];
-                        } else {
-                            deg = degBt[row2];
-                            REALLOC( Bt[row2], deg+1, VALIND );
-                            Bt[row2][deg].i = col2;
-                            Bt[row2][deg].d = -L[k]*Ut[kk]/diagU[i];
-                            degBt[row2]++;
-                        }
-                    }
-                }
-
-                for (k=kUt[i]; k<kUt[i+1]; k++) {
-                    col2 = iUt[k];
-                    tag++;
-                    for (kk=0; kk<degB[col2]; kk++) {
-                        iwork[ B[col2][kk].i] = tag; /* tag these rows */
-                        iwork2[B[col2][kk].i] = kk;  /* say where they are */
-                    }
-                    for (kk=kL[i]; kk<kL[i+1]; kk++) {
-                        row2 = iL[kk];
-                        if ( iwork[row2] == tag ) {
-                            B[col2][iwork2[row2]].d -= L[kk]*Ut[k]/diagU[i];
-                        } else {
-                            deg = degB[col2];
-                            REALLOC( B[col2], deg+1, VALIND );
-                            B[col2][deg].i = row2;
-                            B[col2][deg].d = -L[kk]*Ut[k]/diagU[i];
-                            degB[col2]++;
-                        }
-                    }
-                }
-
-                /*------------------------------------------------+
-                |  adjust heap                                   */
-
-                for (k=kUt[i]; k<kUt[i+1]; k++) {
-                        col2 = iUt[k];
-                        if (method == MD) {
-                                hkey[col2] = degB[col2];
-                        } else {
-                                hkey[col2] = col2;
-                        }
-                        if (hkey[col2]==0) hkey[col2]=m+1;
-                        hrise( hkey, iheap, heap, iheap[col2] );
-                        hfall( heapnum, hkey, iheap, heap, iheap[col2] ); 
-                }
-
-
-        }
-end:
-        /*------------------------------------------------+
-        |  process dependent rows/cols                   */
-
-        i = rank;
-        for (col=0; col<m; col++) {
-            if (icolperm[col] == -1) {
-                colperm[i] = col;
-                icolperm[col] = i;
-                i++;
+        ctx->kUt[i+1] = ctx->kUt[i] + rowdeg-1;
+        for (k=0; k<rowdeg; k++) {
+            if ( wk->Bt[row][k].i != col ) {
+                ctx->iUt[wk->unz] = wk->Bt[row][k].i;
+                ctx->Ut[wk->unz] = wk->Bt[row][k].d;
+                wk->unz++;
+            } else {
+                ctx->diagU[i] = wk->Bt[row][k].d;
             }
         }
 
-        i = rank;
-        for (row=0; row<m; row++) {
-            if (irowperm[row] == -1) {
-                rowperm[i] = row;
-                irowperm[row] = i;
-                i++;
+        for (k=0; k<coldeg; k++) {
+            row2 = wk->B[col][k].i;
+            wk->degBt[row2]--;
+            for (kk=0; wk->Bt[row2][kk].i != col; kk++) ;
+            tempB = wk->Bt[row2][ wk->degBt[row2] ];
+            wk->Bt[row2][ wk->degBt[row2] ] = wk->Bt[row2][kk];
+            wk->Bt[row2][kk] = tempB;
+        }
+
+        for (k=0; k<rowdeg; k++) {
+            col2 = wk->Bt[row][k].i;
+            wk->degB[col2]--;
+            for (kk=0; wk->B[col2][kk].i != row; kk++) ;
+            tempB = wk->B[col2][ wk->degB[col2] ];
+            wk->B[col2][ wk->degB[col2] ] = wk->B[col2][kk];
+            wk->B[col2][kk] = tempB;
+        }
+        wk->degB[col] = 0;
+        wk->degBt[row] = 0;
+
+        okey = wk->hkey[col];
+        wk->heap[1] = wk->heap[wk->heapnum];
+        wk->iheap[wk->heap[1]] = 1;
+        wk->heapnum--;
+        if (okey < wk->hkey[wk->heap[1]]) 
+            fc_hfall(wk->heapnum, wk->hkey, wk->iheap, wk->heap, 1);
+
+        for (k=ctx->kL[i]; k<ctx->kL[i+1]; k++) {
+            row2 = ctx->iL[k];
+            wk->tag++;
+            for (kk=0; kk<wk->degBt[row2]; kk++) {
+                wk->iwork[ wk->Bt[row2][kk].i] = wk->tag; 
+                wk->iwork2[wk->Bt[row2][kk].i] = kk;  
+            }
+            for (kk=ctx->kUt[i]; kk<ctx->kUt[i+1]; kk++) {
+                col2 = ctx->iUt[kk];
+                if ( wk->iwork[col2] == wk->tag ) {
+                    wk->Bt[row2][wk->iwork2[col2]].d -= ctx->L[k]*ctx->Ut[kk]/ctx->diagU[i];
+                } else {
+                    deg = wk->degBt[row2];
+                    wk->Bt[row2] = (FC_VALIND*)FC_REALLOC( wk->Bt[row2], deg+1, sizeof(FC_VALIND) );
+                    wk->Bt[row2][deg].i = col2;
+                    wk->Bt[row2][deg].d = -ctx->L[k]*ctx->Ut[kk]/ctx->diagU[i];
+                    wk->degBt[row2]++;
+                }
             }
         }
 
-        for (i=rank; i<m; i++) {
-                kL[i+1] = kL[i];
-                kUt[i+1] = kUt[i];
-                diagU[i] = 0.0;
-        }
-
-        /*------------------------------------------------+
-        |  free up space                                 */
-
-        heap++;
-        for (i=0; i<m; i++) { FREE( B[i] ); FREE( Bt[i] ); }
-        FREE(degB); FREE(degBt); 
-        FREE(hkey); FREE(heap); FREE(iheap);
-        FREE(iwork); FREE(iwork2); FREE(B); FREE(Bt);
-
-        /*------------------------------------------------+
-        |  update "i" arrays to new indices              */
-
-        for (k=0; k<kL[m]; k++) iL[k] = irowperm[iL[k]];
-        for (k=0; k<kUt[m]; k++) iUt[k] = icolperm[iUt[k]];
-
-        /*------------------------------------------------+
-        |  divide each column of L by diagonal           */
-
-        for (i=0; i<m; i++) {
-            for (k=kL[i]; k<kL[i+1]; k++) {
-                L[k] /= diagU[i];
+        for (k=ctx->kUt[i]; k<ctx->kUt[i+1]; k++) {
+            col2 = ctx->iUt[k];
+            wk->tag++;
+            for (kk=0; kk<wk->degB[col2]; kk++) {
+                wk->iwork[ wk->B[col2][kk].i] = wk->tag; 
+                wk->iwork2[wk->B[col2][kk].i] = kk;  
+            }
+            for (kk=ctx->kL[i]; kk<ctx->kL[i+1]; kk++) {
+                row2 = ctx->iL[kk];
+                if ( wk->iwork[row2] == wk->tag ) {
+                    wk->B[col2][wk->iwork2[row2]].d -= ctx->L[kk]*ctx->Ut[k]/ctx->diagU[i];
+                } else {
+                    deg = wk->degB[col2];
+                    wk->B[col2] = (FC_VALIND*)FC_REALLOC( wk->B[col2], deg+1, sizeof(FC_VALIND) );
+                    wk->B[col2][deg].i = row2;
+                    wk->B[col2][deg].d = -ctx->L[kk]*ctx->Ut[k]/ctx->diagU[i];
+                    wk->degB[col2]++;
+                }
             }
         }
 
-        /*---------------------------------------------------------+
-        | calculate  statistics.                          */
-
-        narth = 0.0e0;
-        for (i=0; i<m; i++) {
-                k = kL[i+1]-kL[i];   narth += (double) k*k;
-                k = kUt[i+1]-kUt[i]; narth += (double) k*k;
+        for (k=ctx->kUt[i]; k<ctx->kUt[i+1]; k++) {
+            col2 = ctx->iUt[k];
+            if (FC_MD == 1) { wk->hkey[col2] = wk->degB[col2]; } 
+            else { wk->hkey[col2] = col2; }
+            if (wk->hkey[col2]==0) wk->hkey[col2]=m+1;
+            fc_hrise( wk->hkey, wk->iheap, wk->heap, wk->iheap[col2] );
+            fc_hfall( wk->heapnum, wk->hkey, wk->iheap, wk->heap, wk->iheap[col2] ); 
         }
-        narth = narth + 3*kL[m] + 3*kUt[m] + 2*m;
-
-        lnz    = kL[m];
-        unz    = kUt[m];
-
-
-	if (  Lt== NULL ) {  MALLOC(  Lt, lnz, double); }
-		   else   { REALLOC(  Lt, lnz, double); }
-	if ( iLt== NULL ) {  MALLOC( iLt, lnz, int); }
-	     	   else   { REALLOC( iLt, lnz, int); }
-	if ( kLt== NULL ) {  MALLOC( kLt, m+1, int); }
-	     	   else   { REALLOC( kLt, m+1, int); }
-
-	if (  U == NULL ) {  MALLOC(  U,  unz, double); }
-		   else   { REALLOC(  U,  unz, double); }
-	if ( iU == NULL ) {  MALLOC( iU,  unz, int); }
-	     	   else   { REALLOC( iU,  unz, int); }
-	if ( kU == NULL ) {  MALLOC( kU,  m+1, int); }
-	      	   else   { REALLOC( kU,  m+1, int); }
-
-	atnum(m,m,kL, iL, L, kLt,iLt,Lt);
-	atnum(m,m,kUt,iUt,Ut,kU, iU, U );
-
-	if ( E_d == NULL ) {
-	    MALLOC( E_d, E_N, int );
-
-	    MALLOC( E, E_NZ, double );
-	    MALLOC(iE, E_NZ,    int );
-	    MALLOC(kE, E_N+1,    int );
-	}
-	kE[0] = 0;
-
-	endtime = (double) clock();
-	cumtime += endtime - starttime;
+    }
 }
 
-/*-----------------------------------------------------------------+
-| Forward/backward solve using LU factorization                    |
-| Input:                                                           |
-|    m          dimension of array y                               |
-|    y          array containing right-hand side                   |
-|                                                                  |
-|    static global variables (assumed setup by lufac()):           |
-|                                                                  |
-|    rank       rank of B                                          |
-|    kL, iL, L, three array sparse representation of L             |
-|    kUt,iUt,Ut three array sparse representation of U transpose   |
-|               without its diagonal                               |
-|    diagU      diagonal entries of U                              |
-|    colperm, icolperm, rowperm, irowperm                          |
-|               column and row permutations and their inverses     |
-| Output:                                                          |
-|                                          -1                      |
-|    y          array containing solution B  y                     |
-|                                                                  |
-|    integer flag indicating whether system is consistent         */
+static void fc_lufac_finalize_wk(fc_lu_context_t *ctx, int m, fc_lufac_work_t *wk) {
+    int i, k, row, col;
 
-int     bsolve(
-	int m, 
-	double *sy,
-	int *iy,
-	int *pny
-)
-{
-        int i, ny=*pny;
-        int k, row, consistent=TRUE;
-        double beta;
-        double eps=0;
-
-	static double *y=NULL;
-	static int  *tag=NULL;
-	static int  currtag=1;
-
-	double starttime, endtime;
-
-	if (m==0) {  // clean up
-	    FREE(y); FREE(tag); currtag=1;
-	    Gauss_Eta( 0, sy, iy, &ny);
-	    return 0;
-	}
-
-        
-
-	starttime = (double) clock();
-
-	if (   y  == NULL) CALLOC(   y, m,   double);
-	else if (m > 0) REALLOC(y, m, double);
-	if ( tag  == NULL) CALLOC( tag, m,   int);
-	else if (m > 0) REALLOC(tag, m, int);
-
-	for (k=0; k<ny; k++) {
-	    i = irowperm[iy[k]];
-	    y[i] = sy[k];
-	    tag[i] = currtag;
-	    addtree(i);
-	}
-
-        if (rank < m) eps = EPSSOL * maxv(sy,ny);
-
-        /*------------------------------------------------------+
-        |               -1                                      |
-        |       y  <-  L  y                                    */
-
-        for (i=getfirst(); i < rank && i != -1; i=getnext()) {
-                beta = y[i];
-                for (k=kL[i]; k<kL[i+1]; k++) {
-                        row = iL[k];
-			if (tag[row] != currtag) {
-			    y[row] = 0.0;
-			    tag[row] = currtag;
-			    addtree(row);
-			}
-                        y[row] -= L[k]*beta;
-                }
+    i = ctx->rank;
+    for (col=0; col<m; col++) {
+        if (ctx->icolperm[col] == -1) {
+            ctx->colperm[i] = col;
+            ctx->icolperm[col] = i;
+            i++;
         }
+    }
 
-        /*------------------------------------------------------+
-        |               -1                                      |
-        |       y  <-  U  y                                    */
-
-        for (i=getlast(); i >= rank && i != -1; i=getprev()) {
-                if ( ABS( y[i] ) > eps ) consistent = FALSE;
-                y[i] = 0.0;
+    i = ctx->rank;
+    for (row=0; row<m; row++) {
+        if (ctx->irowperm[row] == -1) {
+            ctx->rowperm[i] = row;
+            ctx->irowperm[row] = i;
+            i++;
         }
-        for ( ; i>=0; i=getprev()) {
-                beta = y[i]/diagU[i];
-                for (k=kU[i]; k<kU[i+1]; k++) {
-			row = iU[k];
-			if (tag[row] != currtag) {
-			    y[row] = 0.0;
-			    tag[row] = currtag;
-			    addtree(row);
-			}
-			y[row] -= U[k]*beta;
-                }
-                y[i] = beta;
+    }
+
+    for (i=ctx->rank; i<m; i++) {
+        ctx->kL[i+1] = ctx->kL[i];
+        ctx->kUt[i+1] = ctx->kUt[i];
+        ctx->diagU[i] = 0.0;
+    }
+
+    for (i=0; i<m; i++) { FC_FREE(wk->B[i]); FC_FREE(wk->Bt[i]); }
+    FC_FREE(wk->degB);  FC_FREE(wk->degBt); 
+    FC_FREE(wk->hkey);  FC_FREE(wk->heap); FC_FREE(wk->iheap);
+    FC_FREE(wk->iwork); FC_FREE(wk->iwork2); FC_FREE(wk->B); FC_FREE(wk->Bt);
+
+    for (k=0; k<ctx->kL[m]; k++) ctx->iL[k] = ctx->irowperm[ctx->iL[k]];
+    for (k=0; k<ctx->kUt[m]; k++) ctx->iUt[k] = ctx->icolperm[ctx->iUt[k]];
+
+    for (i=0; i<m; i++) {
+        for (k=ctx->kL[i]; k<ctx->kL[i+1]; k++) {
+            ctx->L[k] /= ctx->diagU[i];
         }
+    }
 
-	ny = 0;
-	for (i=getfirst(); i != -1; i=getnext()) {
-	    if ( ABS(y[i]) > EPS ) {
-	        sy[ny] = y[i];
-	        iy[ny] = colperm[i];
-	        ny++;
-	    }
-	}
+    wk->lnz = ctx->kL[m];
+    wk->unz = ctx->kUt[m];
 
-	currtag++;
-	killtree();
+    if (ctx->Lt == NULL) { ctx->Lt = (double*)FC_CALLOC(wk->lnz, sizeof(double)); } else { ctx->Lt = (double*)FC_REALLOC(ctx->Lt, wk->lnz, sizeof(double)); }
+    if (ctx->iLt == NULL){ ctx->iLt= (int*)FC_CALLOC(wk->lnz, sizeof(int)); }       else { ctx->iLt= (int*)FC_REALLOC(ctx->iLt, wk->lnz, sizeof(int)); }
+    if (ctx->kLt == NULL){ ctx->kLt= (int*)FC_CALLOC(m+1, sizeof(int)); }           else { ctx->kLt= (int*)FC_REALLOC(ctx->kLt, m+1, sizeof(int)); }
 
-	Gauss_Eta( m, sy, iy, &ny);
+    if (ctx->U == NULL)  { ctx->U  = (double*)FC_CALLOC(wk->unz, sizeof(double)); } else { ctx->U  = (double*)FC_REALLOC(ctx->U, wk->unz, sizeof(double)); }
+    if (ctx->iU == NULL) { ctx->iU = (int*)FC_CALLOC(wk->unz, sizeof(int)); }       else { ctx->iU = (int*)FC_REALLOC(ctx->iU, wk->unz, sizeof(int)); }
+    if (ctx->kU == NULL) { ctx->kU = (int*)FC_CALLOC(m+1, sizeof(int)); }           else { ctx->kU = (int*)FC_REALLOC(ctx->kU, m+1, sizeof(int)); }
 
-	*pny = ny;
+    fc_atnum(m,m, ctx->kL, ctx->iL, ctx->L, ctx->kLt, ctx->iLt, ctx->Lt);
+    fc_atnum(m,m, ctx->kUt,ctx->iUt,ctx->Ut,ctx->kU,  ctx->iU,  ctx->U );
 
-	/*************************************************************
-	* Update E and save col_out in E_d[e_iter]                   *
-	*************************************************************/
-
-	REALLOC( E, MAX(E_NZ, enz+ny), double );
-	REALLOC(iE, MAX(E_NZ, enz+ny),    int );
-	for (i=0, k=kE[e_iter]; i<ny; i++, k++) {
-	   E[k] = sy[i];
-	  iE[k] = iy[i];
-	}
-	enz = k;
-	kE[e_iter+1] = enz;
-
-	endtime = (double) clock();
-	cumtime += endtime - starttime;
-
-        return consistent;
+    if ( ctx->E_d == NULL ) {
+        ctx->E_d = (int*)FC_CALLOC( FC_E_N, sizeof(int) );
+        ctx->E = (double*)FC_CALLOC( FC_E_NZ, sizeof(double) );
+        ctx->iE = (int*)FC_CALLOC( FC_E_NZ, sizeof(int) );
+        ctx->kE = (int*)FC_CALLOC( FC_E_N+1, sizeof(int) );
+    }
+    ctx->kE[0] = 0;
 }
 
-/*-----------------------------------------------------------------+
-| Forward/backward solve using LU factorization                    |
-| Input:                                                           |
-|    m          dimension of array y                               |
-|    y          array containing right-hand side                   |
-|                                                                  |
-|    static global variables (assumed setup by lufac()):           |
-|                                                                  |
-|    rank       rank of B                                          |
-|    kL, iL, L, three array sparse representation of L             |
-|    kUt,iUt,Ut three array sparse representation of U transpose   |
-|               without its diagonal                               |
-|    diagU      diagonal entries of U                              |
-|    colperm, icolperm, rowperm, irowperm                          |
-|               column and row permutations and their inverses     |
-| Output:                                                          |
-|                                          -T                      |
-|    y          array containing solution B  y                     |
-|                                                                  |
-|    integer flag indicating whether system is consistent         */
-
-int     btsolve(
-        int m,
-        double *sy,
-        int *iy,
-        int *pny
-)
-{
-        int i, ny=*pny;
-        int k, row, consistent=TRUE;
-        double beta;
-        double eps=0;
-
-        static double *y=NULL;
-	static int  *tag=NULL;
-	static int  currtag=1;
-	double starttime, endtime;
-
-	if (m==0) {  // clean up
-	    FREE(y); FREE(tag); currtag=1;
-	    Gauss_Eta_T ( 0, sy, iy, &ny );
-	    return 0;
-	}
-
-        
-
-	starttime = (double) clock();
-
-        if (   y == NULL) CALLOC(   y, m, double);
-        else if (m > 0) REALLOC(y, m, double);
-        if ( tag == NULL) CALLOC( tag, m, int);
-        else if (m > 0) REALLOC(tag, m, int);
-
-	Gauss_Eta_T ( m, sy, iy, &ny );
-
-        for (k=0; k<ny; k++) {
-	    i = icolperm[iy[k]];
-            y[i] = sy[k];
-	    tag[i] = currtag;
-	    addtree(i);
-        }
-
-        if (rank < m) eps = EPSSOL * maxv(sy,ny);
-
-        /*------------------------------------------------------+
-        |               -T                                      |
-        |       y  <-  U  y                                    */
-
-        for (i=getfirst(); i < rank && i != -1; i=getnext()) {
-                beta = y[i]/diagU[i];
-                for (k=kUt[i]; k<kUt[i+1]; k++) {
-                        row = iUt[k];
-			if (tag[row] != currtag) {
-			    y[row] = 0.0;
-			    tag[row] = currtag;
-			    addtree(row);
-			}
-                        y[row] -= Ut[k]*beta;
-                }
-                y[i] = beta;
-        }
-        for (i=getlast(); i >= rank && i != -1; i=getprev()) {
-                if ( ABS( y[i] ) > eps ) consistent = FALSE;
-                y[i] = 0.0;
-        }
-
-        /*------------------------------------------------------+
-        |               -T                                      |
-        |       y  <-  L  y                                    */
-
-        for ( ; i>=0; i=getprev()) {
-                beta = y[i];
-                for (k=kLt[i]; k<kLt[i+1]; k++) {
-		    row = iLt[k];
-		    if (tag[row] != currtag) {
-			y[row] = 0.0;
-			tag[row] = currtag;
-			addtree(row);
-		    }
-		    y[row] -= Lt[k]*beta;
-                }
-        }
-
-	ny = 0;
-	for (i=getfirst(); i != -1; i=getnext()) {
-	    if ( ABS(y[i]) > EPS ) {
-	        sy[ny] = y[i];
-	        iy[ny] = rowperm[i];
-	        ny++;
-	    }
-	}
-	*pny = ny;
-
-	currtag++;
-	killtree();
-
-	endtime = (double) clock();
-	cumtime += endtime - starttime;
-
-        return consistent;
+void fc_lufac(fc_lu_context_t *ctx, int m, int *kA, int *iA, double *A, int *basis, int v) {
+    double starttime = (double)clock();
+    fc_lufac_work_t wk = {0};
+    fc_lufac_init_wk(ctx, m, kA, iA, A, basis, &wk);
+    fc_lufac_factorize_loop(ctx, m, &wk);
+    fc_lufac_finalize_wk(ctx, m, &wk);
+    ctx->cumtime += (double)clock() - starttime;
 }
 
-void lu_clo(void)
-{
-        FREE( rowperm ); FREE( irowperm );
-        FREE( colperm ); FREE( icolperm );
-        FREE( L ); FREE( iL ); FREE( kL ); 
-	FREE( U ); FREE( iU ); FREE( kU );
-	FREE( Lt ); FREE( iLt ); FREE( kLt );
-        FREE( Ut ); FREE( iUt ); FREE( kUt );
-        FREE( diagU );
-	FREE( E_d );
-	FREE(  E );
-	FREE( iE );
-	FREE( kE );
-	e_iter = 0; /* number of iterations since last refactorization */
-	enz=0;
-	cumtime = 0.0;
-	ocumtime= 0.0;
-}
-
-/*-----------------------------------------------------------------+
-| Forward/backward solve using LU factorization                    |
-| Input:                                                           |
-|    m          dimension of array y                               |
-|    y          array containing right-hand side                   |
-|                                                                  |
-|    static global variables (assumed setup by lufac()):           |
-|                                                                  |
-|    rank       rank of B                                          |
-|    kL, iL, L, three array sparse representation of L             |
-|    kUt,iUt,Ut three array sparse representation of U transpose   |
-|               without its diagonal                               |
-|    diagU      diagonal entries of U                              |
-|    colperm, icolperm, rowperm, irowperm                          |
-|               column and row permutations and their inverses     |
-| Output:                                                          |
-|                                          -1                      |
-|    y          array containing solution B  y                     |
-|                                                                  |
-|    integer flag indicating whether system is consistent         */
-
-int     dbsolve(int m, double *y)
-{
-        int i;
-        int k, row, consistent=TRUE;
-        double beta, *dwork;
-        double eps=0;
-
-        double starttime, endtime;
-
-	starttime = (double) clock();
-
-        MALLOC (dwork,m,double);
-
-        if (rank < m) eps = EPSSOL * maxv(y,m);
-        for (i=0; i<m; i++) dwork[i] = y[i];
-        for (i=0; i<m; i++) y[irowperm[i]] = dwork[i];
-
-        /*------------------------------------------------------+
-        |               -1                                      |
-        |       y  <-  L  y                                    */
-
-        for (i=0; i<rank; i++) {
-                beta = y[i];
-                for (k=kL[i]; k<kL[i+1]; k++) {
-                        row = iL[k];
-                        y[row] -= L[k]*beta;
-                }
-        }
-
-        /*------------------------------------------------------+
-        |               -1                                      |
-        |       y  <-  U  y                                    */
-
-        for (i=m-1; i>=rank; i--) {
-                if ( ABS( y[i] ) > eps ) consistent = FALSE;
-                y[i] = 0.0;
-        }
-        for (i=rank-1; i>=0; i--) {
-                beta = y[i];
-                for (k=kUt[i]; k<kUt[i+1]; k++) {
-                        beta -= Ut[k]*y[iUt[k]];
-                }
-                y[i] = beta/diagU[i];
-        }
-
-        for (i=0; i<m; i++) dwork[i] = y[i];
-        for (i=0; i<m; i++) y[colperm[i]] = dwork[i];
-
-        FREE(dwork);
-
-	endtime = (double) clock();
-	cumtime += endtime - starttime;
-
-        return consistent;
-}
-
-/*****************************************************************
-*  Gaussian elimination for Eta transformations which will solve *
-* each system E ... E  d = a for d.				 *
-*              1     s                                           *
-*****************************************************************/
-
-static void Gauss_Eta( 
-    int m, 
-    double *dx_B, 
-    int *idx_B, 
-    int *pndx_B 
-)
-{
+void fc_Gauss_Eta(fc_lu_context_t *ctx, int m, double *dx_B, int *idx_B, int *pndx_B) {
     int i, j, k, col, kcol=0, ii, ndx_B=*pndx_B;
     double temp;
-    static double *a=NULL;
-    static int  *tag=NULL;
-    static int *link=NULL;
-    static int  currtag=1;
 
-    if (m==0) {  // clean up
-        FREE(a); FREE(tag);
-        /* same defensive logic as in Nt_times_y: only decrement and
-           free the link pointer if it has been allocated.  avoid
-           pointer underflow when link is NULL. */
-        if (link != NULL) {
-            link--;
-            FREE(link);
+    if (m==0) {  
+        FC_FREE(ctx->a_geta); FC_FREE(ctx->tag_geta);
+        if (ctx->link_geta != NULL) {
+            int *orig = ctx->link_geta - 1;
+            FC_FREE(orig);
+            ctx->link_geta = NULL;
         }
-	currtag=1;
+        ctx->currtag_geta=1;
         return;
     }
 
-    if (  a  == NULL) CALLOC(  a,  m,   double);
-    else if (m > 0) REALLOC(a, m, double);
-    if ( tag == NULL) CALLOC( tag, m,   int);
-    else if (m > 0) REALLOC(tag, m, int);
-    if (link == NULL) {CALLOC(link, m+2, int); link++;}
-    else {
-        int *orig = link - 1;
-        link--;
-        FREE(link);
-        CALLOC(link, m+2, int);
-        link++;
+    if (ctx->a_geta == NULL) { ctx->a_geta = (double*)FC_CALLOC(m, sizeof(double)); } else if (m > 0) { ctx->a_geta = (double*)FC_REALLOC(ctx->a_geta, m, sizeof(double)); }
+    if (ctx->tag_geta == NULL) { ctx->tag_geta = (int*)FC_CALLOC(m, sizeof(int)); } else if (m > 0) { ctx->tag_geta = (int*)FC_REALLOC(ctx->tag_geta, m, sizeof(int)); }
+    
+    if (ctx->link_geta == NULL) {
+        int *orig = (int*)FC_CALLOC(m+2, sizeof(int));
+        ctx->link_geta = orig + 1;
+    } else {
+        int *orig = ctx->link_geta - 1;
+        FC_FREE(orig);
+        orig = (int*)FC_CALLOC(m+2, sizeof(int));
+        ctx->link_geta = orig + 1;
     }
 
-    if (e_iter <= 0) return;
+    if (ctx->e_iter <= 0) return;
 
     ii = -1;
     for (k=0; k<ndx_B; k++) {
-	i = idx_B[k];
-	a[i] = dx_B[k];
-	tag[i] = currtag;
-	link[ii] = i;
-	ii = i;
+        i = idx_B[k];
+        ctx->a_geta[i] = dx_B[k];
+        ctx->tag_geta[i] = ctx->currtag_geta;
+        ctx->link_geta[ii] = i;
+        ii = i;
     }
-    for (j=0; j<e_iter; j++) {
-	col = E_d[j];
-
-	for (k=kE[j]; k<kE[j+1]; k++) {
-	    i = iE[k];
-	    if (tag[i] != currtag) {
-		a[i] = 0.0;
-		tag[i] = currtag;
-	        link[ii] = i;
-	        ii = i;
-	    }
-	    if (i == col) kcol = k;
-	}
+    for (j=0; j<ctx->e_iter; j++) {
+        col = ctx->E_d[j];
+        for (k=ctx->kE[j]; k<ctx->kE[j+1]; k++) {
+            i = ctx->iE[k];
+            if (ctx->tag_geta[i] != ctx->currtag_geta) {
+                ctx->a_geta[i] = 0.0;
+                ctx->tag_geta[i] = ctx->currtag_geta;
+                ctx->link_geta[ii] = i;
+                ii = i;
+            }
+            if (i == col) kcol = k;
+        }
     
-	temp = a[col]/E[kcol];
-	if (temp != 0.0) {
-	    for (k=kE[j]; k<kcol; k++) {
-	        i = iE[k];
-	        a[i] -= E[k] * temp;
-	    }
-            a[col] = temp;
-            for (k=kcol+1; k<kE[j+1]; k++) {
-	        i = iE[k];
-	        a[i] -= E[k] * temp;	
-	    }
-	}
+        temp = ctx->a_geta[col]/ctx->E[kcol];
+        if (temp != 0.0) {
+            for (k=ctx->kE[j]; k<kcol; k++) {
+                i = ctx->iE[k];
+                ctx->a_geta[i] -= ctx->E[k] * temp;
+            }
+            ctx->a_geta[col] = temp;
+            for (k=kcol+1; k<ctx->kE[j+1]; k++) {
+                i = ctx->iE[k];
+                ctx->a_geta[i] -= ctx->E[k] * temp;    
+            }
+        }
     }
-    link[ii] = m;
-    currtag++;
+    ctx->link_geta[ii] = m;
+    ctx->currtag_geta++;
 
     k = 0;
-    for (i=link[-1]; i<m; i=link[i]) {
-	if ( ABS(a[i]) > EPS1 ) {
-	     dx_B[k] = a[i];
-	    idx_B[k] = i;
-	    k++;
-	}
+    for (i=ctx->link_geta[-1]; i<m; i=ctx->link_geta[i]) {
+        if ( FC_ABS(ctx->a_geta[i]) > FC_EPS ) {
+             dx_B[k] = ctx->a_geta[i];
+            idx_B[k] = i;
+            k++;
+        }
     }
     *pndx_B = k;
 }
 
+int fc_bsolve(fc_lu_context_t *ctx, int m, double *sy, int *iy, int *pny) {
+    int i, ny=*pny;
+    int k, row, consistent=1;
+    double beta;
+    double eps=0;
 
-/*****************************************************************
-*  Gaussian elimination for Eta transformations which will solve *
-* each system B y = c for y                             	 *
-*****************************************************************/
+    double starttime = (double)clock();
 
-static void Gauss_Eta_T( 
-    int m, 
-    double *vec, 
-    int *ivec, 
-    int *pnvec 
-)
-{
+    if (m==0) { 
+        FC_FREE(ctx->y_bsolve); FC_FREE(ctx->tag_bsolve); ctx->currtag_bsolve=1;
+        fc_Gauss_Eta( ctx, 0, sy, iy, &ny);
+        return 0;
+    }
+
+    if (ctx->y_bsolve == NULL) { ctx->y_bsolve = (double*)FC_CALLOC(m, sizeof(double)); } else if (m > 0) { ctx->y_bsolve = (double*)FC_REALLOC(ctx->y_bsolve, m, sizeof(double)); }
+    if (ctx->tag_bsolve == NULL) { ctx->tag_bsolve = (int*)FC_CALLOC(m, sizeof(int)); } else if (m > 0) { ctx->tag_bsolve = (int*)FC_REALLOC(ctx->tag_bsolve, m, sizeof(int)); }
+
+    for (k=0; k<ny; k++) {
+        i = ctx->irowperm[iy[k]];
+        ctx->y_bsolve[i] = sy[k];
+        ctx->tag_bsolve[i] = ctx->currtag_bsolve;
+        fc_addtree(&ctx->tree, i);
+    }
+
+    if (ctx->rank < m) eps = FC_EPSSOL * fc_maxv(sy,ny);
+
+    for (i=fc_getfirst(&ctx->tree); i < ctx->rank && i != -1; i=fc_getnext(&ctx->tree)) {
+        beta = ctx->y_bsolve[i];
+        for (k=ctx->kL[i]; k<ctx->kL[i+1]; k++) {
+            row = ctx->iL[k];
+            if (ctx->tag_bsolve[row] != ctx->currtag_bsolve) {
+                ctx->y_bsolve[row] = 0.0;
+                ctx->tag_bsolve[row] = ctx->currtag_bsolve;
+                fc_addtree(&ctx->tree, row);
+            }
+            ctx->y_bsolve[row] -= ctx->L[k]*beta;
+        }
+    }
+
+    for (i=fc_getlast(&ctx->tree); i >= ctx->rank && i != -1; i=fc_getprev(&ctx->tree)) {
+        if ( FC_ABS( ctx->y_bsolve[i] ) > eps ) consistent = 0;
+        ctx->y_bsolve[i] = 0.0;
+    }
+    for ( ; i>=0; i=fc_getprev(&ctx->tree)) {
+        beta = ctx->y_bsolve[i]/ctx->diagU[i];
+        for (k=ctx->kU[i]; k<ctx->kU[i+1]; k++) {
+            row = ctx->iU[k];
+            if (ctx->tag_bsolve[row] != ctx->currtag_bsolve) {
+                ctx->y_bsolve[row] = 0.0;
+                ctx->tag_bsolve[row] = ctx->currtag_bsolve;
+                fc_addtree(&ctx->tree, row);
+            }
+            ctx->y_bsolve[row] -= ctx->U[k]*beta;
+        }
+        ctx->y_bsolve[i] = beta;
+    }
+
+    ny = 0;
+    for (i=fc_getfirst(&ctx->tree); i != -1; i=fc_getnext(&ctx->tree)) {
+        if ( FC_ABS(ctx->y_bsolve[i]) > FC_EPS ) {
+            sy[ny] = ctx->y_bsolve[i];
+            iy[ny] = ctx->colperm[i];
+            ny++;
+        }
+    }
+
+    ctx->currtag_bsolve++;
+    fc_killtree(&ctx->tree);
+
+    fc_Gauss_Eta( ctx, m, sy, iy, &ny);
+
+    *pny = ny;
+    
+    if (ctx->enz + ny > FC_E_NZ) {
+        ctx->E = (double*)FC_REALLOC(ctx->E, FC_E_NZ + ctx->enz + ny, sizeof(double));
+        ctx->iE = (int*)FC_REALLOC(ctx->iE, FC_E_NZ + ctx->enz + ny, sizeof(int));
+    }
+    
+    for (i=0, k=ctx->kE[ctx->e_iter]; i<ny; i++, k++) {
+        ctx->E[k] = sy[i];
+        ctx->iE[k] = iy[i];
+    }
+    ctx->enz = k;
+    ctx->kE[ctx->e_iter+1] = ctx->enz;    
+
+    ctx->cumtime += (double)clock() - starttime;
+    return consistent;
+}
+
+void fc_Gauss_Eta_T(fc_lu_context_t *ctx, int m, double *vec, int *ivec, int *pnvec) {
     int i, j, k, kk=0, kkk=0, col, nvec=*pnvec;
     double temp;
-    static double *a=NULL;
-    static int  *tag=NULL;
-    static int  currtag=1;
 
-    if (m==0) {  // clean up
-        FREE(a); FREE(tag); currtag=1;
+    if (m==0) {  
+        FC_FREE(ctx->a_getat); FC_FREE(ctx->tag_getat); ctx->currtag_getat=1;
         return;
     }
 
-    if (  a  == NULL) CALLOC(  a,  m,   double);
-    else if (m > 0) REALLOC(a, m, double);
-    if ( tag == NULL) CALLOC( tag, m,   int);
-    else if (m > 0) REALLOC(tag, m, int);
+    if (ctx->a_getat == NULL) { ctx->a_getat = (double*)FC_CALLOC(m, sizeof(double)); } else if (m > 0) { ctx->a_getat = (double*)FC_REALLOC(ctx->a_getat, m, sizeof(double)); }
+    if (ctx->tag_getat == NULL) { ctx->tag_getat = (int*)FC_CALLOC(m, sizeof(int)); } else if (m > 0) { ctx->tag_getat = (int*)FC_REALLOC(ctx->tag_getat, m, sizeof(int)); }
 
-    for (j=e_iter-1; j>=0; j--) {
-	col = E_d[j];
+    for (j=ctx->e_iter-1; j>=0; j--) {
+        col = ctx->E_d[j];
 
         for (k=0; k<nvec; k++) {
-	    i = ivec[k];
-	    if (i == col) kk = k;
-	    a[i] = vec[k];
-	    tag[i] = currtag;
-	}
+            i = ivec[k];
+            if (i == col) kk = k;
+            ctx->a_getat[i] = vec[k];
+            ctx->tag_getat[i] = ctx->currtag_getat;
+        }
 
-	if (tag[col] != currtag) {
-	    vec[nvec] = 0.0;
-	    ivec[nvec] = col;
-	    kk = nvec;
-	    nvec++;
-	    a[col] = 0.0;
-	    tag[col] = currtag;
-	}
-	temp = vec[kk];
-	for (k=kE[j]; k<kE[j+1]; k++) {
-	    i = iE[k];
-	    if (i == col) kkk = k;
-	    if (tag[i] == currtag) {
-	        if (i != col) {
-		    temp -= E[k]*a[i];
-		}
-	    }
-	}
-        currtag++;
-
-	vec[kk] = temp/E[kkk];
-	*pnvec = nvec;
+        if (ctx->tag_getat[col] != ctx->currtag_getat) {
+            vec[nvec] = 0.0;
+            ivec[nvec] = col;
+            kk = nvec;
+            nvec++;
+            ctx->a_getat[col] = 0.0;
+            ctx->tag_getat[col] = ctx->currtag_getat;
+        }
+        temp = vec[kk];
+        for (k=ctx->kE[j]; k<ctx->kE[j+1]; k++) {
+            i = ctx->iE[k];
+            if (i == col) kkk = k;
+            if (ctx->tag_getat[i] == ctx->currtag_getat) {
+                if (i != col) { temp -= ctx->E[k]*ctx->a_getat[i]; }
+            }
+        }
+        ctx->currtag_getat++;
+        vec[kk] = temp/ctx->E[kkk];
+        *pnvec = nvec;
     }
+}
+
+int fc_btsolve(fc_lu_context_t *ctx, int m, double *sy, int *iy, int *pny) {
+    int i, ny=*pny;
+    int k, row, consistent=1;
+    double beta;
+    double eps=0;
+
+    double starttime = (double)clock();
+
+    if (m==0) {  
+        FC_FREE(ctx->y_btsolve); FC_FREE(ctx->tag_btsolve); ctx->currtag_btsolve=1;
+        fc_Gauss_Eta_T( ctx, 0, sy, iy, &ny );
+        return 0;
+    }
+
+    if (ctx->y_btsolve == NULL) { ctx->y_btsolve = (double*)FC_CALLOC(m, sizeof(double)); } else if (m > 0) { ctx->y_btsolve = (double*)FC_REALLOC(ctx->y_btsolve, m, sizeof(double)); }
+    if (ctx->tag_btsolve == NULL) { ctx->tag_btsolve = (int*)FC_CALLOC(m, sizeof(int)); } else if (m > 0) { ctx->tag_btsolve = (int*)FC_REALLOC(ctx->tag_btsolve, m, sizeof(int)); }
+
+    fc_Gauss_Eta_T( ctx, m, sy, iy, &ny );
+
+    for (k=0; k<ny; k++) {
+        i = ctx->icolperm[iy[k]];
+        ctx->y_btsolve[i] = sy[k];
+        ctx->tag_btsolve[i] = ctx->currtag_btsolve;
+        fc_addtree(&ctx->tree, i);
+    }
+
+    if (ctx->rank < m) eps = FC_EPSSOL * fc_maxv(sy,ny);
+
+    for (i=fc_getfirst(&ctx->tree); i < ctx->rank && i != -1; i=fc_getnext(&ctx->tree)) {
+        beta = ctx->y_btsolve[i]/ctx->diagU[i];
+        for (k=ctx->kUt[i]; k<ctx->kUt[i+1]; k++) {
+            row = ctx->iUt[k];
+            if (ctx->tag_btsolve[row] != ctx->currtag_btsolve) {
+                ctx->y_btsolve[row] = 0.0;
+                ctx->tag_btsolve[row] = ctx->currtag_btsolve;
+                fc_addtree(&ctx->tree, row);
+            }
+            ctx->y_btsolve[row] -= ctx->Ut[k]*beta;
+        }
+        ctx->y_btsolve[i] = beta;
+    }
+    for (i=fc_getlast(&ctx->tree); i >= ctx->rank && i != -1; i=fc_getprev(&ctx->tree)) {
+        if ( FC_ABS( ctx->y_btsolve[i] ) > eps ) consistent = 0;
+        ctx->y_btsolve[i] = 0.0;
+    }
+
+    for ( ; i>=0; i=fc_getprev(&ctx->tree)) {
+        beta = ctx->y_btsolve[i];
+        for (k=ctx->kLt[i]; k<ctx->kLt[i+1]; k++) {
+            row = ctx->iLt[k];
+            if (ctx->tag_btsolve[row] != ctx->currtag_btsolve) {
+                ctx->y_btsolve[row] = 0.0;
+                ctx->tag_btsolve[row] = ctx->currtag_btsolve;
+                fc_addtree(&ctx->tree, row);
+            }
+            ctx->y_btsolve[row] -= ctx->Lt[k]*beta;
+        }
+    }
+
+    ny = 0;
+    for (i=fc_getfirst(&ctx->tree); i != -1; i=fc_getnext(&ctx->tree)) {
+        if ( FC_ABS(ctx->y_btsolve[i]) > FC_EPS ) {
+            sy[ny] = ctx->y_btsolve[i];
+            iy[ny] = ctx->rowperm[i];
+            ny++;
+        }
+    }
+    *pny = ny;
+
+    ctx->currtag_btsolve++;
+    fc_killtree(&ctx->tree);
+
+    ctx->cumtime += (double)clock() - starttime;
+    return consistent;
+}
+
+int fc_dbsolve(fc_lu_context_t *ctx, int m, double *y) {
+    int i, k, row, consistent=1;
+    double beta, *dwork;
+    double eps=0;
+
+    double starttime = (double)clock();
+
+    dwork = (double*)FC_CALLOC(m, sizeof(double));
+
+    if (ctx->rank < m) eps = FC_EPSSOL * fc_maxv(y,m);
+    for (i=0; i<m; i++) dwork[i] = y[i];
+    for (i=0; i<m; i++) y[ctx->irowperm[i]] = dwork[i];
+
+    for (i=0; i<ctx->rank; i++) {
+        beta = y[i];
+        for (k=ctx->kL[i]; k<ctx->kL[i+1]; k++) {
+            row = ctx->iL[k];
+            y[row] -= ctx->L[k]*beta;
+        }
+    }
+
+    for (i=m-1; i>=ctx->rank; i--) {
+        if ( FC_ABS( y[i] ) > eps ) consistent = 0;
+        y[i] = 0.0;
+    }
+    for (i=ctx->rank-1; i>=0; i--) {
+        beta = y[i];
+        for (k=ctx->kUt[i]; k<ctx->kUt[i+1]; k++) {
+            beta -= ctx->Ut[k]*y[ctx->iUt[k]];
+        }
+        y[i] = beta/ctx->diagU[i];
+    }
+
+    for (i=0; i<m; i++) dwork[i] = y[i];
+    for (i=0; i<m; i++) y[ctx->colperm[i]] = dwork[i];
+
+    FC_FREE(dwork);
+
+    ctx->cumtime += (double)clock() - starttime;
+    return consistent;
 }
