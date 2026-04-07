@@ -2,6 +2,10 @@
 
 R package for sparse precision matrix estimation via parametric simplex method.
 
+## Current Status: MAJOR REWRITE IN PROGRESS
+**Branch**: `rewrite`
+**Objective**: Drop-in C core re-implementation for thread-safety, standard memory allocations, and readability. Ensure no cross-contamination between `main` and `rewrite`. All work adhering to the rewrite plan `.AI/plans/reimplementation.md` must be committed to this branch.
+
 ## AI Workflow
 
 **First**: Read `.AI/AGENTS.md` and `.AI/journal/` to understand repository state.
@@ -124,5 +128,5 @@ devtools::test()
 ## Style
 
 - R code: roxygen2 for docs (`roxygen2::roxygenize()`)
-- C code: use `myalloc.h` macros, never `malloc`/`free` directly
+- C code: use `memory.h` and `FC_CALLOC`/`FC_FREE` macros. Do not use legacy `myalloc.h` assigning MACROs.
 - Compiled artifacts (`.o`, `.so`) are committed — do not edit
