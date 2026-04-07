@@ -89,13 +89,13 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     cov.input <- 0
   }
 
-  cat("\rAllocating memory..."); flush.console()
+  cat("\rAllocating memory..."); utils::flush.console()
   maxnlambda = 0
   mu_input <- matrix(0, nlambda, d)
   iicov <- matrix(0, nlambda, d * d)
   lambdamin <- lambda.min
 
-  cat("\rRecovering path..."); flush.console()
+  cat("\rRecovering path..."); utils::flush.console()
   str = .C(
     "parametric",
     as.double(SigmaInput),
@@ -108,7 +108,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     PACKAGE = "fastclime"
   )
 
-  cat("\rPreparing results..."); flush.console()
+  cat("\rPreparing results..."); utils::flush.console()
 
   sigmahat <- SigmaInput
   mu <- matrix(unlist(str[3]), nlambda, d)
@@ -163,12 +163,12 @@ print.fastclime = function(x, ...) {
 
 #' @export
 plot.fastclime = function(x, ...) {
-  # Use the first column of lambdamtx for the x-axis, as lambdas are 
+  # Use the first column of lambdamtx for the x-axis, as lambdas are
   # mostly synchronized in the parametric path.
   s <- x$lambdamtx[, 1]
   # Filter for entries where lambda > 0 and sparsity is defined (usually all)
   valid <- s > 0
-  
+
   if (sum(valid) == 0) {
     stop("No positive lambda values found to plot.")
   }
