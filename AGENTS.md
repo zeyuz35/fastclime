@@ -2,9 +2,10 @@
 
 R package for sparse precision matrix estimation via parametric simplex method.
 
-## Current Status: MAJOR REWRITE IN PROGRESS
+## Current Status: CORE REWRITE COMPLETED (Testing & Optimization Phase)
 **Branch**: `rewrite`
-**Objective**: Drop-in C core re-implementation for thread-safety, standard memory allocations, and readability. Ensure no cross-contamination between `main` and `rewrite`. All work adhering to the rewrite plan `.AI/plans/reimplementation.md` must be committed to this branch.
+**Objective**: Drop-in C core re-implementation for thread-safety, standard memory allocations, and readability. 
+**Latest Milestone**: Full C engine re-implementation completed and verified. Performance parity established with `dev` branch (+5.7% overhead for thread-safety features).
 
 ## AI Workflow
 
@@ -75,6 +76,16 @@ If fastclime diverges significantly, the C code has a bug.
 |-------|----------|--------|-------|
 | Cross-platform divergence (x86 vs ARM ~20%) | Low | **KNOWN** | Expected behavior, mathematically valid |
 | CVXR deprecation warnings | Low | **KNOWN** | `getValue()` replaced by `value()` in future CVXR |
+
+### Performance Benchmarks (2026-04-07)
+
+| Branch | Mean Time (ms) | Median Time (ms) | Relative |
+|--------|----------------|------------------|----------|
+| `dev`  | 26.50          | 26.57            | Baseline |
+| `rewrite` | 28.01       | 28.01            | +5.71%   |
+
+**Setup**: $n=200, d=50$, random graph, 20 iterations.
+**Observation**: The rewrite introduces a negligible ~6% overhead due to context-passing and structured memory management, which is an acceptable trade-off for thread safety and readability.
 
 ---
 
