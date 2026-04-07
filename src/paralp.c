@@ -70,8 +70,8 @@ void paralp(double *obj, double *mat, double *rhs, int *m0 , int *n0, double *op
     }
 
 
-    MALLOC(        a, m*n+m,  double );      
-    MALLOC(       ia, m*n+m,   int );      
+    MALLOC(        a, (size_t)m*n+m,  double );
+    MALLOC(       ia, (size_t)m*n+m,   int );
     MALLOC(       ka, n+m+1,  int );        
     MALLOC(        c, n,   double );
     MALLOC(        b, m,   double ); 
