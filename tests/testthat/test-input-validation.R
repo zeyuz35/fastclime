@@ -49,3 +49,16 @@ test_that("fastclime validates inputs", {
   X_na <- X; X_na[1,1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("fastclime works with time-series inputs", {
+  set.seed(42)
+  mat <- matrix(rnorm(50), nrow = 10, ncol = 5)
+  ts_obj <- ts(mat)
+  zoo_obj <- zoo::zoo(mat, order.by = as.Date(1:10, origin = "2020-01-01"))
+
+  out_ts <- fastclime(ts_obj, 0.1)
+  out_zoo <- fastclime(zoo_obj, 0.1)
+
+  expect_equal(class(out_ts$data), class(ts_obj))
+  expect_equal(class(out_zoo$data), class(zoo_obj))
+})
