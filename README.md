@@ -1,12 +1,14 @@
 # fastclime
 
-Fork of fastclime to fix memory issues. 
+A rewrite of the original `fastclime` package with a focus on thread and memory safety. 
+The original `fastclime` package relied on many custom memory macros and pointer operations which made it extremely error prone. 
 
-## Memory Leak Fix
+This rewrite acts as a drop-in replacement with improved safety guarantees, with the core routines being rewritten. 
+It additionally provides two additional CLIME variants. 
 
-The fix addresses a memory leak in the `dantzig` solver function in `src/dantzig.c`.
-`output_vec` was being allocated via `CALLOC` inside the lambda path iteration loop but was not being freed in previous versions, causing memory usage to grow with the number of lambda steps.
-The fix involves explicitly freeing `output_vec` at the end of each iteration.
+```r
+remotes::install_github("zeyuz35/fastclime@dev")
+```
 
 ## Cross-Platform Note
 
