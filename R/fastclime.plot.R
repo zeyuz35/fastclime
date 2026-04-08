@@ -23,12 +23,19 @@ fastclime.plot = function(
     location = getwd()
   }
   diag(G) = 0
-  g = graph_from_adjacency_matrix(as.matrix(G != 0), mode = "undirected", diag = FALSE)
+  g = graph_from_adjacency_matrix(
+    as.matrix(G != 0),
+    mode = "undirected",
+    diag = FALSE
+  )
   layout.grid = layout_with_fr(g)
 
   if (epsflag == TRUE) {
     postscript(
-      file.path(location, paste(paste(graph.name, cur.num, sep = ""), "eps", sep = ".")),
+      file.path(
+        location,
+        paste(paste(graph.name, cur.num, sep = ""), "eps", sep = ".")
+      ),
       width = 8.0,
       height = 8.0
     )

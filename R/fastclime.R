@@ -139,7 +139,8 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   )
 
   class(result) = "fastclime"
-  message("Done!                     \n", appendLF = FALSE); flush.console()
+  message("Done!                     \n", appendLF = FALSE)
+  flush.console()
   return(result)
 }
 
@@ -153,18 +154,25 @@ print.fastclime = function(x, ...) {
   }
   cat("Path length: ", x$maxnlambda, "\n", sep = "")
   cat("Graph dimension: ", ncol(x$data), "\n", sep = "")
-  cat("Sparsity range: ", round(min(x$sparsity), 4), " -----> ", round(max(x$sparsity), 4), "\n", sep = "")
+  cat(
+    "Sparsity range: ",
+    round(min(x$sparsity), 4),
+    " -----> ",
+    round(max(x$sparsity), 4),
+    "\n",
+    sep = ""
+  )
 }
 
 
 #' @export
 plot.fastclime = function(x, ...) {
-  # Use the first column of lambdamtx for the x-axis, as lambdas are 
+  # Use the first column of lambdamtx for the x-axis, as lambdas are
   # mostly synchronized in the parametric path.
   s <- x$lambdamtx[, 1]
   # Filter for entries where lambda > 0 and sparsity is defined (usually all)
   valid <- s > 0
-  
+
   if (sum(valid) == 0) {
     stop("No positive lambda values found to plot.")
   }

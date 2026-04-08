@@ -25,7 +25,9 @@ test_that("fastclime matches CVXR ground truth", {
   Sigma_true <- matrix(0, nrow = p, ncol = p)
   for (i in seq_len(p)) {
     for (j in seq_len(p)) {
-      Sigma_true[i, j] <- rho^{abs(i - j)}
+      Sigma_true[i, j] <- rho^{
+        abs(i - j)
+      }
     }
   }
 
@@ -70,7 +72,7 @@ test_that("fastclime matches CVXR ground truth", {
 
   # Comparison metrics
   frob_error <- sqrt(sum((Omega_cvxr - Omega_fastclime)^2)) /
-                 sqrt(sum(Omega_cvxr^2))
+    sqrt(sum(Omega_cvxr^2))
   correlation <- cor(as.vector(Omega_cvxr), as.vector(Omega_fastclime))
 
   # Ground truth parity check
@@ -99,7 +101,9 @@ test_that("CVXR index-wise and direct methods agree", {
   Sigma_true <- matrix(0, nrow = p, ncol = p)
   for (i in seq_len(p)) {
     for (j in seq_len(p)) {
-      Sigma_true[i, j] <- rho^{abs(i - j)}
+      Sigma_true[i, j] <- rho^{
+        abs(i - j)
+      }
     }
   }
 

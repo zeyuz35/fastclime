@@ -62,7 +62,8 @@ fastlp <- function(obj, mat, rhs, lambda = 0) {
     status <- unlist(str[7])
 
     if (status == 0) {
-      message("\roptimal solution found!       \n", appendLF = FALSE); flush.console()
+      message("\roptimal solution found!       \n", appendLF = FALSE)
+      flush.console()
       return(opt)
     } else if (status == 1) {
       stop("The problem is infeasible!")

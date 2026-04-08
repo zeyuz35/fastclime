@@ -12,4 +12,5 @@ remotes::install_github("zeyuz35/fastclime@dev")
 
 ## Cross-Platform Note
 
-Due to the nature of the parametric simplex algorithm — which makes discrete pivot decisions at each iteration — different CPU architectures (x86 vs ARM) can produce up to ~20% divergence in any individual solution along the regularization path. This is expected behavior: both solutions are mathematically valid CLIME estimates, they simply converge along different valid trajectories.
+Due to the nature of the parametric simplex algorithm — which makes discrete pivot decisions at each iteration — different CPU architectures (x86 vs ARM) can produce up to ~20% divergence in any individual solution along the regularization path. 
+This is expected behavior: both solutions are mathematically valid CLIME estimates, they simply converge along different valid trajectories.

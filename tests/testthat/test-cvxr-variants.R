@@ -11,7 +11,9 @@ test_that("BK17 CVXR variant runs without error", {
   Sigma_true <- matrix(0, nrow = p, ncol = p)
   for (i in seq_len(p)) {
     for (j in seq_len(p)) {
-      Sigma_true[i, j] <- rho^{abs(i - j)}
+      Sigma_true[i, j] <- rho^{
+        abs(i - j)
+      }
     }
   }
 
@@ -44,7 +46,9 @@ test_that("ZKL15 CVXR variant runs without error", {
   Sigma_true <- matrix(0, nrow = p, ncol = p)
   for (i in seq_len(p)) {
     for (j in seq_len(p)) {
-      Sigma_true[i, j] <- rho^{abs(i - j)}
+      Sigma_true[i, j] <- rho^{
+        abs(i - j)
+      }
     }
   }
 
@@ -74,7 +78,9 @@ test_that("fastclime.BK17 produces valid output", {
   Sigma_true <- matrix(0, nrow = p, ncol = p)
   for (i in seq_len(p)) {
     for (j in seq_len(p)) {
-      Sigma_true[i, j] <- rho^{abs(i - j)}
+      Sigma_true[i, j] <- rho^{
+        abs(i - j)
+      }
     }
   }
 
@@ -100,7 +106,9 @@ test_that("fastclime.ZKL15 produces valid output", {
   Sigma_true <- matrix(0, nrow = p, ncol = p)
   for (i in seq_len(p)) {
     for (j in seq_len(p)) {
-      Sigma_true[i, j] <- rho^{abs(i - j)}
+      Sigma_true[i, j] <- rho^{
+        abs(i - j)
+      }
     }
   }
 
