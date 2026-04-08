@@ -7,6 +7,10 @@
 # Version: 1.4.1						                                        #
 #-------------------------------------------------------------------------------#
 
+#' @title Parametric Simplex LP Solver
+#' @description Solves parameterized linear programming problems using the parametric simplex method
+#' @export
+
 paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
   if (
     !is.numeric(obj) || !is.vector(obj) || anyNA(obj) || any(!is.finite(obj))
@@ -81,7 +85,7 @@ paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
     status <- unlist(str[7])
 
     if (status == 0) {
-      message("optimal solution found!")
+      message("\roptimal solution found!       \n", appendLF = FALSE); flush.console()
       return(opt)
     } else if (status == 1) {
       stop("The problem is infeasible!")

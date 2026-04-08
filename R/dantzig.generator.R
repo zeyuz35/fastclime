@@ -7,6 +7,10 @@
 # Version: 1.4.1                                                                  #
 #---------------------------------------------------------------------------------#
 
+#' @title Dantzig Generator
+#' @description Generates sparse linear regression model for testing dantzig selector
+#' @export
+
 dantzig.generator <- function(n = 50, d = 100, sparsity = 0.1, sigma0 = 1) {
   if (sparsity < 1) {
     s <- floor(d * sparsity)

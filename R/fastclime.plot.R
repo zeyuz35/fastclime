@@ -7,6 +7,10 @@
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 
+#' @title Graph Visualization for Fastclime
+#' @description Plots the estimated precision matrix as a graph
+#' @export
+
 fastclime.plot = function(
   G,
   epsflag = FALSE,
@@ -19,8 +23,8 @@ fastclime.plot = function(
     location = getwd()
   }
   diag(G) = 0
-  g = graph.adjacency(as.matrix(G != 0), mode = "undirected", diag = FALSE)
-  layout.grid = layout.fruchterman.reingold(g)
+  g = graph_from_adjacency_matrix(as.matrix(G != 0), mode = "undirected", diag = FALSE)
+  layout.grid = layout_with_fr(g)
 
   if (epsflag == TRUE) {
     postscript(

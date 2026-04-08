@@ -5,6 +5,10 @@
 # Version: 1.4.1					                                                       #
 #------------------------------------------------------------------------------------------#
 
+#' @title Select Solution Path for Given Lambda
+#' @description Selects the appropriate solution from the computed path for a given lambda value
+#' @export
+
 fastclime.selector <- function(lambdamtx, icovlist, lambda) {
   gcinfo(FALSE)
   d <- dim(icovlist[[1]])[2]

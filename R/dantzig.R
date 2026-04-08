@@ -6,6 +6,11 @@
 # Date: April 22nd 2016                                                           #
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
+
+#' @title Dantzig Selector
+#' @description Computes the Dantzig selector for sparse regression
+#' @export
+
 dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   if (!is.matrix(X) || !is.numeric(X)) {
     stop("X must be a numeric matrix")
@@ -35,14 +40,9 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   BETA0 <- matrix(0, d0, nlambda)
   lambdalist <- matrix(0, nlambda, 1)
 
-  message("compute X^TX and X^y")
+  X2 = crossprod(X)
+  Xy = crossprod(X, y)
 
-  X2 = crossprod(X) # Equivalent to t(X) %*% X
-  Xy = crossprod(X, y) # Equivalent to t(X) %*% y
-
-  message("start recovering")
-
-  # start.time <- Sys.time()
   str = .C(
     "dantzig",
     as.double(X2),
@@ -54,13 +54,6 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
     as.double(lambdalist),
     PACKAGE = "fastclime"
   )
-  # end.time <- Sys.time()
-  # t0 <- end.time - start.time
-
-  # ptm <- proc.time()
-  # cat("prepare the solution path \n")
-  # proc.time() - ptm
-  # print(ptm)
 
   rm(X2, Xy)
   BETA0 <- matrix(unlist(str[3]), d0, nlambda)
@@ -71,7 +64,6 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   BETA0 <- BETA0[, 1:validn]
 
   final_lambda <- lambdalist[validn]
-  message("lambdamin is ", final_lambda)
 
   lambdalist <- lambdalist[1:validn]
   result <- list(
@@ -85,7 +77,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   )
 
   class(result) = "dantzig"
-  message("Done!")
+  message("Done!                     \n", appendLF = FALSE); flush.console()
 
   return(result)
 }

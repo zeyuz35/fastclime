@@ -1,3 +1,7 @@
+#' @title Select Dantzig Selector Solution
+#' @description Selects the appropriate solution from the Dantzig selector path
+#' @export
+
 dantzig.selector <- function(lambdalist, BETA0, lambda) {
   # if BETA0 dimensions do not match, throw error
   if (length(lambdalist) != dim(BETA0)[2]) {

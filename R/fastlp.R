@@ -7,6 +7,10 @@
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 
+#' @title Fast Linear Programming Solver
+#' @description Solves linear programming problems using the simplex method
+#' @export
+
 fastlp <- function(obj, mat, rhs, lambda = 0) {
   if (
     !is.numeric(obj) || !is.vector(obj) || anyNA(obj) || any(!is.finite(obj))
@@ -58,7 +62,7 @@ fastlp <- function(obj, mat, rhs, lambda = 0) {
     status <- unlist(str[7])
 
     if (status == 0) {
-      message("optimal solution found!")
+      message("\roptimal solution found!       \n", appendLF = FALSE); flush.console()
       return(opt)
     } else if (status == 1) {
       stop("The problem is infeasible!")

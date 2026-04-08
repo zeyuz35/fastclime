@@ -7,6 +7,10 @@
 # Version: 1.4.1					                                            #
 #-------------------------------------------------------------------------------#
 
+#' @title Data Generator for Fastclime
+#' @description Generates synthetic data for testing fastclime
+#' @export
+
 ## Main function
 fastclime.generator = function(
   n = 200,
@@ -160,8 +164,8 @@ fastclime.generator = function(
       col = gray.colors(256),
       main = "Covariance Matrix"
     )
-    g <- graph.adjacency(theta, mode = "undirected", diag = FALSE)
-    layout.grid <- layout.fruchterman.reingold(g)
+    g <- graph_from_adjacency_matrix(theta, mode = "undirected", diag = FALSE)
+    layout.grid <- layout_with_fr(g)
 
     plot(
       g,
@@ -233,8 +237,8 @@ plot.sim <- function(x, ...) {
   on.exit(par(old_par), add = TRUE)
   image(as.matrix(x$theta), col = gray.colors(256), main = "Adjacency Matrix")
   image(x$sigma, col = gray.colors(256), main = "Covariance Matrix")
-  g <- graph.adjacency(x$theta, mode = "undirected", diag = FALSE)
-  layout.grid <- layout.fruchterman.reingold(g)
+  g <- graph_from_adjacency_matrix(x$theta, mode = "undirected", diag = FALSE)
+  layout.grid <- layout_with_fr(g)
 
   plot(
     g,

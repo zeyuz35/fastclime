@@ -2,10 +2,10 @@
 
 R package for sparse precision matrix estimation via parametric simplex method.
 
-## Current Status: CORE REWRITE COMPLETED (Testing & Optimization Phase)
-**Branch**: `rewrite`
+## Current Status: CORE REWRITE COMPLETED and MERGED
+**Branch**: `dev`
 **Objective**: Drop-in C core re-implementation for thread-safety, standard memory allocations, and readability. 
-**Latest Milestone**: Full C engine re-implementation completed and verified. Performance parity established with `dev` branch (+5.7% overhead for thread-safety features).
+**Latest Milestone**: Full C engine re-implementation completed, verified against CVXR ground truth, and merged into `dev` branch. Performance parity established (+5.7% overhead for thread-safety features).
 
 ## AI Workflow
 
@@ -40,7 +40,7 @@ If fastclime diverges significantly, the C code has a bug.
 
 ## Bug Dashboard
 
-**Note**: Many "bugs" identified by static analysis are NOT actual bugs. The C code relies on specific memory allocation patterns (CALLOC zero-initializes) that make certain "undefined behavior" actually defined. Fixing these often BREAKS the algorithm. The current implementation is **verified against CVXR ground truth** (100 PASS).
+**Note**: Many "bugs" identified by static analysis are NOT actual bugs. The C code relies on specific memory allocation patterns (CALLOC zero-initializes) that make certain "undefined behavior" actually defined. Fixing these often BREAKS the algorithm. The current implementation is **verified against CVXR ground truth** (128 PASS).
 
 ### Verified Issues
 
@@ -65,17 +65,27 @@ If fastclime diverges significantly, the C code has a bug.
 
 | Gap | Severity | Status | Notes |
 |-----|----------|--------|-------|
-| dantzig.selector() has NO tests | Critical | **OPEN** | Core function completely untested |
-| NA/Inf validation not tested | High | **OPEN** | Error paths uncovered |
-| print.sim/plot.sim untested | Medium | **OPEN** | sim class methods missing |
-| BK17/ZKL15 not tested | High | **RESOLVED** | Algorithm variants covered in `test-cvxr-variants.R` |
+| dantzig.selector() | Critical | **RESOLVED** | `test-input-validation.R` |
+| NA/Inf validation | High | **RESOLVED** | `test-input-validation.R` |
+| print.sim/plot.sim | Medium | **RESOLVED** | `test-methods.R` |
+| BK17/ZKL15 parity | High | **RESOLVED** | `test-cvxr-variants.R` |
 
 ### Known/Expected Issues
 
 | Issue | Severity | Status | Notes |
 |-------|----------|--------|-------|
 | Cross-platform divergence (x86 vs ARM ~20%) | Low | **KNOWN** | Expected behavior, mathematically valid |
-| CVXR deprecation warnings | Low | **KNOWN** | `getValue()` replaced by `value()` in future CVXR |
+| Lambda threshold warning | Low | **EXPECTED** | Algorithm behavior - some columns may not reach lambda |
+
+### Code Quality (2026-04-08)
+
+**Completed:**
+- Added `@export` tags to 8 R functions (roxygen-ready)
+- Fixed CVXR `getValue()` → `value()` API deprecation
+- Fixed igraph `graph.adjacency()` → `graph_from_adjacency_matrix()` and `layout.fruchterman.reingold()` → `layout_with_fr()`
+- Simplified message output to single-line format
+
+**Test Status**: 128 PASS | 1 WARN | 0 FAIL
 
 ### Performance Benchmarks (2026-04-07)
 

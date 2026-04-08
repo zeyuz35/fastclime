@@ -84,7 +84,7 @@ CLIME_CVXR.index_wise <- function(
                 parallel = parallel,
                 verbose = FALSE
             )
-            ret_list_i$beta_i <- ret_list_i$getValue(beta_i)
+            ret_list_i$beta_i <- value(beta_i)
             return(ret_list_i)
         }
     Omega <- do.call(
@@ -126,7 +126,7 @@ CLIME_CVXR.direct <- function(
         parallel = parallel,
         ...
     )
-    Omega <- CVXR_results$getValue(Omega)
+    Omega <- value(Omega)
     ret_list <- list(
         Omega = Omega,
         CVXR_results = CVXR_results
