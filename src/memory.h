@@ -6,28 +6,28 @@
 #include <R.h>
 
 static inline void* fc_malloc_safe(size_t n, size_t size) {
-    if (n == 0) n = 1;
-    if (size == 0) size = 1;
-    if (n > SIZE_MAX / size) { error("Allocation size overflow"); }
-    void* ptr = malloc(n * size);
+    size_t _safe_n = n > 0 ? n : 1;
+    size_t _safe_size = size > 0 ? size : 1;
+    if (_safe_n > ((size_t)-1) / _safe_size) { error("Allocation size overflow"); }
+    void* ptr = malloc(_safe_n * _safe_size);
     if (!ptr) { error("Memory allocation failed"); }
     return ptr;
 }
 
 static inline void* fc_calloc_safe(size_t n, size_t size) {
-    if (n == 0) n = 1;
-    if (size == 0) size = 1;
-    if (n > SIZE_MAX / size) { error("Allocation size overflow"); }
-    void* ptr = calloc(n, size);
+    size_t _safe_n = n > 0 ? n : 1;
+    size_t _safe_size = size > 0 ? size : 1;
+    if (_safe_n > ((size_t)-1) / _safe_size) { error("Allocation size overflow"); }
+    void* ptr = calloc(_safe_n, _safe_size);
     if (!ptr) { error("Memory allocation failed"); }
     return ptr;
 }
 
 static inline void* fc_realloc_safe(void* old_ptr, size_t n, size_t size) {
-    if (n == 0) n = 1;
-    if (size == 0) size = 1;
-    if (n > SIZE_MAX / size) { error("Allocation size overflow"); }
-    void* new_ptr = realloc(old_ptr, n * size);
+    size_t _safe_n = n > 0 ? n : 1;
+    size_t _safe_size = size > 0 ? size : 1;
+    if (_safe_n > ((size_t)-1) / _safe_size) { error("Allocation size overflow"); }
+    void* new_ptr = realloc(old_ptr, _safe_n * _safe_size);
     if (!new_ptr) { error("Memory allocation failed"); }
     return new_ptr;
 }
