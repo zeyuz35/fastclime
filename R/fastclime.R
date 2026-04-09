@@ -61,10 +61,10 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   if (is.data.frame(x)) {
     x <- data.matrix(x)
   }
-  if (!is.matrix(x) || !is.numeric(x)) {
+  if (!is.numeric(as.matrix(x)) || !is.matrix(x)) {
     stop("x must be a numeric matrix or data frame")
   }
-  if (anyNA(x) || any(!is.finite(x))) {
+  if (anyNA(as.matrix(x)) || any(!is.finite(as.matrix(x)))) {
     stop("x must not contain NA, NaN, or Inf values")
   }
   if (nrow(x) < 2 || ncol(x) < 1) {
@@ -80,12 +80,14 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+  x_mat <- as.matrix(unclass(x))
+  SigmaInput <- x_mat
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unname(x_mat))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(x_mat) * (1 - 1 / n)
+    dimnames(SigmaInput) <- dimnames(x_mat)
     cov.input <- 0
   }
 

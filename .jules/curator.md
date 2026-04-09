@@ -1,0 +1,5 @@
+## 2026-04-08 - Time-Series Object Symmetry Check Crash
+
+**Learning:** `isSymmetric()` lacks applicable methods for time-series objects like `xts` and `zoo` (causing method dispatch crashes). Furthermore, applying `isSymmetric()` on `as.matrix(x)` without stripping dimension names can cause false negatives if the `dimnames` are asymmetric. Additionally, assigning original `dimnames` of `x` (which is $N \times P$) to a generated covariance matrix (which is $P \times P$) will crash if $N \neq P$ and overwrite structural dimensions.
+
+**Action:** Before performing pure numerical symmetry evaluation on potential time-series objects, explicitly coerce inputs to an unnamed matrix using `isSymmetric(unname(as.matrix(unclass(x))))`. When validating mathematical or time-series inputs, avoid strict `is.matrix()` and `is.numeric()` checks which fail on data frames or classes that inherit from matrices; use `is.numeric(as.matrix(x))` instead. Lastly, never forcefully re-apply original $N \times P$ dimension names to an internally derived $P \times P$ covariance matrix.
