@@ -115,17 +115,17 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   mu <- mu[1:maxnlambda, , drop = FALSE]
   icov <- list()
 
-  for (i in seq_len(maxnlambda)) {
-    icov[[i]] <- matrix(iicov[i, ], d, d)
+  for (ii in seq_len(maxnlambda)) {
+    icov[[ii]] <- matrix(iicov[ii, ], d, d)
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 
   # Calculate sparsity for each matrix in the path
   sparsity <- numeric(maxnlambda)
-  for (i in seq_len(maxnlambda)) {
-    tmp <- icov[[i]]
+  for (ii in seq_len(maxnlambda)) {
+    tmp <- icov[[ii]]
     diag(tmp) <- 0
-    sparsity[i] <- sum(abs(tmp) > 1e-5) / (d * (d - 1))
+    sparsity[ii] <- sum(abs(tmp) > 1e-5) / (d * (d - 1))
   }
 
   result <- list(
