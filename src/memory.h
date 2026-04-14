@@ -2,13 +2,12 @@
 #define FASTCLIME_MEMORY_H
 
 #include <stdlib.h>
-#include <stdint.h>
 #include <R.h>
 
 static inline void* fc_malloc_safe(size_t n, size_t size) {
     if (n == 0) n = 1;
     if (size == 0) size = 1;
-    if (n > SIZE_MAX / size) { error("Allocation size overflow"); }
+    if (n > ((size_t)-1) / size) { error("Allocation size overflow"); }
     void* ptr = malloc(n * size);
     if (!ptr) { error("Memory allocation failed"); }
     return ptr;
@@ -17,7 +16,7 @@ static inline void* fc_malloc_safe(size_t n, size_t size) {
 static inline void* fc_calloc_safe(size_t n, size_t size) {
     if (n == 0) n = 1;
     if (size == 0) size = 1;
-    if (n > SIZE_MAX / size) { error("Allocation size overflow"); }
+    if (n > ((size_t)-1) / size) { error("Allocation size overflow"); }
     void* ptr = calloc(n, size);
     if (!ptr) { error("Memory allocation failed"); }
     return ptr;
@@ -26,7 +25,7 @@ static inline void* fc_calloc_safe(size_t n, size_t size) {
 static inline void* fc_realloc_safe(void* old_ptr, size_t n, size_t size) {
     if (n == 0) n = 1;
     if (size == 0) size = 1;
-    if (n > SIZE_MAX / size) { error("Allocation size overflow"); }
+    if (n > ((size_t)-1) / size) { error("Allocation size overflow"); }
     void* new_ptr = realloc(old_ptr, n * size);
     if (!new_ptr) { error("Memory allocation failed"); }
     return new_ptr;
