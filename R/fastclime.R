@@ -80,13 +80,29 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+
+  # Preserve attributes before processing
+  orig_attrs <- attributes(x)
+
+  # Coerce to numeric matrix safely for symmetry check and computation
+  x_mat <- as.matrix(unclass(x))
+  SigmaInput <- x_mat
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unname(x_mat))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(x_mat) * (1 - 1 / n)
     cov.input <- 0
+  }
+
+  # Restore attributes to SigmaInput if it is the covariance matrix
+  if (cov.input == 1) {
+    attributes(SigmaInput) <- orig_attrs
+  } else {
+    if (!is.null(orig_attrs$dimnames) && !is.null(orig_attrs$dimnames[[2]])) {
+      colnames(SigmaInput) <- orig_attrs$dimnames[[2]]
+      rownames(SigmaInput) <- orig_attrs$dimnames[[2]]
+    }
   }
 
   maxnlambda = 0
