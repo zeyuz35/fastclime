@@ -28,9 +28,9 @@ void paralp(double *obj, double *mat, double *rhs, int *m0 , int *n0, double *op
 
     fc_solver_state_t *state = fc_solver_state_create(m, n, nz);
 
-    int *ia = (int*)FC_CALLOC(state->N * state->N + state->m, sizeof(int));
-    int *ka = (int*)FC_CALLOC(state->n + state->m + 1, sizeof(int));
-    double *a = (double*)FC_CALLOC(state->N * state->N + state->m, sizeof(double));
+    int *ia = (int*)FC_CALLOC(nz + m, sizeof(int));
+    int *ka = (int*)FC_CALLOC(n + m + 1, sizeof(int));
+    double *a = (double*)FC_CALLOC(nz + m, sizeof(double));
 
     k = 0;
     //Sparse matrix representation
