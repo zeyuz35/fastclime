@@ -64,3 +64,27 @@ test_that("fastclime validates inputs", {
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("fastclime preserves classes and attributes for time-series inputs", {
+  skip_if_not_installed("xts")
+  library(xts)
+  set.seed(42)
+  m <- matrix(rnorm(20), 10, 2)
+  colnames(m) <- c("V1", "V2")
+  x_xts <- xts(m, Sys.Date() + 1:10)
+
+  # Test with data matrix (not symmetric)
+  out <- fastclime(x_xts, nlambda = 2)
+  expect_equal(class(out$data), class(x_xts))
+  expect_equal(colnames(out$sigmahat), colnames(x_xts))
+
+  # Test with symmetric matrix input
+  m_sym <- matrix(c(1, 0.5, 0.5, 1), 2, 2)
+  colnames(m_sym) <- c("V1", "V2")
+  rownames(m_sym) <- c("V1", "V2")
+  x_sym_xts <- xts(m_sym, Sys.Date() + 1:2)
+
+  out_sym <- fastclime(x_sym_xts, nlambda = 2)
+  expect_equal(class(out_sym$sigmahat), class(x_sym_xts))
+  expect_equal(colnames(out_sym$sigmahat), colnames(x_sym_xts))
+})
