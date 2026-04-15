@@ -30,7 +30,8 @@ fastclime.BK17 <- function(
   bigN <- ncol(X)
 
   if (is.null(Sigma)) {
-    Sigma <- (t(X) %*% X) / bigT
+    # Equivalent: crossprod(X) is t(X) %*% X but faster and reduces memory allocation
+    Sigma <- crossprod(X) / bigT
   }
 
   diag_N <- diag(bigN)
