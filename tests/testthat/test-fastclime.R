@@ -162,3 +162,28 @@ test_that("stockdata works", {
   expect_equal(dim(stockdata$data), c(1258, 452))
   expect_length(stockdata$info, 1356)
 })
+
+test_that("fastclime preserves time-series classes and attributes", {
+  mat <- matrix(rnorm(100), 20, 5)
+
+  # zoo
+  z <- zoo::zoo(mat, order.by = 1:20)
+  res_z <- fastclime(z, nlambda = 2)
+  expect_true(inherits(res_z$data, "zoo"))
+  expect_equal(class(res_z$data), class(z))
+  expect_equal(attributes(res_z$data), attributes(z))
+
+  # xts
+  x <- xts::xts(mat, order.by = as.Date("2000-01-01") + 1:20)
+  res_x <- fastclime(x, nlambda = 2)
+  expect_true(inherits(res_x$data, "xts"))
+  expect_equal(class(res_x$data), class(x))
+  expect_equal(attributes(res_x$data), attributes(x))
+
+  # ts
+  t <- ts(mat)
+  res_t <- fastclime(t, nlambda = 2)
+  expect_true(inherits(res_t$data, "ts"))
+  expect_equal(class(res_t$data), class(t))
+  expect_equal(attributes(res_t$data), attributes(t))
+})

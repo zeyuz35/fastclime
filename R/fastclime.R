@@ -58,11 +58,14 @@
 #' }
 #' @export
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
+  orig_x <- x
   if (is.data.frame(x)) {
     x <- data.matrix(x)
+  } else if (inherits(x, c("ts", "xts", "zoo", "mts"))) {
+    x <- as.matrix(x)
   }
   if (!is.matrix(x) || !is.numeric(x)) {
-    stop("x must be a numeric matrix or data frame")
+    stop("x must be a numeric matrix, data frame, or time-series object")
   }
   if (anyNA(x) || any(!is.finite(x))) {
     stop("x must not contain NA, NaN, or Inf values")
@@ -129,7 +132,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   }
 
   result <- list(
-    "data" = x,
+    "data" = orig_x,
     "cov.input" = cov.input,
     "sigmahat" = sigmahat,
     "maxnlambda" = maxnlambda,
