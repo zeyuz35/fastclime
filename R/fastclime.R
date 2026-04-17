@@ -61,7 +61,8 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   if (is.data.frame(x)) {
     x <- data.matrix(x)
   }
-  if (!is.matrix(x) || !is.numeric(x)) {
+
+  if ((!is.matrix(x) && !inherits(x, c("ts", "xts", "zoo", "mts"))) || !is.numeric(x)) {
     stop("x must be a numeric matrix or data frame")
   }
   if (anyNA(x) || any(!is.finite(x))) {
@@ -83,7 +84,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   SigmaInput <- x
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unclass(x))) {
     n <- dim(SigmaInput)[1]
     SigmaInput <- cov(x) * (1 - 1 / n)
     cov.input <- 0
