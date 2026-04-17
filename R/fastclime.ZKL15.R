@@ -3,19 +3,22 @@
 # fastclime.ZKL15(): ZKL15 CLIME variant                                        #
 #-------------------------------------------------------------------------------#
 
-#' fastclime.ZKL15
+#' Estimate ZKL15 CLIME Variant
 #'
-#' Implementation of the fastclime.ZKL15 variant using the fastlp solver.
+#' Implementation of the fastclime ZKL15 variant using the fastlp solver.
 #'
-#' @param X T by N data matrix
-#' @param Sigma Sample covariance matrix. If NULL, it will be calculated from X.
+#' @param X A \code{T} by \code{N} data matrix.
+#' @param Sigma Sample covariance matrix.
+#'   If \code{NULL}, it will be calculated from \code{X}.
 #' @param lambda_1 Regularization parameter for the precision matrix constraint.
 #' @param lambda_2 Regularization parameter for the data constraint.
 #' @param lambda_3 Regularization parameter for the sum constraint.
-#' @param solver LP solver to use. Defaults to "fastlp".
-#' @param parallel Whether to use parallel processing. Defaults to FALSE.
-#' @param ... Additional arguments
-#' @return List containing Omega, lambda values, and results.
+#' @param solver LP solver to use.
+#'   Defaults to \code{"fastlp"}.
+#' @param parallel Whether to use parallel processing.
+#'   Defaults to \code{FALSE}.
+#' @param ... Additional arguments.
+#' @return A list containing \code{Omega}, \code{lambda} values, and results.
 #' @export
 fastclime.ZKL15 <- function(
   X,
@@ -27,6 +30,7 @@ fastclime.ZKL15 <- function(
   parallel = FALSE,
   ...
 ) {
+  # Section Setup ----------------------------------------------
   # preliminary
   bigT <- nrow(X)
   bigN <- ncol(X)
