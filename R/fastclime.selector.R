@@ -19,21 +19,14 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
   maxnlambda <- dim(lambdamtx)[1]
   icov <- matrix(0, d, d)
   adaj <- matrix(0, d, d)
-  seq <- rep(0, d)
   threshold <- 1e-5
-  status <- 0
 
-  for (i in 1:d) {
-    temp_lambda <- which(lambdamtx[, i] > lambda)
-    seq[i] <- length(temp_lambda)
+  # Bolt: Vectorize extraction of path lengths and target matrices
+  seq <- colSums(lambdamtx > lambda)
+  status <- if (any(seq + 1 > maxnlambda)) 1 else 0
 
-    if ((seq[i] + 1) > maxnlambda) {
-      status <- 1
-      icov[, i] <- icovlist[[seq[i]]][, i]
-    } else {
-      icov[, i] <- icovlist[[seq[i] + 1]][, i]
-    }
-  }
+  seq_idx <- pmin(seq + 1, maxnlambda)
+  icov <- sapply(1:d, function(i) icovlist[[seq_idx[i]]][, i])
 
   # Bolt: Optimize element-wise matrix symmetrization using logical indexing
   # to avoid creating multiple large temporary matrices and redundant multiplications.

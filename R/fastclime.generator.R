@@ -134,14 +134,16 @@ fastclime.generator = function(
   omega = theta * v
 
   # make omega positive definite and standardized
-  diag(omega) = abs(min(eigen(omega)$values)) + 0.1 + u
+  # Bolt: Optimize eigen decomposition by explicitly declaring symmetry and requesting only values
+  diag(omega) = abs(min(eigen(omega, symmetric = TRUE, only.values = TRUE)$values)) + 0.1 + u
   sigma = cov2cor(solve(omega))
   omega = solve(sigma)
 
   # generate multivariate normal data
   x = mvrnorm(n, rep(0, d), sigma)
 
-  sigmahat = cov(x) * (1 - 1 / n)
+  # Bolt: Optimize empirical covariance calculation using crossprod and scale
+  sigmahat = crossprod(scale(x, center = TRUE, scale = FALSE)) / n
 
   # graph and covariance visulization
   if (vis == TRUE) {
