@@ -23,9 +23,9 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
     FC_FREE(state->dual_N_bar);
     state->dual_N_bar = NULL;
 
-    int *ia = (int*)FC_CALLOC(nz + m, sizeof(int));
-    int *ka = (int*)FC_CALLOC(n + m + 1, sizeof(int));
-    double *a = (double*)FC_CALLOC(nz + m, sizeof(double));
+    int *ia = (int*)FC_CALLOC((size_t)nz + m, sizeof(int));
+    int *ka = (int*)FC_CALLOC((size_t)(size_t)n + m + 1, sizeof(int));
+    double *a = (double*)FC_CALLOC((size_t)nz + m, sizeof(double));
 
     // Form sparse matrix
     k = 0;

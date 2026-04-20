@@ -59,10 +59,10 @@ void parametric(double *SigmaInput, int *m1, double *mu_input, double *lambdamin
         }
     }
 
-    a  = (double*)FC_CALLOC(nz+m, sizeof(double));
-    ia = (int*)FC_CALLOC(nz+m, sizeof(int));
-    ka = (int*)FC_CALLOC(n+m+1, sizeof(int));
-    c  = (double*)FC_CALLOC(n+m, sizeof(double));      
+    a  = (double*)FC_CALLOC((size_t)nz + m, sizeof(double));
+    ia = (int*)FC_CALLOC((size_t)nz + m, sizeof(int));
+    ka = (int*)FC_CALLOC((size_t)(size_t)n + m  +  1, sizeof(int));
+    c  = (double*)FC_CALLOC((size_t)n + m, sizeof(double));
 
     for (i = 0; i < n; i++) {
         c[i] = -1.0;    
