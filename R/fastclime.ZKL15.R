@@ -39,7 +39,9 @@ fastclime.ZKL15 <- function(
 
   # Calculate penalty parameters if not provided
   sigma_x <- apply(X, 2, sd)
-  Rho <- eigen(Sigma, only.values = TRUE)$values
+  # Bolt: Optimize eigenvalue computation for symmetric matrices
+  # Bypasses O(n^3) eigenvector computations
+  Rho <- eigen(Sigma, symmetric = TRUE, only.values = TRUE)$values
   rho_min <- max(min(Rho), 0.01)
   R <- 1 / rho_min
 

@@ -134,7 +134,9 @@ fastclime.generator = function(
   omega = theta * v
 
   # make omega positive definite and standardized
-  diag(omega) = abs(min(eigen(omega)$values)) + 0.1 + u
+  # Bolt: Optimize eigenvalue computation for symmetric matrices
+  # Bypasses O(n^3) eigenvector computations
+  diag(omega) = abs(min(eigen(omega, symmetric = TRUE, only.values = TRUE)$values)) + 0.1 + u
   sigma = cov2cor(solve(omega))
   omega = solve(sigma)
 
