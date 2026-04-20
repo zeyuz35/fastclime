@@ -1,0 +1,3 @@
+## 2024-05-24 - Optimizing Covariance Calculation in fastclime variants
+**Learning:** In mathematical optimization algorithms (like fastclime variants), replacing explicitly transposed matrix multiplications (`t(X) %*% X`) with native operations (`crossprod(X)`) can introduce standard machine precision differences that slightly alter the algorithm's trajectory and path length.
+**Action:** When replacing `t(X) %*% X` with `crossprod(X)`, explicitly add a comment showing the equivalent unoptimized base representation to maintain clarity, and ensure testing includes checking for any test suite regressions due to deterministic variation from machine precision.
