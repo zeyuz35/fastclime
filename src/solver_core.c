@@ -23,9 +23,9 @@ fc_solver_state_t* fc_solver_state_create(int m, int n, int nz) {
     state->nonbasics = (int*)FC_CALLOC(n, sizeof(int));
     state->basicflag = (int*)FC_CALLOC(state->N, sizeof(int));
     
-    state->at = (double*)FC_CALLOC(nz + m, sizeof(double));
-    state->iat = (int*)FC_CALLOC(nz + m, sizeof(int));
-    state->kat = (int*)FC_CALLOC(m + 1, sizeof(int));
+    state->at = (double*)FC_CALLOC((size_t)nz + m, sizeof(double));
+    state->iat = (int*)FC_CALLOC((size_t)nz + m, sizeof(int));
+    state->kat = (int*)FC_CALLOC((size_t)m + 1, sizeof(int));
     
     state->lu_ctx = fc_lu_create();
     
@@ -35,7 +35,7 @@ fc_solver_state_t* fc_solver_state_create(int m, int n, int nz) {
     state->a_buf = (double*)FC_CALLOC(state->N, sizeof(double));
     state->tag_buf = (int*)FC_CALLOC(state->N, sizeof(int));
     
-    int *link_orig = (int*)FC_CALLOC(state->N + 2, sizeof(int));
+    int *link_orig = (int*)FC_CALLOC((size_t)state->N + 2, sizeof(int));
     state->link_buf = link_orig + 1;
     state->currtag = 1;
 
