@@ -11,7 +11,7 @@ fastclime(x, lambda.min = 0.1, nlambda = 50)
 
 \item{lambda.min}{This is the smallest value of lambda you would like the solver to explore. The default value is \code{0.1}. If \code{nlambda} is large enough, the precision matrix selector function \code{\link{fastclime.selector}} will be able to find all precision matrix corresponding to all lambda values ranging from \code{1} to \code{lambda.min}.}
 
-\item{nlambda}{It is the number of the path length one would like to achieve. The default length is 50. Note if d is large and nlambda is also large, it is possible that the program will fail to allocate memory for the path.}
+\item{nlambda}{It is the number of the path length one would like to achieve. The default length is 50. Note if \code{d} is large and \code{nlambda} is also large, it is possible that the program will fail to allocate memory for the path.}
 }
 \value{
 An object with S3 class \code{"fastclime"} is returned:
@@ -32,7 +32,7 @@ The formulation of CLIME is given as:
 where \eqn{\hat{\Sigma}} is the empirical covariance matrix and \eqn{\Omega} is the precision matrix.
 }
 \note{
-The program will stop when either the maximum number of iteration for each column \code{nlambda} is achieved or when the required \code{lambda.min} is achieved for each column. When the dimension is huge, make sure \code{nlambda} is small so that there are enough memory to allocate the solution path. \code{lambdamtx} and \code{icovlist} will be used in \code{\link{fastclime.selector}}.
+The program will stop when either the maximum number of iteration for each column \code{nlambda} is achieved or when the required \code{lambda.min} is achieved for each column. When the dimension is huge, make sure \code{nlambda} is small so that there is enough memory to allocate the solution path. \code{lambdamtx} and \code{icovlist} will be used in \code{\link{fastclime.selector}}.
 }
 \examples{
 \dontrun{

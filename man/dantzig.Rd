@@ -33,7 +33,7 @@ This program applies the parametric simplex linear programming method to the Dan
 }
 
 \note{
-The program will stop when either the maximum number of iterations for each column \code{nlambda} is achieved or when the required \code{lambda} is achieved for each column. Note if d is large and nlambda is also large, it is possible that the program will fail to allocate memory for the path.
+The program will stop when either the maximum number of iterations for each column \code{nlambda} is achieved or when the required \code{lambda} is achieved for each column. Note if \code{d} is large and \code{nlambda} is also large, it is possible that the program will fail to allocate memory for the path.
 }
 
 
@@ -41,7 +41,7 @@ The program will stop when either the maximum number of iterations for each colu
 \value{
 An object with S3 class \code{"dantzig"} is returned:  
   \item{X}{
-\code{X} is the \code{n} by \code{d} data matrix.
+\code{X} is an \code{n} by \code{d} data matrix
 }
   \item{y}{
 \code{y} is a length \code{n} response vector.
