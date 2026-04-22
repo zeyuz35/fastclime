@@ -32,7 +32,8 @@ fastclime.ZKL15 <- function(
   bigN <- ncol(X)
 
   if (is.null(Sigma)) {
-    Sigma <- (t(X) %*% X) / bigT
+    # crossprod(X) is equivalent to t(X) %*% X but faster
+    Sigma <- crossprod(X) / bigT
   }
 
   diag_N <- diag(bigN)
