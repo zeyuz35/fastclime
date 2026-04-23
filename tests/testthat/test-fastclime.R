@@ -162,3 +162,17 @@ test_that("stockdata works", {
   expect_equal(dim(stockdata$data), c(1258, 452))
   expect_length(stockdata$info, 1356)
 })
+
+test_that("fastclime preserves class and attributes for time-series inputs", {
+  library(xts)
+  set.seed(42)
+  X <- matrix(rnorm(100), 50, 2)
+  X_xts <- xts(X, order.by=as.Date("2020-01-01")+1:50)
+  attr(X_xts, "my_scale") <- c(1, 2)
+
+  res <- fastclime(X_xts)
+
+  expect_true(inherits(res$data, "xts"))
+  expect_equal(attr(res$data, "my_scale"), c(1, 2))
+  expect_equal(dim(res$data), c(50, 2))
+})
