@@ -23,9 +23,9 @@ fc_solver_state_t* fc_solver_state_create(int m, int n, int nz) {
     state->nonbasics = (int*)FC_CALLOC(n, sizeof(int));
     state->basicflag = (int*)FC_CALLOC(state->N, sizeof(int));
     
-    state->at = (double*)FC_CALLOC(nz + m, sizeof(double));
-    state->iat = (int*)FC_CALLOC(nz + m, sizeof(int));
-    state->kat = (int*)FC_CALLOC(m + 1, sizeof(int));
+    state->at = (double*)FC_CALLOC((size_t)nz + m, sizeof(double));
+    state->iat = (int*)FC_CALLOC((size_t)nz + m, sizeof(int));
+    state->kat = (int*)FC_CALLOC((size_t)m + 1, sizeof(int));
     
     state->lu_ctx = fc_lu_create();
     
