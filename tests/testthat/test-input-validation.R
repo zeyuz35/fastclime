@@ -64,3 +64,21 @@ test_that("fastclime validates inputs", {
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("fastclime works with ts/xts/zoo objects", {
+  library(xts)
+  set.seed(42)
+  x_mat <- matrix(rnorm(100), 10, 10)
+  x_xts <- xts(x_mat, order.by = as.Date("2020-01-01") + 0:9)
+
+  # fastclime should run without error and preserve the input class
+  out <- fastclime(x_xts)
+  expect_true(inherits(out$data, "xts"))
+
+  # Symmetric case
+  x_sym_mat <- crossprod(x_mat)
+  x_sym_xts <- xts(x_sym_mat, order.by = as.Date("2020-01-01") + 0:9)
+  out_sym <- fastclime(x_sym_xts)
+  expect_true(inherits(out_sym$data, "xts"))
+  expect_true(inherits(out_sym$sigmahat, "xts"))
+})
