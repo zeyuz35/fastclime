@@ -141,7 +141,9 @@ fastclime.generator = function(
   # generate multivariate normal data
   x = mvrnorm(n, rep(0, d), sigma)
 
-  sigmahat = cov(x) * (1 - 1 / n)
+  # Bolt Optimization: Replace cov(x) * (1 - 1 / n) with manual scale and crossprod
+  # to bypass cov() overhead and leverage BLAS optimization for significant speedup.
+  sigmahat = crossprod(scale(x, center = TRUE, scale = FALSE)) / n
 
   # graph and covariance visulization
   if (vis == TRUE) {

@@ -85,7 +85,9 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   if (!isSymmetric(x)) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    # Bolt Optimization: Replace cov(x) * (1 - 1 / n) with manual scale and crossprod
+    # to bypass cov() overhead and leverage BLAS optimization for significant speedup.
+    SigmaInput <- crossprod(scale(x, center = TRUE, scale = FALSE)) / n
     cov.input <- 0
   }
 
