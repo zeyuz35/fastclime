@@ -26,6 +26,8 @@ fastclime.BK17 <- function(
   ...
 ) {
   # preliminary
+  orig_attrs <- attributes(X)
+  X <- unname(as.matrix(X))
   bigT <- nrow(X)
   bigN <- ncol(X)
 
@@ -125,6 +127,11 @@ fastclime.BK17 <- function(
   }
 
   Omega <- do.call(cbind, lapply(results, function(x) x$beta_i))
+
+  if (!is.null(orig_attrs$dimnames) && !is.null(orig_attrs$dimnames[[2]])) {
+    colnames(Omega) <- orig_attrs$dimnames[[2]]
+    rownames(Omega) <- orig_attrs$dimnames[[2]]
+  }
 
   ret_list <- list(
     Omega = Omega,
