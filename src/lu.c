@@ -103,7 +103,7 @@ static void fc_lufac_init_wk(fc_lu_context_t *ctx, int m, int *kA, int *iA, doub
     wk->degB    = (int*)FC_CALLOC(m, sizeof(int));
     wk->degBt   = (int*)FC_CALLOC(m, sizeof(int));
     wk->hkey    = (int*)FC_CALLOC(m, sizeof(int));
-    wk->heap    = (int*)FC_CALLOC(m+1, sizeof(int)); 
+    wk->heap    = (int*)FC_CALLOC((size_t)m+1, sizeof(int));
     wk->iheap   = (int*)FC_CALLOC(m, sizeof(int));
     wk->iwork   = (int*)FC_CALLOC(m, sizeof(int));
     wk->iwork2  = (int*)FC_CALLOC(m, sizeof(int));
@@ -121,10 +121,10 @@ static void fc_lufac_init_wk(fc_lu_context_t *ctx, int m, int *kA, int *iA, doub
     wk->lnzbnd = wk->lnzbnd/2;
     wk->unzbnd = wk->lnzbnd;
 
-    if (ctx->kL == NULL)   { ctx->kL    = (int*)FC_CALLOC(m+1,  sizeof(int)); } else { ctx->kL = (int*)FC_REALLOC(ctx->kL, m+1, sizeof(int)); }
+    if (ctx->kL == NULL)   { ctx->kL    = (int*)FC_CALLOC((size_t)m+1,  sizeof(int)); } else { ctx->kL = (int*)FC_REALLOC(ctx->kL, (size_t)m+1, sizeof(int)); }
     if (ctx->iL == NULL)   { ctx->iL    = (int*)FC_CALLOC(wk->lnzbnd, sizeof(int)); } else { ctx->iL = (int*)FC_REALLOC(ctx->iL, wk->lnzbnd, sizeof(int)); }
     if (ctx->L ==  NULL)   { ctx->L     = (double*)FC_CALLOC(wk->lnzbnd, sizeof(double)); } else { ctx->L = (double*)FC_REALLOC(ctx->L, wk->lnzbnd, sizeof(double)); }
-    if (ctx->kUt == NULL)  { ctx->kUt   = (int*)FC_CALLOC(m+1,  sizeof(int)); } else { ctx->kUt = (int*)FC_REALLOC(ctx->kUt, m+1, sizeof(int)); }
+    if (ctx->kUt == NULL)  { ctx->kUt   = (int*)FC_CALLOC((size_t)m+1,  sizeof(int)); } else { ctx->kUt = (int*)FC_REALLOC(ctx->kUt, (size_t)m+1, sizeof(int)); }
     if (ctx->iUt == NULL)  { ctx->iUt   = (int*)FC_CALLOC(wk->unzbnd, sizeof(int)); } else { ctx->iUt = (int*)FC_REALLOC(ctx->iUt, wk->unzbnd, sizeof(int)); }
     if (ctx->Ut == NULL)   { ctx->Ut    = (double*)FC_CALLOC(wk->unzbnd, sizeof(double)); } else { ctx->Ut = (double*)FC_REALLOC(ctx->Ut, wk->unzbnd, sizeof(double)); }
     if (ctx->diagU == NULL){ ctx->diagU = (double*)FC_CALLOC(m, sizeof(double)); } else { ctx->diagU = (double*)FC_REALLOC(ctx->diagU, m, sizeof(double)); }
@@ -389,11 +389,11 @@ static void fc_lufac_finalize_wk(fc_lu_context_t *ctx, int m, fc_lufac_work_t *w
 
     if (ctx->Lt == NULL) { ctx->Lt = (double*)FC_CALLOC(wk->lnz, sizeof(double)); } else { ctx->Lt = (double*)FC_REALLOC(ctx->Lt, wk->lnz, sizeof(double)); }
     if (ctx->iLt == NULL){ ctx->iLt= (int*)FC_CALLOC(wk->lnz, sizeof(int)); }       else { ctx->iLt= (int*)FC_REALLOC(ctx->iLt, wk->lnz, sizeof(int)); }
-    if (ctx->kLt == NULL){ ctx->kLt= (int*)FC_CALLOC(m+1, sizeof(int)); }           else { ctx->kLt= (int*)FC_REALLOC(ctx->kLt, m+1, sizeof(int)); }
+    if (ctx->kLt == NULL){ ctx->kLt= (int*)FC_CALLOC((size_t)m+1, sizeof(int)); }           else { ctx->kLt= (int*)FC_REALLOC(ctx->kLt, (size_t)m+1, sizeof(int)); }
 
     if (ctx->U == NULL)  { ctx->U  = (double*)FC_CALLOC(wk->unz, sizeof(double)); } else { ctx->U  = (double*)FC_REALLOC(ctx->U, wk->unz, sizeof(double)); }
     if (ctx->iU == NULL) { ctx->iU = (int*)FC_CALLOC(wk->unz, sizeof(int)); }       else { ctx->iU = (int*)FC_REALLOC(ctx->iU, wk->unz, sizeof(int)); }
-    if (ctx->kU == NULL) { ctx->kU = (int*)FC_CALLOC(m+1, sizeof(int)); }           else { ctx->kU = (int*)FC_REALLOC(ctx->kU, m+1, sizeof(int)); }
+    if (ctx->kU == NULL) { ctx->kU = (int*)FC_CALLOC((size_t)m+1, sizeof(int)); }           else { ctx->kU = (int*)FC_REALLOC(ctx->kU, (size_t)m+1, sizeof(int)); }
 
     fc_atnum(m,m, ctx->kL, ctx->iL, ctx->L, ctx->kLt, ctx->iLt, ctx->Lt);
     fc_atnum(m,m, ctx->kUt,ctx->iUt,ctx->Ut,ctx->kU,  ctx->iU,  ctx->U );
