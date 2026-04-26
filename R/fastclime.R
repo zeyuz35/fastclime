@@ -80,12 +80,15 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+
+  orig_attrs <- attributes(x)
+  x_mat <- unname(as.matrix(x))
+  SigmaInput <- x_mat
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(x_mat)) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(x_mat) * (1 - 1 / n)
     cov.input <- 0
   }
 
@@ -107,6 +110,9 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   )
 
   sigmahat <- SigmaInput
+  if (cov.input == 1) {
+    attributes(sigmahat) <- orig_attrs
+  }
   mu <- matrix(unlist(str[3]), nlambda, d)
   maxnlambda <- unlist(str[6]) + 1
   iicov <- matrix(unlist(str[7]), nlambda, d * d)
