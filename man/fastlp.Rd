@@ -29,11 +29,21 @@ The parametric simplex method will stop when the calculated paramter is smaller 
 }
 
 \details{
-This function is used to solve a general linear programming in standard inequality form: "maximize obj*x, subject to: mat*x<=rhs, x>=0"
+This function is used to solve a general linear programming in standard inequality form:
+\eqn{\max obj^T x}
+subject to
+\eqn{mat \times x \le rhs},
+\eqn{x \ge 0}
 }
 
 \note{
-The linear programming should be in the form "maximize obj*x, subject to: mat*x<=rhs, x>=0". If the original problem is not in this form. The user has to convert it into this form. For example, the equality constrants can be separated into two inequality constraints. 
+The linear programming should be in the form:
+\eqn{\max obj^T x}
+subject to
+\eqn{mat \times x \le rhs},
+\eqn{x \ge 0}.
+If the original problem is not in this form, the user has to convert it.
+For example, equality constrants can be separated into two inequality constraints.
 }
 
 \value{

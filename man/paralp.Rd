@@ -38,7 +38,11 @@ The parametric simplex method will stop when the calculated paramter is smaller 
 }
 
 \details{
-This function is used to solve a general linear programming in standard inequality form: "maximize obj*x+obj_bar*lambda, subject to: mat*x<=rhs+rhs_bar*lambda, x>=0"
+This function is used to solve a general linear programming in standard inequality form:
+\eqn{\max obj^T x + \lambda \cdot obj\_bar}
+subject to
+\eqn{mat \times x \le rhs + \lambda \cdot rhs\_bar},
+\eqn{x \ge 0}
 }
 
 
