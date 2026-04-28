@@ -139,7 +139,7 @@ fastclime.generator = function(
   omega = solve(sigma)
 
   # generate multivariate normal data
-  x = mvrnorm(n, rep(0, d), sigma)
+  x = MASS::mvrnorm(n, rep(0, d), sigma)
 
   sigmahat = cov(x) * (1 - 1 / n)
 
