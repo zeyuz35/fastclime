@@ -64,3 +64,21 @@ test_that("fastclime validates inputs", {
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("fastclime preserves time-series class and attributes", {
+  library(xts)
+  set.seed(42)
+  data <- matrix(rnorm(100), 10, 10)
+  colnames(data) <- paste0("V", 1:10)
+  x <- xts(data, order.by = as.Date(1:10))
+  attr(x, "scale") <- rep(1, 10)
+
+  res <- fastclime(x)
+
+  # Verify original data attributes are preserved
+  expect_true(inherits(res$data, "xts"))
+  expect_true(!is.null(attr(res$data, "scale")))
+
+  # Verify column names are preserved in computed matrices
+  expect_equal(colnames(res$sigmahat), paste0("V", 1:10))
+})

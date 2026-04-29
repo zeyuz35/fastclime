@@ -80,12 +80,16 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   gcinfo(FALSE)
   cov.input <- 1
-  SigmaInput <- x
+
+  # Ensure clean numeric matrix to avoid S3 dispatch issues
+  # with time-series classes during isSymmetric or C calls
+  x_mat <- as.matrix(x)
+  SigmaInput <- x_mat
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(x_mat)) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(x_mat) * (1 - 1 / n)
     cov.input <- 0
   }
 
