@@ -16,9 +16,10 @@ fastclime.ZKL15(
 )
 }
 \arguments{
-\item{X}{T by N data matrix}
+\item{X}{\code{T} by \code{N} data matrix (\eqn{T \times N}).}
 
-\item{Sigma}{Sample covariance matrix. If NULL, it will be calculated from X.}
+\item{Sigma}{Sample covariance matrix.
+If \code{NULL}, it will be calculated from \code{X}.}
 
 \item{lambda_1}{Regularization parameter for the precision matrix constraint.}
 
@@ -26,14 +27,14 @@ fastclime.ZKL15(
 
 \item{lambda_3}{Regularization parameter for the sum constraint.}
 
-\item{solver}{LP solver to use. Defaults to "fastlp".}
+\item{solver}{LP solver to use. Defaults to \code{"fastlp"}.}
 
-\item{parallel}{Whether to use parallel processing. Defaults to FALSE.}
+\item{parallel}{Whether to use parallel processing. Defaults to \code{FALSE}.}
 
-\item{...}{Additional arguments}
+\item{...}{Additional arguments.}
 }
 \value{
-List containing Omega, lambda values, and results.
+List containing \code{Omega}, \code{lambda} values, and \code{results}.
 }
 \description{
 Implementation of the fastclime.ZKL15 variant using the fastlp solver.
