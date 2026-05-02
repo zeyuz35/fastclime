@@ -1,5 +1,5 @@
 useDynLib("fastclime")
-import("Matrix","igraph","MASS")
+import("Matrix","igraph")
 importFrom("grDevices", "dev.off", "gray.colors", "postscript")
 importFrom("graphics", "par", "plot", "grid")
 importFrom("stats", "cor", "cov", "rbinom", "rnorm", "runif", "sd")
