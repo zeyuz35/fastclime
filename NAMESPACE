@@ -2,6 +2,7 @@ useDynLib("fastclime")
 import("Matrix","igraph","MASS")
 importFrom("grDevices", "dev.off", "gray.colors", "postscript")
 importFrom("graphics", "par", "plot", "grid")
+importFrom("utils", "flush.console")
 importFrom("stats", "cor", "cov", "rbinom", "rnorm", "runif", "sd")
 export(fastclime,
        fastclime.generator,
