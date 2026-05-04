@@ -58,9 +58,17 @@
 #' }
 #' @export
 fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
+  # Preserve attributes to handle time-series objects correctly
+  orig_attrs <- attributes(x)
+  x_was_ts <- inherits(x, c("ts", "xts", "zoo", "mts"))
+
   if (is.data.frame(x)) {
     x <- data.matrix(x)
   }
+  if (x_was_ts) {
+    x <- as.matrix(unclass(x))
+  }
+
   if (!is.matrix(x) || !is.numeric(x)) {
     stop("x must be a numeric matrix or data frame")
   }
@@ -83,7 +91,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   SigmaInput <- x
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  if (!isSymmetric(unname(x))) {
     n <- dim(SigmaInput)[1]
     SigmaInput <- cov(x) * (1 - 1 / n)
     cov.input <- 0
@@ -128,8 +136,14 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     sparsity[i] <- sum(abs(tmp) > 1e-5) / (d * (d - 1))
   }
 
+  # Restore original attributes if it was a time series
+  out_data <- x
+  if (x_was_ts) {
+    attributes(out_data) <- orig_attrs
+  }
+
   result <- list(
-    "data" = x,
+    "data" = out_data,
     "cov.input" = cov.input,
     "sigmahat" = sigmahat,
     "maxnlambda" = maxnlambda,
