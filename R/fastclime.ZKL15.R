@@ -32,7 +32,8 @@ fastclime.ZKL15 <- function(
   bigN <- ncol(X)
 
   if (is.null(Sigma)) {
-    Sigma <- (t(X) %*% X) / bigT
+    # Use crossprod(X) for faster matrix multiplication without intermediate transpose allocation
+    Sigma <- crossprod(X) / bigT
   }
 
   diag_N <- diag(bigN)
