@@ -30,7 +30,9 @@ fastclime.BK17 <- function(
   bigN <- ncol(X)
 
   if (is.null(Sigma)) {
-    Sigma <- (t(X) %*% X) / bigT
+    # Bolt: Replace explicit transpose and multiplication with crossprod
+    # This avoids allocating the transposed matrix and speeds up computation
+    Sigma <- crossprod(X) / bigT
   }
 
   diag_N <- diag(bigN)
