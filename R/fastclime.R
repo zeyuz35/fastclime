@@ -83,10 +83,13 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   SigmaInput <- x
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  x_mat <- as.matrix(x)
+  if (!isSymmetric(unname(x_mat))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(x_mat) * (1 - 1 / n)
     cov.input <- 0
+  } else {
+    SigmaInput <- x_mat
   }
 
   maxnlambda = 0
