@@ -10,6 +10,7 @@ Maintainer: ORPHANED
 Depends: R (>= 2.15.0), igraph, MASS, Matrix
 Suggests: testthat (>= 3.0.0), CVXR, foreach, rsample
 Config/testthat/edition: 3
+Encoding: UTF-8
 Description: Provides a method of recovering the precision matrix efficiently 
         and solving for the dantzig selector by applying the parametric 
         simplex method.  The computation is based on a linear optimization
