@@ -64,3 +64,16 @@ test_that("fastclime validates inputs", {
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("fastclime accepts time-series classes without isSymmetric failure", {
+  library(zoo)
+  library(xts)
+
+  mat <- matrix(rnorm(100), 10, 10)
+
+  x_zoo <- zoo(mat)
+  x_xts <- xts(mat, order.by = as.Date(1:10))
+
+  expect_error(fastclime(x_zoo), NA)
+  expect_error(fastclime(x_xts), NA)
+})
