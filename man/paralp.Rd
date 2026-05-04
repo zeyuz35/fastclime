@@ -15,30 +15,35 @@ paralp(obj,mat,rhs,obj_bar,rhs_bar,lambda=0)
 
 \arguments{
   \item{obj}{
-The objective vector of the coefficient with length n.
+The objective vector of the coefficient with length \eqn{n}.
 }
   \item{mat}{
-The constraint matrix of the linear programming with dimension m*n. Note this argument must be in matrix form even it is a vector. 
+The constraint matrix of the linear programming with dimension \eqn{m \times n}.
+Note this argument must be in matrix form even it is a vector.
 }
   \item{rhs}{
-The right hand side vector of the constraint with length m.
+The right hand side vector of the constraint with length \eqn{m}.
 }
 
   \item{obj_bar}{
-The vector used to time the parameter and added to the objective vector, with length n. This pertubation vector must be nonnegative.
+The vector used to multiply the parameter and added to the objective vector, with length \eqn{n}.
+This perturbation vector must be nonnegative.
 }
 
   \item{rhs_bar}{
-The vector used to time the parameter and added to the right hand side vector, with length m. This pertubation vector must be nonnegative.
+The vector used to multiply the parameter and added to the right hand side vector, with length \eqn{m}.
+This perturbation vector must be nonnegative.
 }
 
   \item{lambda}{
-The parametric simplex method will stop when the calculated paramter is smaller than lambda. The default value is zero and it corresponds to the optimal value.
+The parametric simplex method will stop when the calculated parameter is smaller than \code{lambda}.
+The default value is zero and it corresponds to the optimal value.
 }
 }
 
 \details{
-This function is used to solve a general linear programming in standard inequality form: "maximize obj*x+obj_bar*lambda, subject to: mat*x<=rhs+rhs_bar*lambda, x>=0"
+This function is used to solve a general linear programming in standard inequality form:
+\deqn{\mathrm{maximize}\ obj \times x + obj\_bar \times \lambda, \quad \mathrm{subject\ to:}\ mat \times x \le rhs + rhs\_bar \times \lambda, \quad x \ge 0}
 }
 
 

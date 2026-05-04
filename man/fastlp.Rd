@@ -15,25 +15,31 @@ fastlp(obj,mat,rhs,lambda=0)
 
 \arguments{
   \item{obj}{
-The objective vector of the coefficient with length n.
+The objective vector of the coefficient with length \eqn{n}.
 }
   \item{mat}{
-The constraint matrix of the linear programming with dimension m*n. Note this argument must be in matrix form even it is a vector. 
+The constraint matrix of the linear programming with dimension \eqn{m \times n}.
+Note this argument must be in matrix form even it is a vector.
 }
   \item{rhs}{
-The right hand side vector of the constraint with length m.
+The right hand side vector of the constraint with length \eqn{m}.
 }
   \item{lambda}{
-The parametric simplex method will stop when the calculated paramter is smaller than lambda. The default value is zero and it corresponds to the optimal value.
+The parametric simplex method will stop when the calculated parameter is smaller than \code{lambda}.
+The default value is zero and it corresponds to the optimal value.
 }
 }
 
 \details{
-This function is used to solve a general linear programming in standard inequality form: "maximize obj*x, subject to: mat*x<=rhs, x>=0"
+This function is used to solve a general linear programming in standard inequality form:
+\deqn{\mathrm{maximize}\ obj \times x, \quad \mathrm{subject\ to:}\ mat \times x \le rhs, \quad x \ge 0}
 }
 
 \note{
-The linear programming should be in the form "maximize obj*x, subject to: mat*x<=rhs, x>=0". If the original problem is not in this form. The user has to convert it into this form. For example, the equality constrants can be separated into two inequality constraints. 
+The linear programming should be in the form:
+\eqn{\mathrm{maximize}\ obj \times x, \quad \mathrm{subject\ to:}\ mat \times x \le rhs, \quad x \ge 0}.
+If the original problem is not in this form. The user has to convert it into this form.
+For example, the equality constraints can be separated into two inequality constraints.
 }
 
 \value{
