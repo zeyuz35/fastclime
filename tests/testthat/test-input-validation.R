@@ -64,3 +64,20 @@ test_that("fastclime validates inputs", {
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("fastclime handles time-series objects", {
+  set.seed(42)
+  x_mat <- matrix(rnorm(100), 20, 5)
+
+  # ts object
+  x_ts <- ts(x_mat)
+  expect_no_error(res_ts <- fastclime(x_ts))
+  expect_equal(class(res_ts$data), class(x_ts))
+
+  # xts object
+  if (requireNamespace("xts", quietly = TRUE)) {
+    x_xts <- xts::xts(x_mat, order.by = as.Date("2020-01-01") + 1:20)
+    expect_no_error(res_xts <- fastclime(x_xts))
+    expect_equal(class(res_xts$data), class(x_xts))
+  }
+})
