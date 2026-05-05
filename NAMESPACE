@@ -22,3 +22,5 @@ S3method("plot","fastclime")
 S3method("print","fastclime")
 
 
+
+importFrom("utils", "flush.console")
