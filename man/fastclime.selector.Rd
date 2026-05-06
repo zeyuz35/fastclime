@@ -49,7 +49,7 @@ The sparsity level of this estimated graph for this value of lambda.
 
 \author{
 Haotian Pang, Han Liu and Robert Vanderbei \cr
-Maintainer: Haotan Pang<hpang@princeton.edu>
+Maintainer: Haotian Pang<hpang@princeton.edu>
 }
 
 \seealso{
