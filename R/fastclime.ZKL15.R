@@ -32,14 +32,16 @@ fastclime.ZKL15 <- function(
   bigN <- ncol(X)
 
   if (is.null(Sigma)) {
-    Sigma <- (t(X) %*% X) / bigT
+    # Optimize: crossprod is significantly faster than t(X) %*% X
+    Sigma <- crossprod(X) / bigT
   }
 
   diag_N <- diag(bigN)
 
   # Calculate penalty parameters if not provided
   sigma_x <- apply(X, 2, sd)
-  Rho <- eigen(Sigma, only.values = TRUE)$values
+  # Optimize: bypass O(n^3) eigenvector computations when only eigenvalues are needed
+  Rho <- eigen(Sigma, symmetric = TRUE, only.values = TRUE)$values
   rho_min <- max(min(Rho), 0.01)
   R <- 1 / rho_min
 
