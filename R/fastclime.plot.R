@@ -23,12 +23,12 @@ fastclime.plot = function(
     location = getwd()
   }
   diag(G) = 0
-  g = graph_from_adjacency_matrix(
+  g = igraph::graph_from_adjacency_matrix(
     as.matrix(G != 0),
     mode = "undirected",
     diag = FALSE
   )
-  layout.grid = layout_with_fr(g)
+  layout.grid = igraph::layout_with_fr(g)
 
   if (epsflag == TRUE) {
     postscript(
