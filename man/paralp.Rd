@@ -15,30 +15,34 @@ paralp(obj,mat,rhs,obj_bar,rhs_bar,lambda=0)
 
 \arguments{
   \item{obj}{
-The objective vector of the coefficient with length n.
+The objective vector of the coefficient with length \code{n}.
 }
   \item{mat}{
-The constraint matrix of the linear programming with dimension m*n. Note this argument must be in matrix form even it is a vector. 
+The constraint matrix of the linear programming with dimension \eqn{m \times n}.
+Note this argument must be in matrix form even if it is a vector.
 }
   \item{rhs}{
-The right hand side vector of the constraint with length m.
+The right hand side vector of the constraint with length \code{m}.
 }
 
   \item{obj_bar}{
-The vector used to time the parameter and added to the objective vector, with length n. This pertubation vector must be nonnegative.
+The vector used to multiply the parameter and added to the objective vector, with length \code{n}.
+This perturbation vector must be nonnegative.
 }
 
   \item{rhs_bar}{
-The vector used to time the parameter and added to the right hand side vector, with length m. This pertubation vector must be nonnegative.
+The vector used to multiply the parameter and added to the right hand side vector, with length \code{m}.
+This perturbation vector must be nonnegative.
 }
 
   \item{lambda}{
-The parametric simplex method will stop when the calculated paramter is smaller than lambda. The default value is zero and it corresponds to the optimal value.
+The parametric simplex method will stop when the calculated parameter is smaller than \code{lambda}.
+The default value is zero and it corresponds to the optimal value.
 }
 }
 
 \details{
-This function is used to solve a general linear programming in standard inequality form: "maximize obj*x+obj_bar*lambda, subject to: mat*x<=rhs+rhs_bar*lambda, x>=0"
+This function solves a general linear programming problem in standard inequality form: maximize \eqn{obj^T x + obj\_bar^T \lambda}, subject to \eqn{mat \times x \le rhs + rhs\_bar \times \lambda}, \eqn{x \ge 0}.
 }
 
 
