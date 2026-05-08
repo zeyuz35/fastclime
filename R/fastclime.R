@@ -83,9 +83,11 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   SigmaInput <- x
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  # Coerce x to matrix safely to prevent S3 dispatch crashes for time-series objects
+  # when checking symmetry and calculating covariance
+  if (!isSymmetric(as.matrix(x))) {
     n <- dim(SigmaInput)[1]
-    SigmaInput <- cov(x) * (1 - 1 / n)
+    SigmaInput <- cov(as.matrix(x)) * (1 - 1 / n)
     cov.input <- 0
   }
 
