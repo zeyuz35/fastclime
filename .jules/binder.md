@@ -1,0 +1,3 @@
+## 2024-05-09 - Namespacing explicitly and updating DEPENDS
+**Learning:** For R packages, explicit namespacing inside function definitions (e.g., `Matrix::Matrix()`, `MASS::mvrnorm()`, `igraph::graph_from_adjacency_matrix()`) helps reduce the namespace bloat from blanket `import()` statements in the NAMESPACE file. Removing base dependencies like `Matrix`, `MASS`, and `igraph` from `Depends` to `Imports` in the DESCRIPTION file improves the user experience by reducing attached packages and potential conflicts.
+**Action:** When acting as Binder for an R package, explicitly namespace calls to external packages, then move those packages from `Depends` to `Imports` in DESCRIPTION. This avoids injecting massive external dependencies into the global search path of users.
