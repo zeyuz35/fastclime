@@ -140,7 +140,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   class(result) = "fastclime"
   message("Done!                     \n", appendLF = FALSE)
-  flush.console()
+  utils::flush.console()
   return(result)
 }
 
@@ -177,7 +177,7 @@ plot.fastclime = function(x, ...) {
     stop("No positive lambda values found to plot.")
   }
 
-  plot(
+  graphics::plot(
     s[valid],
     x$sparsity[valid],
     log = "x",
