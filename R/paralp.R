@@ -65,6 +65,11 @@ paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
     stop("Dimensions do not match!")
   }
 
+  # Sentinel: Prevent integer overflow and memory corruption in C backend
+  if (as.numeric(m0) * as.numeric(n0) > .Machine$integer.max) {
+    stop("Matrix dimensions exceed C integer limits.")
+  }
+
   if (error == 0) {
     str = .C(
       "paralp",
