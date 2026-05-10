@@ -37,6 +37,13 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   n0 <- nrow(X)
   d0 <- ncol(X)
+
+  # Sentinel: Prevent integer overflow and memory corruption in C backend
+  if (as.numeric(d0) * as.numeric(nlambda) > .Machine$integer.max ||
+      4 * as.numeric(d0) * as.numeric(d0) > .Machine$integer.max) {
+    stop("Requested dimensions or path length exceed C integer limits.")
+  }
+
   BETA0 <- matrix(0, d0, nlambda)
   lambdalist <- matrix(0, nlambda, 1)
 

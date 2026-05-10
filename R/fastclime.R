@@ -83,6 +83,12 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   SigmaInput <- x
   d <- dim(SigmaInput)[2]
 
+  # Sentinel: Prevent integer overflow and memory corruption in C backend
+  if (as.numeric(d) * as.numeric(d) * as.numeric(nlambda) > .Machine$integer.max ||
+      4 * as.numeric(d) * as.numeric(d) > .Machine$integer.max) {
+    stop("Requested dimensions or path length exceed C integer limits.")
+  }
+
   if (!isSymmetric(x)) {
     n <- dim(SigmaInput)[1]
     SigmaInput <- cov(x) * (1 - 1 / n)
