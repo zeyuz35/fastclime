@@ -1,0 +1,3 @@
+## 2026-05-11 - crossprod optimization
+**Learning:** In base R, explicitly transposing a matrix and multiplying it with itself (e.g., `t(X) %*% X`) requires memory allocation for the transposed matrix, which can be computationally and memory inefficient, particularly for large dimensions. The base R function `crossprod(X)` performs this equivalent calculation natively in C without the intermediate transpose allocation.
+**Action:** When refactoring covariance matrix calculations or similar operations in R packages, actively look for instances of `t(x) %*% x` (or `t(x) %*% y`) and replace them with `crossprod(x)` (or `crossprod(x, y)`), adding a comment to explain the memory/speed optimization. Verify parity before replacing to ensure no class coercion bugs occur.
