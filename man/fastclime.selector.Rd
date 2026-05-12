@@ -26,11 +26,11 @@ The user specified parameter lambda. The function will return the solution path 
 }
 
 \details{
-The output from \code{\link{fastclime}} stores a list of precision matrice and a matrix of parameters. This program will select the required solution path and precision matrix for a given parameter \code{lambda}.
+The output from \code{\link{fastclime}} stores a list of precision matrices and a matrix of parameters. This program will select the required solution path and precision matrix for a given parameter \code{lambda}.
 }
 
 \note{
-The function is able to estimate the precision matrices corresponding to all \code{lambda} values ranging from \code{1} to \code{lambda.min}, provided a large enough \code{nlambda} is used in \code{\link{fastclime}}. The function will give a message if the program could not find the solution path corresponding to the required \code{lamba}. The user may want to incease \code{nlambda} in \code{\link{fastclime}} in order to find the required solution path.
+The function is able to estimate the precision matrices corresponding to all \code{lambda} values ranging from \code{1} to \code{lambda.min}, provided a large enough \code{nlambda} is used in \code{\link{fastclime}}. The function will give a message if the program could not find the solution path corresponding to the required \code{lambda}. The user may want to increase \code{nlambda} in \code{\link{fastclime}} in order to find the required solution path.
 }
 
 \value{
