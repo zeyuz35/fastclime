@@ -37,6 +37,11 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   n0 <- nrow(X)
   d0 <- ncol(X)
+
+  if (as.numeric(d0) * nlambda > .Machine$integer.max || as.numeric(d0) * d0 > .Machine$integer.max) {
+    stop("Input size exceeds maximum integer capacity for C backend")
+  }
+
   BETA0 <- matrix(0, d0, nlambda)
   lambdalist <- matrix(0, nlambda, 1)
 

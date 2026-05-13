@@ -57,6 +57,10 @@ paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
   m0 <- dim(mat)[1]
   n0 <- dim(mat)[2]
 
+  if (as.numeric(m0) * n0 > .Machine$integer.max) {
+    stop("Input size exceeds maximum integer capacity for C backend")
+  }
+
   opt <- rep(0, n)
   status <- 0
   error <- 0
