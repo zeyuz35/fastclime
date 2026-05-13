@@ -83,6 +83,10 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   SigmaInput <- x
   d <- dim(SigmaInput)[2]
 
+  if (as.numeric(d) * d * nlambda > .Machine$integer.max) {
+    stop("Input size exceeds maximum integer capacity for C backend")
+  }
+
   if (!isSymmetric(x)) {
     n <- dim(SigmaInput)[1]
     SigmaInput <- cov(x) * (1 - 1 / n)
