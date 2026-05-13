@@ -1,0 +1,3 @@
+## 2024-05-13 - Time-series Symmetry Checks and Metadata Preservation
+**Learning:** Base R functions like `isSymmetric()` lack applicable methods for time-series objects (`xts`/`zoo`). Using `x <- as.matrix(x)` globally strips original classes and metadata (silent metadata loss). Furthermore, when R objects are rebuilt from C-wrapper lists (like `iicov`), row and column names are dropped.
+**Action:** Perform localized coercion strictly during type validation checks (`isSymmetric(as.matrix(x))`) to preserve S3 class identity. Manually extract and repopulate column/row names back onto output matrices/lists after returning from the C layer.
