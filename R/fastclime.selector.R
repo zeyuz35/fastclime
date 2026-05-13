@@ -41,9 +41,20 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
   idx <- abs(icov) > abs(t_icov)
   icov[idx] <- t_icov[idx]
 
+  var_names <- colnames(icovlist[[1]])
+  if (!is.null(var_names)) {
+    colnames(icov) <- var_names
+    rownames(icov) <- var_names
+  }
+
   tmpicov <- icov
   diag(tmpicov) <- 0
   adaj <- Matrix(tmpicov > threshold, sparse = TRUE) * 1
+
+  if (!is.null(var_names)) {
+    colnames(adaj) <- var_names
+    rownames(adaj) <- var_names
+  }
 
   sparsity <- sum(adaj@x) / (d^2 - d)
 
