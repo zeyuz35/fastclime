@@ -43,6 +43,11 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   X2 = crossprod(X)
   Xy = crossprod(X, y)
 
+  # Validate against 32-bit integer overflow in C backend
+  if (2 * as.numeric(d0) * 2 * as.numeric(d0) > .Machine$integer.max) {
+    stop("Input dimensions are too large and will cause integer overflow in C backend")
+  }
+
   str = .C(
     "dantzig",
     as.double(X2),
