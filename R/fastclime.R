@@ -89,9 +89,15 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     cov.input <- 0
   }
 
+  # Validate against 32-bit integer overflow in C backend
+  if (as.numeric(nlambda) * as.numeric(d) * as.numeric(d) > .Machine$integer.max ||
+      4 * as.numeric(d) * as.numeric(d) > .Machine$integer.max) {
+    stop("Input dimensions are too large and will cause integer overflow in C backend")
+  }
+
   maxnlambda = 0
   mu_input <- matrix(0, nlambda, d)
-  iicov <- matrix(0, nlambda, d * d)
+  iicov <- matrix(0, nlambda, as.numeric(d) * as.numeric(d))
   lambdamin <- lambda.min
 
   str = .C(
@@ -109,7 +115,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   sigmahat <- SigmaInput
   mu <- matrix(unlist(str[3]), nlambda, d)
   maxnlambda <- unlist(str[6]) + 1
-  iicov <- matrix(unlist(str[7]), nlambda, d * d)
+  iicov <- matrix(unlist(str[7]), nlambda, as.numeric(d) * as.numeric(d))
   # keep matrix structure even when maxnlambda == 1; drop=FALSE prevents
   # back-conversion to a vector which later breaks selector() calls.
   mu <- mu[1:maxnlambda, , drop = FALSE]
