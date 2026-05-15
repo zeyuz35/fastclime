@@ -89,9 +89,16 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     cov.input <- 0
   }
 
+  # Validate matrix sizes against integer max to prevent memory corruption in C backend
+  d_num <- as.numeric(d)
+  nlambda_num <- as.numeric(nlambda)
+  if (nlambda_num * d_num * d_num > .Machine$integer.max) {
+    stop("Requested solution path exceeds maximum supported size. Please reduce nlambda or data dimensions.")
+  }
+
   maxnlambda = 0
   mu_input <- matrix(0, nlambda, d)
-  iicov <- matrix(0, nlambda, d * d)
+  iicov <- matrix(0, nlambda, d_num * d_num)
   lambdamin <- lambda.min
 
   str = .C(
@@ -109,7 +116,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   sigmahat <- SigmaInput
   mu <- matrix(unlist(str[3]), nlambda, d)
   maxnlambda <- unlist(str[6]) + 1
-  iicov <- matrix(unlist(str[7]), nlambda, d * d)
+  iicov <- matrix(unlist(str[7]), nlambda, d_num * d_num)
   # keep matrix structure even when maxnlambda == 1; drop=FALSE prevents
   # back-conversion to a vector which later breaks selector() calls.
   mu <- mu[1:maxnlambda, , drop = FALSE]
