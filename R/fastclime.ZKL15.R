@@ -32,7 +32,8 @@ fastclime.ZKL15 <- function(
   bigN <- ncol(X)
 
   if (is.null(Sigma)) {
-    Sigma <- (t(X) %*% X) / bigT
+    # Optimization: crossprod(X) is a faster and more memory-efficient native alternative to t(X) %*% X
+    Sigma <- crossprod(X) / bigT
   }
 
   diag_N <- diag(bigN)
