@@ -36,6 +36,10 @@ fastlp <- function(obj, mat, rhs, lambda = 0) {
   m0 <- dim(mat)[1]
   n0 <- dim(mat)[2]
 
+  if (as.numeric(m0) * as.numeric(n0) + as.numeric(m0) > .Machine$integer.max) {
+    stop("Dimensions too large: integer overflow risk in C backend")
+  }
+
   opt <- rep(0, n)
   status <- 0
   error <- 0

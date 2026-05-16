@@ -190,7 +190,7 @@ fastclime.generator = function(
     sigmahat = sigmahat,
     omega = omega,
     theta = Matrix(theta, sparse = TRUE),
-    sparsity = sum(theta) / (d * (d - 1)),
+    sparsity = sum(theta) / (as.numeric(d) * (as.numeric(d) - 1)),
     graph.type = graph
   )
   class(sim) = "sim"

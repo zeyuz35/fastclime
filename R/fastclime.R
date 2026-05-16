@@ -89,9 +89,14 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     cov.input <- 0
   }
 
+  if (4 * as.numeric(d) * as.numeric(d) > .Machine$integer.max ||
+      as.numeric(d) * as.numeric(d) * as.numeric(nlambda) > .Machine$integer.max) {
+    stop("Dimensions too large: integer overflow risk in C backend")
+  }
+
   maxnlambda = 0
   mu_input <- matrix(0, nlambda, d)
-  iicov <- matrix(0, nlambda, d * d)
+  iicov <- matrix(0, nlambda, as.numeric(d) * as.numeric(d))
   lambdamin <- lambda.min
 
   str = .C(
@@ -109,7 +114,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   sigmahat <- SigmaInput
   mu <- matrix(unlist(str[3]), nlambda, d)
   maxnlambda <- unlist(str[6]) + 1
-  iicov <- matrix(unlist(str[7]), nlambda, d * d)
+  iicov <- matrix(unlist(str[7]), nlambda, as.numeric(d) * as.numeric(d))
   # keep matrix structure even when maxnlambda == 1; drop=FALSE prevents
   # back-conversion to a vector which later breaks selector() calls.
   mu <- mu[1:maxnlambda, , drop = FALSE]
@@ -125,7 +130,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   for (i in seq_len(maxnlambda)) {
     tmp <- icov[[i]]
     diag(tmp) <- 0
-    sparsity[i] <- sum(abs(tmp) > 1e-5) / (d * (d - 1))
+    sparsity[i] <- sum(abs(tmp) > 1e-5) / (as.numeric(d) * (as.numeric(d) - 1))
   }
 
   result <- list(
