@@ -1,0 +1,3 @@
+## 2026-05-17 - Fix flush.console namespacing and data directory hygiene
+**Learning:** Functions like `flush.console()` from base R or `utils` must be explicitly namespaced (`utils::flush.console()`) or added to the `NAMESPACE` file. Also, non-R data files like `AGENTS.md` should not reside in the `data/` directory, as `R CMD check` expects `data/` to only contain dataset formats (`.rda`, `.RData`, etc.).
+**Action:** Always fully namespace implicit base R function calls (`utils::flush.console()`) and move non-R documentation/instruction files to `inst/extdata/` to comply with R package structures and pass `R CMD check`.
