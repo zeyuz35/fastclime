@@ -1,0 +1,89 @@
+
+R version 4.6.0 (2026-04-24) -- "Because it was There"
+Copyright (C) 2026 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(testthat)
+> library(fastclime)
+Loading required package: igraph
+
+Attaching package: 'igraph'
+
+The following object is masked from 'package:testthat':
+
+    compare
+
+The following objects are masked from 'package:stats':
+
+    decompose, spectrum
+
+The following object is masked from 'package:base':
+
+    union
+
+Loading required package: MASS
+Loading required package: Matrix
+>
+> test_check("fastclime")
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Done!
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Done!
+Done!
+Done!
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Generating data from the multivariate normal distribution with the band graph structure....
+done.
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Generating data from the multivariate normal distribution with the hub graph structure....
+done.
+Generating data from the multivariate normal distribution with the cluster graph structure....
+done.
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Done!
+optimal solution found!
+optimal solution found!
+Generating data from the multivariate normal distribution with the band graph structure....
+done.
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Done!
+Loading required package: zoo
+
+Attaching package: 'zoo'
+
+The following objects are masked from 'package:base':
+
+    as.Date, as.Date.numeric
+
+[ FAIL 0 | WARN 0 | SKIP 4 | PASS 113 ]
+
+══ Skipped tests (4) ═══════════════════════════════════════════════════════════
+• {CVXR} is not installed (4): 'test-cvxr-parity.R:12:3',
+  'test-cvxr-parity.R:90:3', 'test-cvxr-variants.R:2:3',
+  'test-cvxr-variants.R:37:3'
+
+[ FAIL 0 | WARN 0 | SKIP 4 | PASS 113 ]
+>
+> proc.time()
+   user  system elapsed
+  4.336   0.400   4.706
