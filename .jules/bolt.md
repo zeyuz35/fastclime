@@ -4,3 +4,7 @@
 ## 2024-05-20 - Fast Element-wise Matrix Symmetrization
 **Learning:** In R, replacing matrix elements via direct boolean index assignment (`mat[idx] <- other[idx]`) is significantly faster and more memory-efficient than creating boolean masks and multiplying them across the whole matrix (`mat * (mask) + other * (!mask)`). The latter calculates values for the entire dimensions repeatedly and allocates large intermediate matrices.
 **Action:** When symmetrizing or combining matrices based on element-wise conditions, use logical indexing (e.g., `idx <- abs(icov) > abs(t_icov); icov[idx] <- t_icov[idx]`) instead of arithmetic mask multiplication.
+
+## 2026-04-08 - Crossprod optimization in covariance calculation
+**Learning:** `t(X) %*% X` is an inefficient operation in base R as it first transposes the entire matrix and allocates memory for it, before performing multiplication.
+**Action:** Replace `t(X) %*% X` with `crossprod(X)` when calculating the sample covariance matrix `Sigma` if it's not provided by the user. Add a comment indicating it is an optimization for performance.
