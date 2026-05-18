@@ -40,6 +40,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   BETA0 <- matrix(0, d0, nlambda)
   lambdalist <- matrix(0, nlambda, 1)
 
+  c_names <- colnames(X)
   X2 = crossprod(X)
   Xy = crossprod(X, y)
 
@@ -61,7 +62,8 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   validn <- sum(lambdalist > 0)
 
-  BETA0 <- BETA0[, 1:validn]
+  BETA0 <- BETA0[, 1:validn, drop = FALSE]
+  rownames(BETA0) <- c_names
 
   final_lambda <- lambdalist[validn]
 
