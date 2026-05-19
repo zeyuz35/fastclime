@@ -89,6 +89,10 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     cov.input <- 0
   }
 
+  if (as.numeric(d) * as.numeric(d) * as.numeric(nlambda) > .Machine$integer.max) {
+    stop("Requested path allocation exceeds maximum integer size limit.")
+  }
+
   maxnlambda = 0
   mu_input <- matrix(0, nlambda, d)
   iicov <- matrix(0, nlambda, d * d)

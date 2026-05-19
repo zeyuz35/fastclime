@@ -44,6 +44,10 @@ fastlp <- function(obj, mat, rhs, lambda = 0) {
     stop("Dimensions do not match!")
   }
 
+  if (as.numeric(m0) * as.numeric(n0) + as.numeric(m0) > .Machine$integer.max) {
+    stop("Input size exceeds C integer indexing maximum limit.")
+  }
+
   if (error == 0) {
     str = .C(
       "fastlp",
