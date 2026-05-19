@@ -9,9 +9,9 @@ dantzig.selector <- function(lambdalist, BETA0, lambda) {
   }
 
   if (lambdalist[length(lambdalist)] > lambda) {
-    beta0 <- BETA0[, length(lambdalist)]
+    beta0 <- BETA0[, length(lambdalist), drop = FALSE]
   } else {
-    beta0 <- BETA0[, which.max(lambdalist <= lambda)]
+    beta0 <- BETA0[, which.max(lambdalist <= lambda), drop = FALSE]
   }
   return(beta0)
 }
