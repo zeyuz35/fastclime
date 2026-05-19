@@ -10,15 +10,15 @@ test_that("dantzig.selector edge cases and errors", {
 
   # Lambda greater than max available (gets the sparsest one, at index 1)
   res_max <- dantzig.selector(lambdalist, BETA0, 0.6)
-  expect_equal(res_max, BETA0[, 1])
+  expect_equal(res_max, BETA0[, 1, drop = FALSE])
 
   # Lambda matching exactly
   res_exact <- dantzig.selector(lambdalist, BETA0, 0.3)
-  expect_equal(res_exact, BETA0[, 3])
+  expect_equal(res_exact, BETA0[, 3, drop = FALSE])
 
   # Lambda between values
   res_between <- dantzig.selector(lambdalist, BETA0, 0.35)
-  expect_equal(res_between, BETA0[, 3])
+  expect_equal(res_between, BETA0[, 3, drop = FALSE])
 })
 
 test_that("paralp/fastlp validate NA/Inf inputs", {
