@@ -44,6 +44,10 @@ fastlp <- function(obj, mat, rhs, lambda = 0) {
     stop("Dimensions do not match!")
   }
 
+  if (as.numeric(m0) * as.numeric(n0) > .Machine$integer.max) {
+    stop("Matrix dimensions exceed maximum supported by 32-bit integer indexing.")
+  }
+
   if (error == 0) {
     str = .C(
       "fastlp",
