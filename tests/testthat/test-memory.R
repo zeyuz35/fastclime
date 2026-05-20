@@ -17,7 +17,8 @@ test_that("fastclime.selector tolerates single-lambda paths", {
   lambdamtx <- matrix(0.5, nrow = 1, ncol = d)
 
   expect_warning(
-    res <- fastclime.selector(lambdamtx, icovlist, lambda = 0.3)
+    res <- fastclime.selector(lambdamtx, icovlist, lambda = 0.3),
+    "Some columns did not reach the required lambda. Consider increasing lambda.min or using a larger nlambda."
   )
   expect_true(is.list(res))
   expect_true(all(c("icov", "adaj", "sparsity") %in% names(res)))
