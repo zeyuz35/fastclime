@@ -115,8 +115,10 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   mu <- mu[1:maxnlambda, , drop = FALSE]
   icov <- list()
 
+  # Curator: Preserve column names as dimnames for matrices rebuilt from C layer
+  colnames(mu) <- colnames(x)
   for (i in seq_len(maxnlambda)) {
-    icov[[i]] <- matrix(iicov[i, ], d, d)
+    icov[[i]] <- matrix(iicov[i, ], d, d, dimnames = list(colnames(x), colnames(x)))
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 

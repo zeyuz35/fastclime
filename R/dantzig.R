@@ -61,7 +61,9 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   validn <- sum(lambdalist > 0)
 
-  BETA0 <- BETA0[, 1:validn]
+  BETA0 <- BETA0[, 1:validn, drop = FALSE]
+  # Curator: Preserve column names as rownames for beta matrices rebuilt from C layer
+  rownames(BETA0) <- colnames(X)
 
   final_lambda <- lambdalist[validn]
 

@@ -47,6 +47,10 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
 
   sparsity <- sum(adaj@x) / (d^2 - d)
 
+  # Curator: Preserve dimnames when creating precision/adjacency matrices
+  dimnames(icov) <- dimnames(icovlist[[1]])
+  dimnames(adaj) <- dimnames(icovlist[[1]])
+
   if (status == 1) {
     warning(
       "Some columns do not reach the required lambda!\nYou may want to increase lambda.min or use a larger nlambda."
