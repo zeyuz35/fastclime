@@ -13,5 +13,9 @@ dantzig.selector <- function(lambdalist, BETA0, lambda) {
   } else {
     beta0 <- BETA0[, which.max(lambdalist <= lambda)]
   }
+
+  # Curator: Preserve rownames of beta matrix as names for output vector
+  names(beta0) <- rownames(BETA0)
+
   return(beta0)
 }
