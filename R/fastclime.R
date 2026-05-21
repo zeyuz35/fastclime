@@ -94,6 +94,10 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   iicov <- matrix(0, nlambda, d * d)
   lambdamin <- lambda.min
 
+  # Capture dimnames before .C() drops them
+  cnames <- colnames(SigmaInput)
+  rnames <- rownames(SigmaInput)
+
   str = .C(
     "parametric",
     as.double(SigmaInput),
@@ -113,10 +117,15 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   # keep matrix structure even when maxnlambda == 1; drop=FALSE prevents
   # back-conversion to a vector which later breaks selector() calls.
   mu <- mu[1:maxnlambda, , drop = FALSE]
+
+  dimnames(sigmahat) <- list(rnames, cnames)
+  colnames(mu) <- cnames
+
   icov <- list()
 
   for (i in seq_len(maxnlambda)) {
     icov[[i]] <- matrix(iicov[i, ], d, d)
+    dimnames(icov[[i]]) <- list(rnames, cnames)
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 
