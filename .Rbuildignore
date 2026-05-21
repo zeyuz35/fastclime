@@ -7,3 +7,6 @@
 ^.*\.tar\.gz$
 ^.*\.zip$
 ^\.jules$
+^\.\.Rcheck$
+^\.Rcheck$
+^tests/testthat/Rplots\.pdf$
