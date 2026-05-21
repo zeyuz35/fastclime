@@ -43,6 +43,9 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   X2 = crossprod(X)
   Xy = crossprod(X, y)
 
+  # Capture colnames before .C() drops them
+  cnames <- colnames(X)
+
   str = .C(
     "dantzig",
     as.double(X2),
@@ -57,6 +60,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   rm(X2, Xy)
   BETA0 <- matrix(unlist(str[3]), d0, nlambda)
+  rownames(BETA0) <- cnames
   lambdalist <- unlist(str[7])
 
   validn <- sum(lambdalist > 0)
