@@ -77,7 +77,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   )
 
   class(result) = "dantzig"
-  message("Done!                     \n", appendLF = FALSE)
+  message("Done.                     \n", appendLF = FALSE)
   flush.console()
 
   return(result)

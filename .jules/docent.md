@@ -1,0 +1,3 @@
+## 2026-05-21 - Remove informal exclamation points from user-facing logs and errors
+**Learning:** Informal language and exclamation points (e.g., "Done!", "optimal solution found!") in console messages, warnings, and stops violate professional logging presentation in R packages. R's `testthat` checks strings exactly; when altering text output, corresponding assertions (e.g., `expect_warning()`) must be updated simultaneously.
+**Action:** Always scan for informal phrasing and punctuation (`grep -E "!" R/ man/`), replace them with professional syntax (e.g., "Done."), and thoroughly verify the `tests/` directory to prevent assertion regressions from output matching.
