@@ -91,6 +91,9 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   maxnlambda = 0
   mu_input <- matrix(0, nlambda, d)
+  if (as.numeric(nlambda) * as.numeric(d) * as.numeric(d) > .Machine$integer.max) {
+    stop("Dimensions are too large, integer overflow in C backend")
+  }
   iicov <- matrix(0, nlambda, d * d)
   lambdamin <- lambda.min
 
