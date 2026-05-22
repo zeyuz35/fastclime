@@ -37,6 +37,12 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   n0 <- nrow(X)
   d0 <- ncol(X)
+  if (as.numeric(d0) * as.numeric(nlambda) > .Machine$integer.max) {
+    stop("Dimensions are too large, integer overflow in C backend")
+  }
+  if (4 * as.numeric(d0) * as.numeric(d0) > .Machine$integer.max) {
+    stop("Dimensions are too large, integer overflow in C backend (nz size)")
+  }
   BETA0 <- matrix(0, d0, nlambda)
   lambdalist <- matrix(0, nlambda, 1)
 
