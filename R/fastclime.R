@@ -89,6 +89,9 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     cov.input <- 0
   }
 
+  cnames <- colnames(SigmaInput)
+  rnames <- rownames(SigmaInput)
+
   maxnlambda = 0
   mu_input <- matrix(0, nlambda, d)
   iicov <- matrix(0, nlambda, d * d)
@@ -108,6 +111,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
 
   sigmahat <- SigmaInput
   mu <- matrix(unlist(str[3]), nlambda, d)
+  colnames(mu) <- cnames
   maxnlambda <- unlist(str[6]) + 1
   iicov <- matrix(unlist(str[7]), nlambda, d * d)
   # keep matrix structure even when maxnlambda == 1; drop=FALSE prevents
@@ -116,7 +120,9 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   icov <- list()
 
   for (i in seq_len(maxnlambda)) {
-    icov[[i]] <- matrix(iicov[i, ], d, d)
+    tmp <- matrix(iicov[i, ], d, d)
+    dimnames(tmp) <- list(rnames, cnames)
+    icov[[i]] <- tmp
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 

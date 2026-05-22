@@ -37,6 +37,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   n0 <- nrow(X)
   d0 <- ncol(X)
+  cnames <- colnames(X)
   BETA0 <- matrix(0, d0, nlambda)
   lambdalist <- matrix(0, nlambda, 1)
 
@@ -57,6 +58,7 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   rm(X2, Xy)
   BETA0 <- matrix(unlist(str[3]), d0, nlambda)
+  rownames(BETA0) <- cnames
   lambdalist <- unlist(str[7])
 
   validn <- sum(lambdalist > 0)
