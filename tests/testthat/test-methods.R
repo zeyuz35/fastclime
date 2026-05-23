@@ -21,9 +21,9 @@ test_that("fastclime.selector edge cases", {
   out = fastclime(L$data, 0.1, nlambda = 10)
 
   # Edge case: Very LOW lambda where nodes don't reach target
-  # Expected a warning: "Some columns do not reach the required lambda!"
+  # Expected a warning: "Some columns do not reach the required lambda."
   expect_warning(
     fastclime.selector(out$lambdamtx, out$icovlist, 0.0001),
-    "Some columns do not reach the required lambda!"
+    "Some columns do not reach the required lambda."
   )
 })
