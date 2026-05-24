@@ -63,4 +63,14 @@ test_that("fastclime validates inputs", {
   X_na <- X
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
+
+  # Integer overflow
+  expect_error(
+    fastclime(matrix(0, 2, 46342), nlambda = 2),
+    "Requested allocation size exceeds maximum allowed by C layer"
+  )
+  expect_error(
+    dantzig(matrix(0, 2, 46342), y = c(0, 0), nlambda = 2),
+    "Requested allocation size exceeds maximum allowed by C layer"
+  )
 })
