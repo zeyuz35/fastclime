@@ -64,3 +64,21 @@ test_that("fastclime validates inputs", {
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("fastclime accepts time-series/xts objects", {
+  library(zoo)
+  mat <- matrix(c(1, 0.5, 0.5, 1), 2, 2)
+  z <- zoo(mat, order.by = as.Date(c("2023-01-01", "2023-01-02")))
+
+  # Should not throw isSymmetric error and should identify as covariance matrix
+  res <- fastclime(z, lambda.min = 0.5, nlambda = 2)
+  expect_equal(res$cov.input, 1)
+  expect_s3_class(res$data, "zoo")
+
+  # Un-symmetric data matrix test
+  mat2 <- matrix(rnorm(4), 2, 2)
+  z2 <- zoo(mat2, order.by = as.Date(c("2023-01-01", "2023-01-02")))
+  res2 <- fastclime(z2, lambda.min = 0.5, nlambda = 2)
+  expect_equal(res2$cov.input, 0)
+  expect_s3_class(res2$data, "zoo")
+})
