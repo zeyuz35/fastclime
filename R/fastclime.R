@@ -83,6 +83,11 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   SigmaInput <- x
   d <- dim(SigmaInput)[2]
 
+  # Check for potential 32-bit integer overflow before C allocation
+  if (as.numeric(d) * as.numeric(d) * as.numeric(nlambda) > .Machine$integer.max) {
+    stop("Requested allocation size exceeds maximum allowed by C layer")
+  }
+
   if (!isSymmetric(x)) {
     n <- dim(SigmaInput)[1]
     SigmaInput <- cov(x) * (1 - 1 / n)
