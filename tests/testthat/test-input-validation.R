@@ -64,3 +64,11 @@ test_that("fastclime validates inputs", {
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("dantzig returns matrix for BETA0 even when nlambda == 1", {
+  X = matrix(rnorm(100), 10, 10)
+  y = rnorm(10)
+  out = dantzig(X, y, lambda=0.1, nlambda=1)
+  expect_true(is.matrix(out$BETA0))
+  expect_equal(dim(out$BETA0), c(10, 1))
+})
