@@ -108,7 +108,7 @@ Each subdirectory has its own `AGENTS.md` with specialized guidance:
 - **[tests/](tests/AGENTS.md)** — testing guide
 - **[scratch/](scratch/AGENTS.md)** — development scripts
 - **[smoke/](smoke/AGENTS.md)** — parity reference scripts
-- **[data/](data/AGENTS.md)** — package data
+- **[inst/extdata/](inst/extdata/AGENTS.md)** — package data
 - **[.AI/](.AI/AGENTS.md)** — AI agent workflow
 
 ---
