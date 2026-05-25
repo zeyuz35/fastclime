@@ -23,7 +23,8 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
   threshold <- 1e-5
   status <- 0
 
-  for (i in 1:d) {
+  # Modernizer: Replace fragile 1:d iterator with the more robust seq_len(d) to prevent unexpected behavior when d is 0
+  for (i in seq_len(d)) {
     temp_lambda <- which(lambdamtx[, i] > lambda)
     seq[i] <- length(temp_lambda)
 
