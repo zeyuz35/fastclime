@@ -66,6 +66,13 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   final_lambda <- lambdalist[validn]
 
   lambdalist <- lambdalist[1:validn]
+
+  # Preserve column names on outputs
+  cnames <- colnames(X)
+  if (!is.null(cnames)) {
+    rownames(BETA0) <- cnames
+  }
+
   result <- list(
     "X" = X,
     "y" = y,

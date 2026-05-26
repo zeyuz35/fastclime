@@ -128,6 +128,15 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     sparsity[i] <- sum(abs(tmp) > 1e-5) / (d * (d - 1))
   }
 
+  # Preserve column names on outputs
+  cnames <- colnames(x)
+  if (!is.null(cnames)) {
+    colnames(mu) <- cnames
+    for (i in seq_along(icov)) {
+      dimnames(icov[[i]]) <- list(cnames, cnames)
+    }
+  }
+
   result <- list(
     "data" = x,
     "cov.input" = cov.input,

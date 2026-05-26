@@ -53,6 +53,13 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
     )
   }
 
+  # Preserve column names on outputs
+  cnames <- colnames(lambdamtx)
+  if (!is.null(cnames)) {
+    dimnames(icov) <- list(cnames, cnames)
+    dimnames(adaj) <- list(cnames, cnames)
+  }
+
   result <- list("icov" = icov, "adaj" = adaj, "sparsity" = sparsity)
   class(result) = "fastclime.selector"
 
