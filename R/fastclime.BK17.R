@@ -77,7 +77,7 @@ fastclime.BK17 <- function(
 
   # Solve for each column
   if (parallel && requireNamespace("parallel", quietly = TRUE)) {
-    results <- parallel::mclapply(1:bigN, function(ii) {
+    results <- parallel::mclapply(seq_len(bigN), function(ii) {
       rhs <- c(
         diag_N[ii, ] + lambda_1[ii],
         -diag_N[ii, ] + lambda_1[ii],
@@ -100,7 +100,7 @@ fastclime.BK17 <- function(
       )
     })
   } else {
-    results <- lapply(1:bigN, function(ii) {
+    results <- lapply(seq_len(bigN), function(ii) {
       rhs <- c(
         diag_N[ii, ] + lambda_1[ii],
         -diag_N[ii, ] + lambda_1[ii],
