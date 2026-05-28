@@ -49,7 +49,7 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
 
   if (status == 1) {
     warning(
-      "Some columns do not reach the required lambda!\nYou may want to increase lambda.min or use a larger nlambda."
+      "Some columns do not reach the required lambda.\nYou may want to increase lambda.min or use a larger nlambda."
     )
   }
 
