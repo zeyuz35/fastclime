@@ -37,6 +37,21 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   n0 <- nrow(X)
   d0 <- ncol(X)
+  # Security Check: Prevent 32-bit integer overflow during matrix size calculations in C
+  if (as.numeric(d0) * as.numeric(d0) * 4 > .Machine$integer.max) {
+    stop("Dimension too large: matrix size exceeds 32-bit integer limits, risking memory corruption")
+  }
+
+  # Security Check: Prevent 32-bit integer overflow during matrix size calculations in C
+  if (as.numeric(d0) * as.numeric(d0) * 4 > .Machine$integer.max) {
+    stop("Dimension too large: matrix size exceeds 32-bit integer limits, risking memory corruption")
+  }
+
+  BETA0 <- matrix(0, d0, nlambda)
+  if (as.numeric(d0) * as.numeric(d0) * 4 > .Machine$integer.max) {
+    stop("Dimension too large: matrix size exceeds 32-bit integer limits, risking memory corruption")
+  }
+
   BETA0 <- matrix(0, d0, nlambda)
   lambdalist <- matrix(0, nlambda, 1)
 

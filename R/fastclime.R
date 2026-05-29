@@ -90,6 +90,12 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   }
 
   maxnlambda = 0
+
+  # Security Check: Prevent 32-bit integer overflow during matrix size calculations in C
+  if (as.numeric(d) * as.numeric(d) * 4 > .Machine$integer.max) {
+    stop("Dimension too large: matrix size exceeds 32-bit integer limits, risking memory corruption")
+  }
+
   mu_input <- matrix(0, nlambda, d)
   iicov <- matrix(0, nlambda, d * d)
   lambdamin <- lambda.min
