@@ -113,10 +113,18 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   # keep matrix structure even when maxnlambda == 1; drop=FALSE prevents
   # back-conversion to a vector which later breaks selector() calls.
   mu <- mu[1:maxnlambda, , drop = FALSE]
+  if (!is.null(colnames(sigmahat))) {
+    colnames(mu) <- colnames(sigmahat)
+  }
   icov <- list()
 
   for (i in seq_len(maxnlambda)) {
-    icov[[i]] <- matrix(iicov[i, ], d, d)
+    tmp_icov <- matrix(iicov[i, ], d, d)
+    if (!is.null(colnames(sigmahat))) {
+      rownames(tmp_icov) <- colnames(sigmahat)
+      colnames(tmp_icov) <- colnames(sigmahat)
+    }
+    icov[[i]] <- tmp_icov
   }
   #icov[maxnlambda+1]=list(icov[[maxnlambda]])
 

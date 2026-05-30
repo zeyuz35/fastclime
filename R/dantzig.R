@@ -59,6 +59,10 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
   BETA0 <- matrix(unlist(str[3]), d0, nlambda)
   lambdalist <- unlist(str[7])
 
+  if (!is.null(colnames(X))) {
+    rownames(BETA0) <- colnames(X)
+  }
+
   validn <- sum(lambdalist > 0)
 
   BETA0 <- BETA0[, 1:validn]
