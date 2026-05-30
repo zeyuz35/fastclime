@@ -62,7 +62,7 @@ paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
   error <- 0
 
   if (m != m0 || n != n0 || m != m1 || n != n1) {
-    stop("Dimensions do not match!")
+    stop("Dimensions do not match.")
   }
 
   if (error == 0) {
@@ -85,13 +85,13 @@ paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
     status <- unlist(str[7])
 
     if (status == 0) {
-      message("\roptimal solution found!       \n", appendLF = FALSE)
+      message("\rOptimal solution found.       \n", appendLF = FALSE)
       flush.console()
       return(opt)
     } else if (status == 1) {
-      stop("The problem is infeasible!")
+      stop("The problem is infeasible.")
     } else if (status == 2) {
-      stop("The problem is unbounded!")
+      stop("The problem is unbounded.")
     }
   }
 }
