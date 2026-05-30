@@ -1,0 +1,20 @@
+test_that("dantzig preserves colnames of X", {
+  set.seed(123)
+  X = matrix(rnorm(10*3), 10, 3)
+  colnames(X) = c("A", "B", "C")
+  y = rnorm(10)
+  out = dantzig(X, y)
+  expect_equal(rownames(out$BETA0), c("A", "B", "C"))
+})
+
+test_that("fastclime preserves colnames of x", {
+  set.seed(123)
+  x = matrix(rnorm(50), 10, 5)
+  colnames(x) = paste0("V", 1:5)
+  out = fastclime(x)
+  expect_equal(colnames(out$lambdamtx), paste0("V", 1:5))
+  expect_equal(colnames(out$sigmahat), paste0("V", 1:5))
+  expect_equal(rownames(out$sigmahat), paste0("V", 1:5))
+  expect_equal(colnames(out$icovlist[[1]]), paste0("V", 1:5))
+  expect_equal(rownames(out$icovlist[[1]]), paste0("V", 1:5))
+})
