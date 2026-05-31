@@ -64,3 +64,28 @@ test_that("fastclime validates inputs", {
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("fastclime preserves xts object metadata", {
+  skip_if_not_installed("xts")
+  library(xts)
+
+  # Symmetric matrix input (sample covariance)
+  m <- matrix(c(1, 0.5, 0.5, 1), 2, 2)
+  colnames(m) <- c("a", "b")
+  x_xts <- xts(m, order.by = as.Date(c("2020-01-01", "2020-01-02")))
+
+  res <- fastclime(x_xts, lambda.min = 0.5)
+  expect_equal(res$cov.input, 1)
+  expect_s3_class(res$data, "xts")
+  expect_equal(colnames(res$data), c("a", "b"))
+
+  # Non-symmetric matrix input (data matrix)
+  m2 <- matrix(c(1, 0.2, 0.5, 1), 2, 2)
+  colnames(m2) <- c("a", "b")
+  x2_xts <- xts(m2, order.by = as.Date(c("2020-01-01", "2020-01-02")))
+
+  res2 <- fastclime(x2_xts, lambda.min = 0.5)
+  expect_equal(res2$cov.input, 0)
+  expect_s3_class(res2$data, "xts")
+  expect_equal(colnames(res2$data), c("a", "b"))
+})
