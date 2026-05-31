@@ -1,0 +1,3 @@
+## 2026-05-31 - [isSymmetric fails on time-series objects]
+**Learning:** In R, base functions like `isSymmetric()` lack applicable methods for time-series objects like `zoo` or `xts`. Attempting to call it will throw an error: `no applicable method for 'isSymmetric' applied to an object of class c('xts', 'zoo')`.
+**Action:** When checking symmetry, calculate it using a localized coercion with attribute ignoring (e.g., `isSymmetric(as.matrix(x), check.attributes = FALSE)`) rather than globally reassigning the variable (`x <- as.matrix(x)`), which permanently strips S3 classes and time-series attributes causing silent metadata loss.
