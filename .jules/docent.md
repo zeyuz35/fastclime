@@ -1,0 +1,3 @@
+## 2026-06-01 - Removing informal exclamation points
+**Learning:** Hardcoded user-facing strings (e.g., `stop()`, `warning()`, `message()`) in R packages frequently contain informal exclamation points or trailing whitespace that violate professional style guidelines, and these strings are sometimes tightly coupled to exact matches in `testthat` assertions.
+**Action:** Always search the `tests/` directory for exact string matches before modifying user-facing messages, and update any corresponding `expect_warning()`, `expect_error()`, or `expect_message()` assertions synchronously to prevent test regressions.
