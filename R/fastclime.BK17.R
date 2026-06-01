@@ -76,8 +76,9 @@ fastclime.BK17 <- function(
   )
 
   # Solve for each column
+  # Modernizer: Replace 1:bigN with seq_len(bigN) to prevent iteration errors if bigN == 0
   if (parallel && requireNamespace("parallel", quietly = TRUE)) {
-    results <- parallel::mclapply(1:bigN, function(ii) {
+    results <- parallel::mclapply(seq_len(bigN), function(ii) {
       rhs <- c(
         diag_N[ii, ] + lambda_1[ii],
         -diag_N[ii, ] + lambda_1[ii],
@@ -100,7 +101,8 @@ fastclime.BK17 <- function(
       )
     })
   } else {
-    results <- lapply(1:bigN, function(ii) {
+    # Modernizer: Replace 1:bigN with seq_len(bigN) for safer iteration
+    results <- lapply(seq_len(bigN), function(ii) {
       rhs <- c(
         diag_N[ii, ] + lambda_1[ii],
         -diag_N[ii, ] + lambda_1[ii],
