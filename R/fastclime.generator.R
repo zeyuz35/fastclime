@@ -139,7 +139,7 @@ fastclime.generator = function(
   omega = solve(sigma)
 
   # generate multivariate normal data
-  x = mvrnorm(n, rep(0, d), sigma)
+  x = MASS::mvrnorm(n, rep(0, d), sigma)
 
   sigmahat = cov(x) * (1 - 1 / n)
 
@@ -189,7 +189,7 @@ fastclime.generator = function(
     sigma = sigma,
     sigmahat = sigmahat,
     omega = omega,
-    theta = Matrix(theta, sparse = TRUE),
+    theta = Matrix::Matrix(theta, sparse = TRUE),
     sparsity = sum(theta) / (d * (d - 1)),
     graph.type = graph
   )
