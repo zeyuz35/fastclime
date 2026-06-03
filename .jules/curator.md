@@ -1,0 +1,3 @@
+## 2026-06-03 - Prevent covariance corruption by ignoring matrix attributes in symmetry check
+**Learning:** The base `isSymmetric()` function checks dimnames and other attributes by default. If a valid covariance matrix has asymmetric dimnames (e.g. rownames != colnames) or comes from an unexpected class, `isSymmetric` returns FALSE. This causes silent data corruption when `fastclime()` incorrectly assumes the input is a raw data matrix and computes the covariance of the covariance matrix.
+**Action:** When validating matrix symmetry for structural logic (rather than strict equality), always coerce to matrix and ignore attributes using `isSymmetric(as.matrix(x), check.attributes = FALSE)`.
