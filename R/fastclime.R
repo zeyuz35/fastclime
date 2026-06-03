@@ -139,7 +139,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   )
 
   class(result) = "fastclime"
-  message("Done!                     \n", appendLF = FALSE)
+  message("Done.")
   flush.console()
   return(result)
 }
