@@ -22,7 +22,7 @@
 #' where \eqn{\hat{\Sigma}} is the empirical covariance matrix and \eqn{\Omega} is the precision matrix.
 #'
 #' @note
-#' The program will stop when either the maximum number of iteration for each column \code{nlambda} is achieved or when the required \code{lambda.min} is achieved for each column. When the dimension is huge, make sure \code{nlambda} is small so that there are enough memory to allocate the solution path. \code{lambdamtx} and \code{icovlist} will be used in \code{\link{fastclime.selector}}.
+#' The program will stop when either the maximum number of iteration for each column \code{nlambda} is achieved or when the required \code{lambda.min} is achieved for each column. When the dimension is large, make sure \code{nlambda} is small so that there are enough memory to allocate the solution path. \code{lambdamtx} and \code{icovlist} will be used in \code{\link{fastclime.selector}}.
 #'
 #' @return An object with S3 class \code{"fastclime"} is returned:
 #' \item{data}{The \code{n} by \code{d} data matrix or \code{d} by \code{d} sample covariance matrix from the input}
