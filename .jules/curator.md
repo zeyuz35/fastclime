@@ -1,0 +1,3 @@
+## 2024-06-05 - Safe isSymmetric checking for metadata preservation
+**Learning:** `isSymmetric()` checks names and returns `FALSE` for valid symmetric matrices if their `dimnames` do not perfectly match (e.g., differing or missing `rownames` and `colnames`). This causes downstream logic to misinterpret a covariance matrix as a data matrix and compute an incorrect secondary covariance.
+**Action:** When validating matrix symmetry strictly for matrix data, use `isSymmetric(as.matrix(x), check.attributes = FALSE)` to ignore name mismatches, rather than globally re-assigning `x <- as.matrix(x)` which strips other attributes or S3 classes.
