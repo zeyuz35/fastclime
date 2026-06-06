@@ -28,9 +28,10 @@ fastclime.BK17 <- function(
   # preliminary
   bigT <- nrow(X)
   bigN <- ncol(X)
+  # Bolt: Use crossprod(X) instead of t(X) %*% X to avoid explicit matrix allocation
 
   if (is.null(Sigma)) {
-    Sigma <- (t(X) %*% X) / bigT
+    Sigma <- crossprod(X) / bigT
   }
 
   diag_N <- diag(bigN)
