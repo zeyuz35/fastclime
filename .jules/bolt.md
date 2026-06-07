@@ -4,3 +4,6 @@
 ## 2024-05-20 - Fast Element-wise Matrix Symmetrization
 **Learning:** In R, replacing matrix elements via direct boolean index assignment (`mat[idx] <- other[idx]`) is significantly faster and more memory-efficient than creating boolean masks and multiplying them across the whole matrix (`mat * (mask) + other * (!mask)`). The latter calculates values for the entire dimensions repeatedly and allocates large intermediate matrices.
 **Action:** When symmetrizing or combining matrices based on element-wise conditions, use logical indexing (e.g., `idx <- abs(icov) > abs(t_icov); icov[idx] <- t_icov[idx]`) instead of arithmetic mask multiplication.
+## 2026-06-07 - Avoid explicit matrix transposition in matrix multiplication
+**Learning:** In R, the operation `(t(X) %*% X)` explicitly allocates a transposed version of the matrix `X` in memory before performing the multiplication, which is inefficient both in time and memory, especially for large matrices.
+**Action:** Always replace `t(X) %*% X` with `crossprod(X)` (and `X %*% t(Y)` with `tcrossprod(X, Y)`) to compute the cross-product faster and without the overhead of explicit transposition allocation.
