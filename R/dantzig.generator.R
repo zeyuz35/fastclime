@@ -21,7 +21,8 @@ dantzig.generator <- function(n = 50, d = 100, sparsity = 0.1, sigma0 = 1) {
   BETA <- rep(0, d)
   pos <- rep(0, s)
 
-  for (i in 1:s) {
+  # Modernizer: Use seq_len() instead of 1:s for safer iteration
+  for (i in seq_len(s)) {
     a <- rnorm(1, mean = 0, sd = 1)
     si <- 2 * (rbinom(1, 1, 0.5) - 0.5)
     n1 <- floor(runif(1, min = 1, max = d + 1))

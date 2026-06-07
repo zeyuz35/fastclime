@@ -102,7 +102,8 @@ fastclime.ZKL15 <- function(
   # Solve for each column
   # We can use parallel if requested
   if (parallel && requireNamespace("parallel", quietly = TRUE)) {
-    results <- parallel::mclapply(1:bigN, function(ii) {
+    # Modernizer: Use seq_len() for safer iteration
+    results <- parallel::mclapply(seq_len(bigN), function(ii) {
       # rhs for column ii
       rhs <- c(
         diag_N[ii, ] + lambda_1[ii],
@@ -127,7 +128,8 @@ fastclime.ZKL15 <- function(
       )
     })
   } else {
-    results <- lapply(1:bigN, function(ii) {
+    # Modernizer: Use seq_len() for safer iteration
+    results <- lapply(seq_len(bigN), function(ii) {
       rhs <- c(
         diag_N[ii, ] + lambda_1[ii],
         -diag_N[ii, ] + lambda_1[ii],
