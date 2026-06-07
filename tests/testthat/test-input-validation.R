@@ -64,3 +64,24 @@ test_that("fastclime validates inputs", {
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("fastclime handles time-series symmetric matrices", {
+  # Create a numeric symmetric matrix
+  mat <- matrix(c(1, 0.5, 0.5, 1), 2, 2)
+  rownames(mat) <- c("A", "B")
+  colnames(mat) <- c("C", "D")
+
+  # Mismatched dimnames make isSymmetric return FALSE natively
+  expect_false(isSymmetric(mat))
+
+  # fastclime should still process it without error (will either treat as cov or data matrix depending on the internal fix)
+  # Actually, the fix will make it TRUE internally.
+  expect_error(fastclime(mat), NA)
+
+  # Check with zoo (requires zoo package, we can skip if not installed, but it's installed via apt)
+  if (requireNamespace("zoo", quietly = TRUE)) {
+    z <- zoo::zoo(mat)
+    # This should not throw 'no applicable method for isSymmetric'
+    expect_error(fastclime(z), NA)
+  }
+})
