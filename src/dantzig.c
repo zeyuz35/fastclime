@@ -10,6 +10,7 @@ void dantzig(double *X2, double *Xy, double *BETA0, int *d0,
              double *lambda, int *nlambda, double *lambdalist)
 {
     int m, n, nz;
+    if (*d0 > 23170) { error("Dimension d too large, integer overflow risk in allocation"); }
     int i, j, k, d;
 
     d = *d0;         

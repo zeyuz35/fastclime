@@ -8,6 +8,7 @@
 void paralp(double *obj, double *mat, double *rhs, int *m0 , int *n0, double *opt, int *status, double *lambda, double *rhs_bar, double *obj_bar)
 {
     int m = *m0;
+    if ((long long)(*m0) * (*n0) > 2147483647LL) { error("Matrix dimensions too large, integer overflow risk"); }
     int n = *n0;
     int nz = 0;
     int i, j, k; 
