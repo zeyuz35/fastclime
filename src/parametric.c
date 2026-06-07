@@ -28,6 +28,7 @@ void solver2(
 void parametric(double *SigmaInput, int *m1, double *mu_input, double *lambdamin, int *nlambda, int *maxnlambda, double *iicov)
 {
     int m, n, nz;
+    if (*m1 > 23170) { error("Dimension m too large, integer overflow risk in allocation"); }
     int *ia, *ka;
     double *a, *b, *c;
     double **LMATRIX;

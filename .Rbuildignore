@@ -7,3 +7,7 @@
 ^.*\.tar\.gz$
 ^.*\.zip$
 ^\.jules$
+^AGENTS\.md$
+^src/AGENTS\.md$
+^\.AI$
+^data/AGENTS\.md$
