@@ -69,7 +69,8 @@ fastclime.generator = function(
   n.small = floor(d / g)
   n.large = n.small + 1
   g.list = c(rep(n.small, g.small), rep(n.large, g.large))
-  g.ind = rep(c(1:g), g.list)
+  # Modernizer: Use seq_len() for safer sequence generation
+  g.ind = rep(seq_len(g), g.list)
   rm(g.large, g.small, n.small, n.large, g.list)
 
   # build the graph structure
@@ -81,7 +82,8 @@ fastclime.generator = function(
     if (is.null(v)) {
       v = 0.3
     }
-    for (i in 1:g) {
+    # Modernizer: Use seq_len() instead of 1:g for safer iteration
+    for (i in seq_len(g)) {
       diag(theta[1:(d - i), (1 + i):d]) = 1
       diag(theta[(1 + i):d, 1:(d - i)]) = 1
     }
@@ -93,7 +95,8 @@ fastclime.generator = function(
     if (is.null(v)) {
       v = 0.3
     }
-    for (i in 1:g) {
+    # Modernizer: Use seq_len() instead of 1:g for safer iteration
+    for (i in seq_len(g)) {
       tmp = which(g.ind == i)
       tmp2 = matrix(runif(length(tmp)^2, 0, 0.5), length(tmp), length(tmp))
       tmp2 = tmp2 + t(tmp2)
@@ -108,7 +111,8 @@ fastclime.generator = function(
     if (is.null(v)) {
       v = 0.3
     }
-    for (i in 1:g) {
+    # Modernizer: Use seq_len() instead of 1:g for safer iteration
+    for (i in seq_len(g)) {
       tmp = which(g.ind == i)
       theta[tmp[1], tmp] = 1
       theta[tmp, tmp[1]] = 1
