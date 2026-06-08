@@ -30,7 +30,7 @@ fastclime.BK17 <- function(
   bigN <- ncol(X)
 
   if (is.null(Sigma)) {
-    Sigma <- (t(X) %*% X) / bigT
+    Sigma <- crossprod(X) / bigT  # Bolt: optimized t(X) %*% X using crossprod(X)
   }
 
   diag_N <- diag(bigN)
