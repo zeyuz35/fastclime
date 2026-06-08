@@ -64,3 +64,13 @@ test_that("fastclime validates inputs", {
   X_na[1, 1] <- NA
   expect_error(fastclime(X_na), "x must not contain NA, NaN, or Inf values")
 })
+
+test_that("fastclime identifies symmetric matrices reliably", {
+  # Create a symmetric matrix with mismatched row and col names
+  y <- matrix(c(1, 0.5, 0.5, 1), 2, 2)
+  rownames(y) <- c("V1", "V2")
+  colnames(y) <- c("C1", "C2")
+
+  out <- fastclime(y, lambda.min = 0.1)
+  expect_equal(out$cov.input, 1)
+})
