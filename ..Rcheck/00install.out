@@ -1,0 +1,30 @@
+* installing *source* package ‘fastclime’ ...
+** this is package ‘fastclime’ version ‘1.4.1.2’
+files ‘build/vignette.rds’, ‘inst/doc/vignette.Rnw’, ‘inst/doc/vignette.pdf’, ‘src/macros.h’, ‘src/myalloc.h’, ‘vignettes/fastclime.pdf’, ‘vignettes/vignette.Rnw’ are missing
+files ‘DESCRIPTION’, ‘NAMESPACE’, ‘R/dantzig.R’, ‘R/dantzig.generator.R’, ‘R/dantzig.selector.R’, ‘R/fastclime.R’, ‘R/fastclime.generator.R’, ‘R/fastclime.plot.R’, ‘R/fastclime.selector.R’, ‘R/fastlp.R’, ‘R/paralp.R’, ‘man/fastclime-package.Rd’, ‘man/fastclime.Rd’, ‘src/dantzig.c’, ‘src/fastlp.c’, ‘src/heap.c’, ‘src/heap.h’, ‘src/linalg.c’, ‘src/linalg.h’, ‘src/lu.c’, ‘src/lu.h’, ‘src/paralp.c’, ‘src/parametric.c’, ‘src/tree.c’, ‘src/tree.h’ have the wrong MD5 checksums
+** using staged installation
+** libs
+using C compiler: ‘x86_64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0’
+x86_64-linux-gnu-gcc -std=gnu2x -I"/usr/share/R/include" -DNDEBUG       -fpic  -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=/usr/src/r-base-4.6.0-4.2404.0 -Wdate-time -D_FORTIFY_SOURCE=3  -c dantzig.c -o dantzig.o
+x86_64-linux-gnu-gcc -std=gnu2x -I"/usr/share/R/include" -DNDEBUG       -fpic  -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=/usr/src/r-base-4.6.0-4.2404.0 -Wdate-time -D_FORTIFY_SOURCE=3  -c fastlp.c -o fastlp.o
+x86_64-linux-gnu-gcc -std=gnu2x -I"/usr/share/R/include" -DNDEBUG       -fpic  -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=/usr/src/r-base-4.6.0-4.2404.0 -Wdate-time -D_FORTIFY_SOURCE=3  -c heap.c -o heap.o
+x86_64-linux-gnu-gcc -std=gnu2x -I"/usr/share/R/include" -DNDEBUG       -fpic  -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=/usr/src/r-base-4.6.0-4.2404.0 -Wdate-time -D_FORTIFY_SOURCE=3  -c linalg.c -o linalg.o
+x86_64-linux-gnu-gcc -std=gnu2x -I"/usr/share/R/include" -DNDEBUG       -fpic  -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=/usr/src/r-base-4.6.0-4.2404.0 -Wdate-time -D_FORTIFY_SOURCE=3  -c lu.c -o lu.o
+x86_64-linux-gnu-gcc -std=gnu2x -I"/usr/share/R/include" -DNDEBUG       -fpic  -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=/usr/src/r-base-4.6.0-4.2404.0 -Wdate-time -D_FORTIFY_SOURCE=3  -c paralp.c -o paralp.o
+x86_64-linux-gnu-gcc -std=gnu2x -I"/usr/share/R/include" -DNDEBUG       -fpic  -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=/usr/src/r-base-4.6.0-4.2404.0 -Wdate-time -D_FORTIFY_SOURCE=3  -c parametric.c -o parametric.o
+x86_64-linux-gnu-gcc -std=gnu2x -I"/usr/share/R/include" -DNDEBUG       -fpic  -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=/usr/src/r-base-4.6.0-4.2404.0 -Wdate-time -D_FORTIFY_SOURCE=3  -c solver_core.c -o solver_core.o
+x86_64-linux-gnu-gcc -std=gnu2x -I"/usr/share/R/include" -DNDEBUG       -fpic  -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/r-base-JCUh2C/r-base-4.6.0=/usr/src/r-base-4.6.0-4.2404.0 -Wdate-time -D_FORTIFY_SOURCE=3  -c tree.c -o tree.o
+x86_64-linux-gnu-gcc -std=gnu2x -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -Wl,-z,relro -o fastclime.so dantzig.o fastlp.o heap.o linalg.o lu.o paralp.o parametric.o solver_core.o tree.o -L/usr/lib/R/lib -lR
+installing to /app/..Rcheck/00LOCK-app/00new/fastclime/libs
+** R
+** data
+** inst
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded from temporary location
+** checking absolute paths in shared objects and dynamic libraries
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (fastclime)

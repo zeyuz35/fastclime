@@ -19,5 +19,3 @@ S3method("print","sim")
 S3method("plot","sim")
 S3method("plot","fastclime")
 S3method("print","fastclime")
-
-

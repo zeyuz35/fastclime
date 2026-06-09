@@ -1,0 +1,74 @@
+
+R version 4.6.0 (2026-04-24) -- "Because it was There"
+Copyright (C) 2026 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(testthat)
+> library(fastclime)
+>
+> test_check("fastclime")
+
+Attaching package: 'CVXR'
+
+The following objects are masked from 'package:stats':
+
+    convolve, power, sd, var
+
+The following objects are masked from 'package:base':
+
+    diag, norm, outer
+
+i In a future CVXR release, `solve()` will return the optimal value directly (like `psolve()`).
+i The `$getValue()`/`$getDualValue()` interface will be removed.
+i New API: `psolve(prob)`, then `value(x)`, `dual_value(constr)`, `status(prob)`.
+This message is displayed once per session.
+Done!
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Done!
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Done!
+Done!
+Done!
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Generating data from the multivariate normal distribution with the band graph structure....
+done.
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Generating data from the multivariate normal distribution with the hub graph structure....
+done.
+Generating data from the multivariate normal distribution with the cluster graph structure....
+done.
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Done!
+optimal solution found!
+optimal solution found!
+Generating data from the multivariate normal distribution with the band graph structure....
+done.
+Generating data from the multivariate normal distribution with the random graph structure....
+done.
+Done!
+[ FAIL 0 | WARN 1 | SKIP 0 | PASS 130 ]
+
+[ FAIL 0 | WARN 1 | SKIP 0 | PASS 130 ]
+>
+> proc.time()
+   user  system elapsed
+  7.887   0.544   8.401
