@@ -11,10 +11,10 @@ Depends: R (>= 2.15.0)
 Imports: igraph, MASS, Matrix
 Suggests: testthat (>= 3.0.0), CVXR, foreach, rsample
 Config/testthat/edition: 3
-Description: Provides a method of recovering the precision matrix efficiently 
-        and solving for the dantzig selector by applying the parametric 
+Description: Provides a method of recovering the precision matrix efficiently
+        and solving for the dantzig selector by applying the parametric
         simplex method.  The computation is based on a linear optimization
-        solver. It also contains a generic LP solver and a parameterized LP 
+        solver. It also contains a generic LP solver and a parameterized LP
         solver using parametric simplex method.
 License: GPL-2
 Repository: CRAN
@@ -22,3 +22,4 @@ Packaged: 2023-05-05 08:32:19 UTC; ripley
 NeedsCompilation: yes
 Date/Publication: 2023-05-05 10:32:24
 RoxygenNote: 7.3.3
+Built: R 4.6.0; x86_64-pc-linux-gnu; 2026-06-09 21:35:11 UTC; unix
