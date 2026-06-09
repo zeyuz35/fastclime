@@ -69,7 +69,7 @@ fastclime.generator = function(
   n.small = floor(d / g)
   n.large = n.small + 1
   g.list = c(rep(n.small, g.small), rep(n.large, g.large))
-  g.ind = rep(c(1:g), g.list)
+  g.ind = rep(seq_len(g), g.list)
   rm(g.large, g.small, n.small, n.large, g.list)
 
   # build the graph structure
@@ -81,9 +81,9 @@ fastclime.generator = function(
     if (is.null(v)) {
       v = 0.3
     }
-    for (i in 1:g) {
-      diag(theta[1:(d - i), (1 + i):d]) = 1
-      diag(theta[(1 + i):d, 1:(d - i)]) = 1
+    for (i in seq_len(g)) {
+      diag(theta[seq_len(d - i), seq((1 + i), d)]) = 1
+      diag(theta[seq((1 + i), d), seq_len(d - i)]) = 1
     }
   }
   if (graph == "cluster") {
@@ -93,7 +93,7 @@ fastclime.generator = function(
     if (is.null(v)) {
       v = 0.3
     }
-    for (i in 1:g) {
+    for (i in seq_len(g)) {
       tmp = which(g.ind == i)
       tmp2 = matrix(runif(length(tmp)^2, 0, 0.5), length(tmp), length(tmp))
       tmp2 = tmp2 + t(tmp2)
@@ -108,7 +108,7 @@ fastclime.generator = function(
     if (is.null(v)) {
       v = 0.3
     }
-    for (i in 1:g) {
+    for (i in seq_len(g)) {
       tmp = which(g.ind == i)
       theta[tmp[1], tmp] = 1
       theta[tmp, tmp[1]] = 1
