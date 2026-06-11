@@ -24,4 +24,4 @@ inst/doc/*.tex
 inst/doc/*.Rnw
 inst/doc/*.synctex.gz
 
-*.DS_Store
+*.DS_StoreRplots.pdf

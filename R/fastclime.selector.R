@@ -47,6 +47,12 @@ fastclime.selector <- function(lambdamtx, icovlist, lambda) {
 
   sparsity <- sum(adaj@x) / (d^2 - d)
 
+  dnames <- dimnames(icovlist[[1]])
+  if (!is.null(dnames)) {
+    dimnames(icov) <- dnames
+    dimnames(adaj) <- dnames
+  }
+
   if (status == 1) {
     warning(
       "Some columns do not reach the required lambda!\nYou may want to increase lambda.min or use a larger nlambda."
