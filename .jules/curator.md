@@ -1,0 +1,3 @@
+## 2024-06-11 - Preserve matrix dimension names in solution path outputs
+**Learning:** Generating the precision matrix solution path iteratively loses the original input's `dimnames` (e.g., column names from a data frame or structured covariance matrix). Furthermore, downstream selector functions reconstruct matrices from these lists, failing to inherit the attributes.
+**Action:** Always capture `dimnames` from the initial input matrix (e.g., `SigmaInput`) and explicitly reapply them to any reconstructed matrices (e.g., `icovlist` and `fastclime.selector` outputs) to ensure data integrity and structural continuity for end-users.
