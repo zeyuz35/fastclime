@@ -83,7 +83,8 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   SigmaInput <- x
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  # Curator: Use localized coercion to as.matrix and ignore attributes to robustly handle objects with mismatched dimnames or ts classes.
+  if (!isSymmetric(as.matrix(x), check.attributes = FALSE)) {
     n <- dim(SigmaInput)[1]
     SigmaInput <- cov(x) * (1 - 1 / n)
     cov.input <- 0
