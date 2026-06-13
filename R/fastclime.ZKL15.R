@@ -32,7 +32,7 @@ fastclime.ZKL15 <- function(
   bigN <- ncol(X)
 
   if (is.null(Sigma)) {
-    Sigma <- (t(X) %*% X) / bigT
+    Sigma <- crossprod(X) / bigT # Bolt: optimize covariance matrix computation using crossprod
   }
 
   diag_N <- diag(bigN)
