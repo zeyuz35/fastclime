@@ -83,7 +83,8 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   SigmaInput <- x
   d <- dim(SigmaInput)[2]
 
-  if (!isSymmetric(x)) {
+  # Curator: Calculate symmetry using localized coercion with attribute ignoring to handle time-series objects like zoo or valid matrices with mismatched dimnames without permanently stripping S3 classes and attributes.
+  if (!isSymmetric(as.matrix(x), check.attributes = FALSE)) {
     n <- dim(SigmaInput)[1]
     SigmaInput <- cov(x) * (1 - 1 / n)
     cov.input <- 0
