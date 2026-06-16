@@ -61,11 +61,11 @@ dantzig <- function(X, y, lambda = 0.01, nlambda = 50) {
 
   validn <- sum(lambdalist > 0)
 
-  BETA0 <- BETA0[, 1:validn]
+  BETA0 <- BETA0[, seq_len(validn), drop = FALSE]
 
   final_lambda <- lambdalist[validn]
 
-  lambdalist <- lambdalist[1:validn]
+  lambdalist <- lambdalist[seq_len(validn)]
   result <- list(
     "X" = X,
     "y" = y,
