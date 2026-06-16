@@ -86,7 +86,7 @@ paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
 
     if (status == 0) {
       message("\roptimal solution found!       \n", appendLF = FALSE)
-      flush.console()
+      utils::flush.console()
       return(opt)
     } else if (status == 1) {
       stop("The problem is infeasible!")
