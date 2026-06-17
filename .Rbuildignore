@@ -7,3 +7,5 @@
 ^.*\.tar\.gz$
 ^.*\.zip$
 ^\.jules$
+^.*AGENTS\.md$
+^.*\.AI.*$
