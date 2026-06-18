@@ -1,0 +1,3 @@
+## 2026-06-18 - Localized matrix coercion for valid attribute-preserving symmetry checks
+**Learning:** In R, base functions like `isSymmetric()` lack applicable methods for time-series objects like `zoo` or `xts` and will return FALSE for valid matrices if they possess mismatched `dimnames`.
+**Action:** When checking matrix symmetry for logic control (e.g., identifying covariance matrices), calculate it using localized coercion with attribute ignoring (e.g., `isSymmetric(as.matrix(x), check.attributes = FALSE)`) rather than globally reassigning the variable (`x <- as.matrix(x)`), which permanently strips S3 classes and time-series attributes causing silent metadata loss.
