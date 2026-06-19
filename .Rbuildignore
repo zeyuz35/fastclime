@@ -7,3 +7,8 @@
 ^.*\.tar\.gz$
 ^.*\.zip$
 ^\.jules$
+^.*\.AI$
+^.*\.jules$
+^\.gitignore$
+^.*\.Rcheck$
+^\.Rcheck$
