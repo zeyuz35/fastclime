@@ -22,9 +22,9 @@ test_that("dantzig.selector edge cases and errors", {
 })
 
 test_that("paralp/fastlp validate NA/Inf inputs", {
-  A = matrix(c(-1, -1, 0, 1, -2, 1), nrow = 3)
-  b_lp = c(-1, -2, 1)
-  c_lp = c(-2, 3)
+  A <- matrix(c(-1, -1, 0, 1, -2, 1), nrow = 3)
+  b_lp <- c(-1, -2, 1)
+  c_lp <- c(-2, 3)
 
   # NA in obj
   c_na <- c_lp

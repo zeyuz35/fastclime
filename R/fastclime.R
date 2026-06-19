@@ -43,17 +43,17 @@
 #' @seealso \code{\link{fastclime.generator}}, \code{\link{fastclime.plot}}, \code{\link{fastclime.selector}} and \code{\link{fastclime-package}}.
 #' @examples
 #' \dontrun{
-#' #generate data
-#' L = fastclime.generator(n = 100, d = 20)
+#' # generate data
+#' L <- fastclime.generator(n = 100, d = 20)
 #'
-#' #graph path estimation
-#' out1 = fastclime(L$data,0.1)
-#' out2 = fastclime.selector(out1$lambdamtx, out1$icovlist,0.2)
+#' # graph path estimation
+#' out1 <- fastclime(L$data, 0.1)
+#' out2 <- fastclime.selector(out1$lambdamtx, out1$icovlist, 0.2)
 #' fastclime.plot(out2$adaj)
 #'
-#' #graph path estimation using the sample covariance matrix as the input.
-#' out1 = fastclime(cor(L$data),0.1)
-#' out2 = fastclime.selector(out1$lambdamtx, out1$icovlist,0.2)
+#' # graph path estimation using the sample covariance matrix as the input.
+#' out1 <- fastclime(cor(L$data), 0.1)
+#' out2 <- fastclime.selector(out1$lambdamtx, out1$icovlist, 0.2)
 #' fastclime.plot(out2$adaj)
 #' }
 #' @export
@@ -89,12 +89,12 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     cov.input <- 0
   }
 
-  maxnlambda = 0
+  maxnlambda <- 0
   mu_input <- matrix(0, nlambda, d)
   iicov <- matrix(0, nlambda, d * d)
   lambdamin <- lambda.min
 
-  str = .C(
+  str <- .C(
     "parametric",
     as.double(SigmaInput),
     as.integer(d),
@@ -118,7 +118,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   for (i in seq_len(maxnlambda)) {
     icov[[i]] <- matrix(iicov[i, ], d, d)
   }
-  #icov[maxnlambda+1]=list(icov[[maxnlambda]])
+  # icov[maxnlambda+1]=list(icov[[maxnlambda]])
 
   # Calculate sparsity for each matrix in the path
   sparsity <- numeric(maxnlambda)
@@ -138,14 +138,14 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
     "sparsity" = sparsity
   )
 
-  class(result) = "fastclime"
-  message("Done!                     \n", appendLF = FALSE)
+  class(result) <- "fastclime"
+  message("Done!\n", appendLF = FALSE)
   flush.console()
   return(result)
 }
 
 #' @export
-print.fastclime = function(x, ...) {
+print.fastclime <- function(x, ...) {
   if (x$cov.input) {
     cat("Input: The Covariance Matrix\n")
   }
@@ -166,7 +166,7 @@ print.fastclime = function(x, ...) {
 
 
 #' @export
-plot.fastclime = function(x, ...) {
+plot.fastclime <- function(x, ...) {
   # Use the first column of lambdamtx for the x-axis, as lambdas are
   # mostly synchronized in the parametric path.
   s <- x$lambdamtx[, 1]
