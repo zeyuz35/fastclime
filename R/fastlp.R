@@ -45,7 +45,7 @@ fastlp <- function(obj, mat, rhs, lambda = 0) {
   }
 
   if (error == 0) {
-    str = .C(
+    str <- .C(
       "fastlp",
       as.double(obj),
       as.double(t(mat)),
@@ -62,7 +62,7 @@ fastlp <- function(obj, mat, rhs, lambda = 0) {
     status <- unlist(str[7])
 
     if (status == 0) {
-      message("\roptimal solution found!       \n", appendLF = FALSE)
+      message("\roptimal solution found!\n", appendLF = FALSE)
       flush.console()
       return(opt)
     } else if (status == 1) {

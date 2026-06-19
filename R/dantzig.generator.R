@@ -25,8 +25,8 @@ dantzig.generator <- function(n = 50, d = 100, sparsity = 0.1, sigma0 = 1) {
     a <- rnorm(1, mean = 0, sd = 1)
     si <- 2 * (rbinom(1, 1, 0.5) - 0.5)
     n1 <- floor(runif(1, min = 1, max = d + 1))
-    BETA[n1] = si * (1 + a)
-    pos[i] = n1
+    BETA[n1] <- si * (1 + a)
+    pos[i] <- n1
   }
 
   sigma <- rnorm(n, mean = 0, sd = sigma0)
@@ -34,7 +34,7 @@ dantzig.generator <- function(n = 50, d = 100, sparsity = 0.1, sigma0 = 1) {
   X0 <- matrix(rnorm(n * d, mean = 0, sd = 1), n, d)
   y <- X0 %*% BETA + sigma
 
-  sim = list(X0 = X0, y = y, BETA0 = BETA, s = s, pos = pos)
-  class(sim) = "sim"
+  sim <- list(X0 = X0, y = y, BETA0 = BETA, s = s, pos = pos)
+  class(sim) <- "sim"
   return(sim)
 }

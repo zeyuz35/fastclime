@@ -66,7 +66,7 @@ paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
   }
 
   if (error == 0) {
-    str = .C(
+    str <- .C(
       "paralp",
       as.double(obj),
       as.double(t(mat)),
@@ -85,7 +85,7 @@ paralp <- function(obj, mat, rhs, obj_bar, rhs_bar, lambda = 0) {
     status <- unlist(str[7])
 
     if (status == 0) {
-      message("\roptimal solution found!       \n", appendLF = FALSE)
+      message("\roptimal solution found!\n", appendLF = FALSE)
       flush.console()
       return(opt)
     } else if (status == 1) {

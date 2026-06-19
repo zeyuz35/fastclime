@@ -28,8 +28,7 @@ CLIME_CVXR <- function(
     method,
     choices = c("index-wise", "direct")
   )
-  ret_list <- switch(
-    method,
+  ret_list <- switch(method,
     "index-wise" = CLIME_CVXR.index_wise(
       X = X,
       Sigma = Sigma,
@@ -68,25 +67,24 @@ CLIME_CVXR.index_wise <- function(
 ) {
   bigN <- ncol(Sigma)
   diag_N <- diag(bigN)
-  CVXR_results <- foreach(ii = 1:bigN, .packages = "CVXR") %do%
-    {
-      beta_i <- Variable(bigN)
-      clime_obj_i <- Minimize(norm1(beta_i))
-      clime_constraints_i <- list(
-        norm_inf(Sigma %*% beta_i - diag_N[ii, ]) <= lambda
-      )
-      clime_problem_i <- Problem(clime_obj_i, clime_constraints_i)
-      ret_list_i <- solve(
-        clime_problem_i,
-        solver = solver,
-        ignore_dcp = ignore_dcp,
-        warm_start = warm_start,
-        parallel = parallel,
-        verbose = FALSE
-      )
-      ret_list_i$beta_i <- value(beta_i)
-      return(ret_list_i)
-    }
+  CVXR_results <- foreach(ii = 1:bigN, .packages = "CVXR") %do% {
+    beta_i <- Variable(bigN)
+    clime_obj_i <- Minimize(norm1(beta_i))
+    clime_constraints_i <- list(
+      norm_inf(Sigma %*% beta_i - diag_N[ii, ]) <= lambda
+    )
+    clime_problem_i <- Problem(clime_obj_i, clime_constraints_i)
+    ret_list_i <- solve(
+      clime_problem_i,
+      solver = solver,
+      ignore_dcp = ignore_dcp,
+      warm_start = warm_start,
+      parallel = parallel,
+      verbose = FALSE
+    )
+    ret_list_i$beta_i <- value(beta_i)
+    return(ret_list_i)
+  }
   Omega <- do.call(
     cbind,
     CVXR_results |> lapply(function(x) x$beta_i)

@@ -11,7 +11,7 @@
 #' @description Plots the estimated precision matrix as a graph
 #' @export
 
-fastclime.plot = function(
+fastclime.plot <- function(
   G,
   epsflag = FALSE,
   graph.name = "default",
@@ -20,15 +20,15 @@ fastclime.plot = function(
 ) {
   gcinfo(FALSE)
   if (missing(location)) {
-    location = getwd()
+    location <- getwd()
   }
-  diag(G) = 0
-  g = graph_from_adjacency_matrix(
+  diag(G) <- 0
+  g <- graph_from_adjacency_matrix(
     as.matrix(G != 0),
     mode = "undirected",
     diag = FALSE
   )
-  layout.grid = layout_with_fr(g)
+  layout.grid <- layout_with_fr(g)
 
   if (epsflag == TRUE) {
     postscript(
@@ -44,7 +44,7 @@ fastclime.plot = function(
   plot(
     g,
     layout = layout.grid,
-    edge.color = 'gray50',
+    edge.color = "gray50",
     vertex.color = "red",
     vertex.size = 2,
     vertex.label = NA
