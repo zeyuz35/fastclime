@@ -112,7 +112,7 @@ fastclime <- function(x, lambda.min = 0.1, nlambda = 50) {
   iicov <- matrix(unlist(str[7]), nlambda, d * d)
   # keep matrix structure even when maxnlambda == 1; drop=FALSE prevents
   # back-conversion to a vector which later breaks selector() calls.
-  mu <- mu[1:maxnlambda, , drop = FALSE]
+  mu <- mu[seq_len(maxnlambda), , drop = FALSE]
   icov <- list()
 
   for (i in seq_len(maxnlambda)) {
