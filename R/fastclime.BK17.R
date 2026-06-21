@@ -77,7 +77,7 @@ fastclime.BK17 <- function(
 
   # Solve for each column
   if (parallel && requireNamespace("parallel", quietly = TRUE)) {
-    results <- parallel::mclapply(1:bigN, function(ii) {
+    results <- parallel::mclapply(seq_len(bigN), function(ii) {
       rhs <- c(
         diag_N[ii, ] + lambda_1[ii],
         -diag_N[ii, ] + lambda_1[ii],
@@ -87,7 +87,7 @@ fastclime.BK17 <- function(
       tryCatch(
         {
           opt <- fastlp(obj, A, rhs)
-          beta_i <- opt[1:bigN] - opt[(bigN + 1):(2 * bigN)]
+          beta_i <- opt[seq_len(bigN)] - opt[(bigN + 1):(2 * bigN)]
           return(list(beta_i = beta_i, status = "success"))
         },
         error = function(e) {
@@ -100,7 +100,7 @@ fastclime.BK17 <- function(
       )
     })
   } else {
-    results <- lapply(1:bigN, function(ii) {
+    results <- lapply(seq_len(bigN), function(ii) {
       rhs <- c(
         diag_N[ii, ] + lambda_1[ii],
         -diag_N[ii, ] + lambda_1[ii],
@@ -110,7 +110,7 @@ fastclime.BK17 <- function(
       tryCatch(
         {
           opt <- fastlp(obj, A, rhs)
-          beta_i <- opt[1:bigN] - opt[(bigN + 1):(2 * bigN)]
+          beta_i <- opt[seq_len(bigN)] - opt[(bigN + 1):(2 * bigN)]
           return(list(beta_i = beta_i, status = "success"))
         },
         error = function(e) {
